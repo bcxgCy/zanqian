@@ -1,0 +1,9 @@
+<view class="page">
+  <view class="card">
+    <view class="title">用户协议 & 隐私政策</view>
+    <view class="content">
+      <text>本小程序仅在本地存储您的存钱计划数据，不会上传至第三方服务器。您可随时在设置中清除所有数据。</text>
+      <text>使用本小程序即表示您同意仅将数据用于个人存钱记录管理。如有疑问，请联系开发者。</text>
+    </view>
+  </view>
+</view>

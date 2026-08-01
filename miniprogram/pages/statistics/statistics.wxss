@@ -1,0 +1,86 @@
+.page {
+  padding: 24rpx;
+  min-height: 100vh;
+}
+
+.tabs {
+  display: flex;
+  background: var(--color-input-bg);
+  border-radius: 16rpx;
+  padding: 8rpx;
+  margin-bottom: 20rpx;
+  border: 1rpx solid var(--color-border);
+}
+
+.tab {
+  flex: 1;
+  text-align: center;
+  padding: 16rpx 0;
+  font-size: 28rpx;
+  color: var(--color-text-secondary);
+  border-radius: 12rpx;
+}
+
+.tab.active {
+  background: linear-gradient(135deg, #95d9b3, var(--color-primary));
+  color: #fff;
+  box-shadow: 0 4rpx 12rpx rgba(126, 205, 163, 0.2);
+}
+
+.picker-bar {
+  background: var(--color-card);
+  border-radius: 16rpx;
+  padding: 20rpx 24rpx;
+  margin-bottom: 20rpx;
+  font-size: 28rpx;
+  color: var(--color-text);
+  box-shadow: var(--shadow-card);
+  border: 1rpx solid var(--color-border);
+}
+
+.card {
+  background: var(--color-card);
+  border-radius: var(--radius-card);
+  padding: 24rpx;
+  margin-bottom: 20rpx;
+  box-shadow: var(--shadow-card);
+  border: 1rpx solid var(--color-border);
+}
+
+.summary {
+  display: flex;
+  justify-content: space-around;
+  text-align: center;
+}
+
+.summary-item .num {
+  display: block;
+  font-size: 34rpx;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.summary-item .num.green {
+  color: var(--color-primary-dark);
+}
+
+.summary-item .txt {
+  display: block;
+  font-size: 24rpx;
+  color: var(--color-text-muted);
+  margin-top: 8rpx;
+}
+
+.chart-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 16rpx;
+}
+
+.empty-chart {
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: 26rpx;
+  padding: 40rpx 0;
+}

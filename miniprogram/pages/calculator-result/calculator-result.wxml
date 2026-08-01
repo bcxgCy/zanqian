@@ -1,0 +1,35 @@
+<view class="page" wx:if="{{result}}">
+  <view class="card summary-card">
+    <text class="title">预计达成时间</text>
+    <text class="date">{{result.endDate}}</text>
+    <view class="info-row">
+      <view class="info-item">
+        <text class="num">{{result.periodCount}}</text>
+        <text class="txt">总期数</text>
+      </view>
+      <view class="info-item">
+        <text class="num">¥{{result.targetAmount}}</text>
+        <text class="txt">目标金额</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="card table-card">
+    <view class="table-head">
+      <text class="col">期数</text>
+      <text class="col">当期存入</text>
+      <text class="col">累计存入</text>
+      <text class="col">剩余</text>
+    </view>
+    <scroll-view scroll-y class="table-body">
+      <view class="table-row" wx:for="{{table}}" wx:key="index">
+        <text class="col">第{{item.index}}期</text>
+        <text class="col">¥{{item.expectedAmount}}</text>
+        <text class="col">¥{{item.cumulative}}</text>
+        <text class="col">¥{{item.remaining}}</text>
+      </view>
+    </scroll-view>
+  </view>
+
+  <button class="apply-btn" bindtap="applyPlan">去设置</button>
+</view>

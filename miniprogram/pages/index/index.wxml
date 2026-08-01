@@ -1,0 +1,60 @@
+<view class="page">
+  <view class="overview card">
+    <view class="overview-main">
+      <text class="label">剩余金额</text>
+      <text class="amount">¥{{overview.remaining}}</text>
+    </view>
+    <view class="overview-sub">
+      <view class="sub-item">
+        <text class="sub-label">目标</text>
+        <text class="sub-value">¥{{overview.targetTotal}}</text>
+      </view>
+      <view class="sub-item">
+        <text class="sub-label">已存</text>
+        <text class="sub-value green">¥{{overview.savedTotal}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="section-header">
+    <view class="section-title" bindtap="goStatistics">
+      <text>存钱计划</text>
+      <text class="arrow">></text>
+    </view>
+    <view class="add-btn" bindtap="goAddPlan">+ 添加</view>
+  </view>
+
+  <view class="plan-list">
+    <view
+      class="plan-card card"
+      wx:for="{{plans}}"
+      wx:key="id"
+      data-id="{{item.id}}"
+      bindtap="goPlanDetail"
+    >
+      <view class="plan-top">
+        <text class="plan-icon">{{item.icon}}</text>
+        <view class="plan-info">
+          <text class="plan-name">{{item.name}}</text>
+          <text class="plan-type">{{item.planTypeName}}</text>
+        </view>
+        <view class="plan-amounts">
+          <text class="saved">¥{{item.savedAmount}}</text>
+          <text class="target">/ ¥{{item.targetAmount}}</text>
+        </view>
+      </view>
+      <view class="progress-wrap">
+        <view class="progress-bar">
+          <view class="progress-fill" style="width: {{item.progress}}%"></view>
+        </view>
+        <text class="progress-text">{{item.progress}}%</text>
+      </view>
+    </view>
+
+    <view class="empty" wx:if="{{!plans.length}}">
+      <text class="empty-icon">💰</text>
+      <text class="empty-text">还没有存钱计划，点击添加开始吧</text>
+      <button class="empty-btn" bindtap="goAddPlan">添加存钱计划</button>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,24 @@
+<view class="mask" wx:if="{{show}}" bindtap="onClose"></view>
+<view class="sheet {{show ? 'show' : ''}}" catchtap="noop">
+  <view class="sheet-header">
+    <text class="sheet-title">存入记录</text>
+    <text class="close" bindtap="onClose">×</text>
+  </view>
+  <view class="sheet-body">
+    <view class="field">
+      <text class="label">存入金额</text>
+      <input class="input" type="digit" value="{{amount}}" data-field="amount" bindinput="onInput" placeholder="请输入金额" />
+    </view>
+    <view class="field">
+      <text class="label">存钱日期</text>
+      <picker mode="date" value="{{date}}" bindchange="onDateChange">
+        <view class="picker">{{date || '选择日期'}}</view>
+      </picker>
+    </view>
+    <view class="field">
+      <text class="label">备注说明</text>
+      <input class="input" value="{{note}}" data-field="note" bindinput="onInput" placeholder="可选" />
+    </view>
+  </view>
+  <button class="confirm-btn" bindtap="onConfirm">确认存入</button>
+</view>

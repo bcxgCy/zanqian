@@ -1,0 +1,1 @@
+<canvas type="2d" id="lineCanvas" class="chart-canvas" style="height: {{height}}px"></canvas>

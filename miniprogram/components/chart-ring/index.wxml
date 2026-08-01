@@ -1,0 +1,7 @@
+<canvas type="2d" id="ringCanvas" class="chart-canvas" style="height: {{height}}px"></canvas>
+<view class="legend" wx:if="{{data.length}}">
+  <view class="legend-item" wx:for="{{data}}" wx:key="name">
+    <view class="dot" style="background: {{item.color}}"></view>
+    <text>{{item.name}} ¥{{item.value}}</text>
+  </view>
+</view>

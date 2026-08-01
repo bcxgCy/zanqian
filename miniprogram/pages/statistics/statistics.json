@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "存钱统计",
+  "usingComponents": {
+    "chart-bar": "/components/chart-bar/index",
+    "chart-line": "/components/chart-line/index",
+    "chart-ring": "/components/chart-ring/index"
+  }
+}

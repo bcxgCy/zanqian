@@ -1,0 +1,10 @@
+<view class="page">
+  <view class="card">
+    <view class="title">如何使用</view>
+    <view class="item">1. 在首页点击「添加」创建存钱计划</view>
+    <view class="item">2. 选择预设方案或自定义存入频次</view>
+    <view class="item">3. 在计划详情中点击每期记录存入金额</view>
+    <view class="item">4. 使用计算器预估达成时间和每期金额</view>
+    <view class="item">5. 在「我的」页面查看统计数据和徽章</view>
+  </view>
+</view>

@@ -1,0 +1,9 @@
+<view class="page">
+  <view class="card">
+    <view class="menu-item danger" bindtap="clearData">
+      <text>清除所有存钱数据</text>
+      <text class="arrow">></text>
+    </view>
+  </view>
+  <view class="tip">更多设置功能开发中</view>
+</view>

@@ -1,0 +1,50 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/calculator/calculator",
+    "pages/me/me",
+    "pages/statistics/statistics",
+    "pages/plan-add/plan-add",
+    "pages/plan-detail/plan-detail",
+    "pages/calculator-result/calculator-result",
+    "pages/settings/settings",
+    "pages/help/help",
+    "pages/privacy/privacy"
+  ],
+  "window": {
+    "backgroundColor": "#F5FAF7",
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#F5FAF7",
+    "navigationBarTitleText": "存钱计划",
+    "navigationBarTextStyle": "black"
+  },
+  "tabBar": {
+    "color": "#A8BDB2",
+    "selectedColor": "#7ECDA3",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页",
+        "iconPath": "images/tab/home.png",
+        "selectedIconPath": "images/tab/home-active.png"
+      },
+      {
+        "pagePath": "pages/calculator/calculator",
+        "text": "计算器",
+        "iconPath": "images/tab/calc.png",
+        "selectedIconPath": "images/tab/calc-active.png"
+      },
+      {
+        "pagePath": "pages/me/me",
+        "text": "我的",
+        "iconPath": "images/tab/me.png",
+        "selectedIconPath": "images/tab/me-active.png"
+      }
+    ]
+  },
+  "sitemapLocation": "sitemap.json",
+  "style": "v2",
+  "lazyCodeLoading": "requiredComponents"
+}

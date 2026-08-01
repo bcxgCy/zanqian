@@ -1,0 +1,80 @@
+<view class="page">
+  <view class="card">
+    <view class="field">
+      <text class="label">存钱目的</text>
+      <input class="input" placeholder="如：旅行基金" value="{{name}}" data-field="name" bindinput="onInput" />
+    </view>
+    <view class="field">
+      <text class="label">选择图标</text>
+      <view class="icon-list">
+        <text
+          class="icon-item {{icon === item ? 'active' : ''}}"
+          wx:for="{{icons}}"
+          wx:key="*this"
+          data-icon="{{item}}"
+          bindtap="selectIcon"
+        >{{item}}</text>
+      </view>
+    </view>
+    <view class="field">
+      <text class="label">目标金额（元）</text>
+      <input class="input" type="digit" placeholder="请输入目标金额" value="{{targetAmount}}" data-field="targetAmount" bindinput="onInput" />
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="mode-tabs">
+      <view class="mode-tab {{planMode === 'preset' ? 'active' : ''}}" data-mode="preset" bindtap="switchPlanMode">预设方案</view>
+      <view class="mode-tab {{planMode === 'custom' ? 'active' : ''}}" data-mode="custom" bindtap="switchPlanMode">自定义</view>
+    </view>
+
+    <block wx:if="{{planMode === 'preset'}}">
+      <view class="preset-item" wx:for="{{presets}}" wx:key="id">
+        <view class="preset-head {{selectedPreset === item.id ? 'selected' : ''}}" data-id="{{item.id}}" bindtap="togglePreset">
+          <text class="preset-icon">{{item.icon}}</text>
+          <text class="preset-name">{{item.name}}</text>
+          <text class="preset-check">{{selectedPreset === item.id ? '✓' : ''}}</text>
+          <text class="preset-arrow">{{expandedPreset === item.id ? '▲' : '▼'}}</text>
+        </view>
+        <view class="preset-desc" wx:if="{{expandedPreset === item.id}}">
+          <text>{{item.description}}</text>
+          <text class="preset-tip" data-id="{{item.id}}" bindtap="showPresetSheet">查看详情</text>
+        </view>
+      </view>
+    </block>
+
+    <block wx:else>
+      <view class="field">
+        <text class="label">每期金额（元）</text>
+        <input class="input" type="digit" value="{{customAmount}}" data-field="customAmount" bindinput="onInput" placeholder="N元" />
+      </view>
+      <view class="field">
+        <text class="label">存入频次</text>
+        <picker range="{{frequencyOptions}}" value="{{frequencyIndex}}" bindchange="onFrequencyChange">
+          <view class="input picker">{{frequencyOptions[frequencyIndex]}}</view>
+        </picker>
+      </view>
+      <view class="field">
+        <text class="label">开始时间</text>
+        <picker mode="date" value="{{startDate}}" bindchange="onStartChange">
+          <view class="input picker">{{startDate}}</view>
+        </picker>
+      </view>
+      <view class="field">
+        <text class="label">结束时间（可选）</text>
+        <picker mode="date" value="{{endDate}}" bindchange="onEndChange">
+          <view class="input picker">{{endDate || '不设置则按每期金额计算'}}</view>
+        </picker>
+      </view>
+    </block>
+  </view>
+
+  <button class="submit-btn" bindtap="submit">去设置</button>
+
+  <view class="sheet-mask" wx:if="{{presetSheetShow}}" bindtap="closePresetSheet"></view>
+  <view class="sheet {{presetSheetShow ? 'show' : ''}}" catchtap="">
+    <view class="sheet-title">{{presetSheetContent.name}}</view>
+    <text class="sheet-desc">{{presetSheetContent.description}}</text>
+    <button class="sheet-close" bindtap="closePresetSheet">知道了</button>
+  </view>
+</view>

@@ -1,0 +1,23 @@
+.chart-canvas {
+  width: 100%;
+  display: block;
+}
+
+.legend {
+  padding: 0 24rpx 16rpx;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  font-size: 24rpx;
+  color: var(--color-text-secondary);
+  margin-bottom: 8rpx;
+}
+
+.dot {
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: 50%;
+  margin-right: 12rpx;
+}

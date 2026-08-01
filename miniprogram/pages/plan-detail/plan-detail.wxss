@@ -1,0 +1,151 @@
+.page {
+  padding: 24rpx;
+  padding-bottom: 120rpx;
+}
+
+.card {
+  background: var(--color-card);
+  border-radius: var(--radius-card);
+  padding: 28rpx;
+  margin-bottom: 20rpx;
+  box-shadow: var(--shadow-card);
+  border: 1rpx solid var(--color-border);
+}
+
+.header-card {
+  display: flex;
+  align-items: center;
+  background: linear-gradient(160deg, #ffffff 0%, #eef8f3 100%);
+}
+
+.icon {
+  font-size: 64rpx;
+  margin-right: 24rpx;
+}
+
+.name {
+  display: block;
+  font-size: 34rpx;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.target, .scheme {
+  display: block;
+  font-size: 24rpx;
+  color: var(--color-text-muted);
+  margin-top: 8rpx;
+}
+
+.progress-row {
+  display: flex;
+  justify-content: space-around;
+  text-align: center;
+  margin-bottom: 24rpx;
+}
+
+.progress-item .num {
+  display: block;
+  font-size: 32rpx;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.progress-item .num.green {
+  color: var(--color-primary-dark);
+}
+
+.progress-item .txt {
+  display: block;
+  font-size: 22rpx;
+  color: var(--color-text-muted);
+  margin-top: 6rpx;
+}
+
+.progress-bar {
+  height: 12rpx;
+  background: var(--color-primary-light);
+  border-radius: 6rpx;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #a8e0c4, var(--color-primary));
+}
+
+.meta {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 16rpx;
+  font-size: 24rpx;
+  color: var(--color-text-muted);
+}
+
+.section-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 8rpx 0 16rpx;
+}
+
+.period-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24rpx;
+  border-radius: 16rpx;
+  margin-bottom: 12rpx;
+}
+
+.period-item.done {
+  background: linear-gradient(135deg, #95d9b3, var(--color-primary));
+  color: #fff;
+  box-shadow: 0 4rpx 16rpx rgba(126, 205, 163, 0.2);
+}
+
+.period-item.todo {
+  background: var(--color-primary-light);
+  color: var(--color-text);
+  border: 1rpx solid var(--color-border);
+}
+
+.period-index {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
+.period-date {
+  display: block;
+  font-size: 22rpx;
+  opacity: 0.8;
+  margin-top: 4rpx;
+}
+
+.period-amount {
+  display: block;
+  font-size: 30rpx;
+  font-weight: 600;
+  text-align: right;
+}
+
+.period-status {
+  display: block;
+  font-size: 22rpx;
+  text-align: right;
+  margin-top: 4rpx;
+  opacity: 0.8;
+}
+
+.delete-wrap {
+  margin-top: 32rpx;
+}
+
+.delete-btn {
+  color: var(--color-danger) !important;
+  background: var(--color-card) !important;
+  border: 1rpx solid var(--color-danger);
+  border-radius: var(--radius-btn);
+  font-size: 28rpx;
+}

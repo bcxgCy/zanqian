@@ -1,0 +1,59 @@
+/**app.wxss - 小清新主题**/
+page {
+  --color-primary: #7ecda3;
+  --color-primary-dark: #6bb892;
+  --color-primary-light: #e8f6ef;
+  --color-primary-soft: #f0faf5;
+  --color-page-bg: #f5faf7;
+  --color-card: #ffffff;
+  --color-text: #4a5d52;
+  --color-text-secondary: #7a9186;
+  --color-text-muted: #a8bdb2;
+  --color-border: #e5f0ea;
+  --color-input-bg: #f3f8f5;
+  --color-danger: #e8a598;
+  --color-accent-blue: #8ecae6;
+  --color-accent-yellow: #f9dda4;
+  --color-accent-purple: #c4b5e8;
+  --color-accent-peach: #f5c4b8;
+  --shadow-card: 0 4rpx 24rpx rgba(126, 205, 163, 0.1);
+  --radius-card: 24rpx;
+  --radius-btn: 48rpx;
+
+  background: var(--color-page-bg);
+  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, sans-serif;
+  color: var(--color-text);
+}
+
+button {
+  background: initial;
+}
+
+button:focus {
+  outline: 0;
+}
+
+button::after {
+  border: none;
+}
+
+.card {
+  background: var(--color-card);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+}
+
+.green {
+  color: var(--color-primary-dark);
+}
+
+.arrow {
+  color: var(--color-text-muted);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #95d9b3, var(--color-primary)) !important;
+  color: #fff !important;
+  border-radius: var(--radius-btn);
+  box-shadow: 0 8rpx 20rpx rgba(126, 205, 163, 0.25);
+}
