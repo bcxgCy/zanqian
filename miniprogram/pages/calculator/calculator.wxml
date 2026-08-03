@@ -1,6 +1,4 @@
 <view class="page calc-page">
-  <view class="page-deco">🏦</view>
-
   <view class="card">
     <view class="field">
       <text class="label helper-text">选择分类图标</text>
@@ -84,16 +82,18 @@
     </block>
   </view>
 
-  <button class="calc-btn btn-peach" bindtap="calculate">开始计算</button>
-
-  <view class="fab fab-peach gallery-fab" bindtap="openGallery">
-    <text class="fab-icon">📋</text>
+  <view class="action-group">
+    <button class="action-btn calc-btn btn-peach" bindtap="calculate">开始计算</button>
+    <view class="action-btn gallery-btn btn-peach" bindtap="openGallery">
+      <text class="action-btn-icon">📋</text>
+      <text>预设方案</text>
+    </view>
   </view>
 
   <view class="sheet-mask" wx:if="{{presetSheetShow || galleryShow}}" bindtap="closeSheets"></view>
 
   <view class="sheet {{galleryShow ? 'show' : ''}}" catchtap="">
-    <view class="sheet-title section-title-text">预设存钱方案一览</view>
+    <view class="sheet-title section-title-text">预设存钱方案</view>
     <scroll-view scroll-x class="gallery-scroll" enable-flex>
       <view class="gallery-list">
         <view class="gallery-item" wx:for="{{presets}}" wx:key="id" data-id="{{item.id}}" bindtap="showPresetSheet">

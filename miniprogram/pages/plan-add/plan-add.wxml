@@ -33,7 +33,7 @@
   <!-- 区域 B：预设方案面板 -->
   <view class="panel card">
     <view class="panel-header mint-header {{planMode === 'preset' ? 'active' : ''}}" data-mode="preset" bindtap="switchPlanMode">
-      <text>预设存钱方案</text>
+      <text class="panel-title">预设存钱方案</text>
       <text class="panel-arrow">{{planMode === 'preset' ? '▲' : '▼'}}</text>
     </view>
     <block wx:if="{{planMode === 'preset'}}">
@@ -54,33 +54,56 @@
   <!-- 区域 B：自定义面板 -->
   <view class="panel card">
     <view class="panel-header peach-header {{planMode === 'custom' ? 'active' : ''}}" data-mode="custom" bindtap="switchPlanMode">
-      <text>自定义存钱计划</text>
+      <text class="panel-title">自定义存钱计划</text>
       <text class="panel-arrow">{{planMode === 'custom' ? '▲' : '▼'}}</text>
     </view>
     <block wx:if="{{planMode === 'custom'}}">
-      <view class="sub-panel-title helper-text">固定存入设置</view>
-      <view class="field">
-        <text class="label helper-text">每期金额（元）</text>
-        <input class="input" type="digit" value="{{customAmount}}" data-field="customAmount" bindinput="onInput" placeholder="N元" />
+      <view class="sub-panel">
+        <view class="sub-panel-head">
+          <text class="sub-panel-title">固定存入设置</text>
+          <text class="sub-panel-desc">设置每期存入金额与频次</text>
+        </view>
+        <view class="field">
+          <view class="label-row">
+            <text class="label">每期金额</text>
+            <text class="label-hint">单位：元</text>
+          </view>
+          <input class="input" type="digit" value="{{customAmount}}" data-field="customAmount" bindinput="onInput" placeholder="请输入每期存入金额" />
+        </view>
+        <view class="field">
+          <view class="label-row">
+            <text class="label">存入频次</text>
+            <text class="label-hint">每天 / 每周 / 每月</text>
+          </view>
+          <picker range="{{frequencyOptions}}" value="{{frequencyIndex}}" bindchange="onFrequencyChange">
+            <view class="input picker">{{frequencyOptions[frequencyIndex]}}</view>
+          </picker>
+        </view>
       </view>
-      <view class="field">
-        <text class="label helper-text">存入频次</text>
-        <picker range="{{frequencyOptions}}" value="{{frequencyIndex}}" bindchange="onFrequencyChange">
-          <view class="input picker">{{frequencyOptions[frequencyIndex]}}</view>
-        </picker>
-      </view>
-      <view class="sub-panel-title helper-text">时间区间设置</view>
-      <view class="field">
-        <text class="label helper-text">开始时间 📅</text>
-        <picker mode="date" value="{{startDate}}" bindchange="onStartChange">
-          <view class="input picker">{{startDate}}</view>
-        </picker>
-      </view>
-      <view class="field">
-        <text class="label helper-text">结束时间（可选）📅</text>
-        <picker mode="date" value="{{endDate}}" bindchange="onEndChange">
-          <view class="input picker">{{endDate || '不设置则按每期金额计算'}}</view>
-        </picker>
+
+      <view class="sub-panel sub-panel-split">
+        <view class="sub-panel-head">
+          <text class="sub-panel-title">时间区间设置</text>
+          <text class="sub-panel-desc">结束时间可不填，将按金额自动推算</text>
+        </view>
+        <view class="field">
+          <view class="label-row">
+            <text class="label">开始时间</text>
+            <text class="label-hint">📅 必填</text>
+          </view>
+          <picker mode="date" value="{{startDate}}" bindchange="onStartChange">
+            <view class="input picker">{{startDate}}</view>
+          </picker>
+        </view>
+        <view class="field">
+          <view class="label-row">
+            <text class="label">结束时间</text>
+            <text class="label-hint">📅 可选</text>
+          </view>
+          <picker mode="date" value="{{endDate}}" bindchange="onEndChange">
+            <view class="input picker">{{endDate || '不设置则按每期金额计算'}}</view>
+          </picker>
+        </view>
       </view>
     </block>
   </view>

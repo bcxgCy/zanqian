@@ -91,6 +91,7 @@ function getStatsSummary(plans, mode, key) {
     saved,
     remaining: money.max(0, money.sub(targetTotal, savedAll)),
     dailyAvg: getDailyAverage(records, days),
+    recordCount: records.length,
     barData: groupByDay(records),
     lineData: groupByDay(records),
     ringData: getRingData(assignRingColors(plans)),

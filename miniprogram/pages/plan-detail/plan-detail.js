@@ -14,6 +14,8 @@ Page({
 
   onLoad(options) {
     this.planId = options.id;
+    this.autoCheckin = options.checkin === '1';
+    this.autoPeriodIndex = Number(options.periodIndex || 0);
   },
 
   onShow() {
@@ -34,6 +36,11 @@ Page({
       summary,
       planTypeName: planUtil.getPlanTypeName(plan),
       persistDays,
+    }, () => {
+      if (this.autoCheckin) {
+        this.openCheckinSheet();
+        this.autoCheckin = false;
+      }
     });
   },
 
@@ -41,6 +48,19 @@ Page({
     const index = Number(e.currentTarget.dataset.index);
     const period = this.data.plan.periods.find((p) => p.index === index);
     this.setData({ showSheet: true, selectedPeriod: period });
+  },
+
+  openCheckinSheet() {
+    const periods = this.data.plan.periods || [];
+    const period =
+      periods.find((p) => p.index === this.autoPeriodIndex) ||
+      periods.find((p) => !p.completed) ||
+      periods[0];
+    if (!period) return;
+    this.setData({
+      showSheet: true,
+      selectedPeriod: period,
+    });
   },
 
   closeSheet() {

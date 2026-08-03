@@ -18,8 +18,8 @@
       <text class="summary-num module-amount peach">¥{{summary.remaining}}</text>
     </view>
     <view class="summary-card card">
-      <text class="summary-label helper-text">日均存入</text>
-      <text class="summary-num module-amount blue">¥{{summary.dailyAvg}}</text>
+      <text class="summary-label helper-text">存钱笔数</text>
+      <text class="summary-num module-amount blue">{{summary.recordCount}}</text>
     </view>
   </view>
 

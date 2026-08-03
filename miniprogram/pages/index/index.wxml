@@ -5,8 +5,8 @@
       <text class="overview-title">总储蓄目标</text>
       <text class="star-deco">✦</text>
     </view>
-    <text class="label helper-text">全部计划剩余待存入金额</text>
-    <text class="amount page-amount">¥{{overview.remaining}}</text>
+    <text class="label helper-text">全部计划已存入金额</text>
+    <text class="amount page-amount">¥{{overview.savedTotal}}</text>
     <text class="wish-line">把每个心愿，慢慢存成真的</text>
     <view class="divider"></view>
     <view class="overview-sub">
@@ -15,22 +15,10 @@
         <text class="sub-value">¥{{overview.targetTotal}}</text>
       </view>
       <view class="sub-item">
-        <text class="sub-label helper-text">已存总额</text>
-        <text class="sub-value mint">¥{{overview.savedTotal}}</text>
+        <text class="sub-label helper-text">待存金额</text>
+        <text class="sub-value mint">¥{{overview.remaining}}</text>
       </view>
     </view>
-  </view>
-
-  <!-- 区域 B：今日打卡引导 -->
-  <view class="checkin-card" bindtap="goStatistics">
-    <view class="checkin-left">
-      <view class="checkin-icon">✦</view>
-      <view class="checkin-copy">
-        <text class="checkin-title">今日打卡：{{checkin.todayText}}</text>
-        <text class="checkin-desc helper-text">连续打卡 {{checkin.streakDays}} 天</text>
-      </view>
-    </view>
-    <view class="checkin-action">去打卡</view>
   </view>
 
   <!-- 区域 C：列表头部 -->
@@ -66,6 +54,16 @@
             <view class="progress-fill progress-fill-animated" style="width: {{item.progress}}%"></view>
           </view>
           <text class="plan-meta helper-text">已存 ¥{{item.savedAmount}} / 目标 ¥{{item.targetAmount}} · {{item.progress}}%</text>
+          <view class="plan-action-row">
+            <text class="next-save helper-text">{{item.nextSaveText}}</text>
+            <view
+              class="plan-action {{item.actionType === 'checkin' ? 'plan-action-primary' : 'plan-action-secondary'}}"
+              data-id="{{item.id}}"
+              data-action="{{item.actionType}}"
+              data-period-index="{{item.nextPeriodIndex}}"
+              catchtap="handlePlanAction"
+            >{{item.actionText}}</view>
+          </view>
         </view>
       </view>
       <text class="done-watermark" wx:if="{{item.progress >= 100}}">✓</text>

@@ -38,7 +38,7 @@
       },
       {
         "pagePath": "pages/me/me",
-        "text": "我的徽章",
+        "text": "我的",
         "iconPath": "images/tab/me.png",
         "selectedIconPath": "images/tab/me-active.png"
       }
