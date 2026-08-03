@@ -1,41 +1,39 @@
 <view class="page" wx:if="{{plan}}">
-  <view class="card header-card">
-    <text class="icon">{{plan.icon}}</text>
-    <view class="header-info">
-      <text class="name">{{plan.name}}</text>
-      <text class="target">目标 ¥{{plan.targetAmount}}</text>
-      <text class="scheme">{{planTypeName}}</text>
-    </view>
-  </view>
-
   <view class="card progress-card">
-    <view class="progress-row">
+    <view class="progress-bar-full">
+      <view class="progress-fill progress-fill-animated" style="width: {{summary.progress}}%"></view>
+    </view>
+    <view class="progress-grid">
       <view class="progress-item">
-        <text class="num green">¥{{summary.savedAmount}}</text>
-        <text class="txt">已存入</text>
+        <text class="num module-amount mint">¥{{summary.savedAmount}}</text>
+        <text class="txt helper-text">已存入</text>
       </view>
       <view class="progress-item">
-        <text class="num">{{summary.progress}}%</text>
-        <text class="txt">完成度</text>
+        <text class="num module-amount">{{summary.progress}}%</text>
+        <text class="txt helper-text">完成度</text>
       </view>
       <view class="progress-item">
-        <text class="num">¥{{summary.remaining}}</text>
-        <text class="txt">未存入</text>
+        <text class="num module-amount peach">¥{{summary.remaining}}</text>
+        <text class="txt helper-text">剩余待存</text>
       </view>
     </view>
-    <view class="progress-bar">
-      <view class="progress-fill" style="width: {{summary.progress}}%"></view>
-    </view>
-    <view class="meta">
-      <text>开始：{{plan.startDate}}</text>
+    <view class="meta helper-text">
+      <text>起始日 {{plan.startDate}}</text>
       <text>坚持 {{persistDays}} 天</text>
     </view>
+    <view class="plan-brief">
+      <view class="icon-circle">{{plan.icon}}</view>
+      <view>
+        <text class="name">{{plan.name}}</text>
+        <text class="scheme helper-text">{{planTypeName}} · 目标 ¥{{plan.targetAmount}}</text>
+      </view>
+    </view>
   </view>
 
-  <view class="section-title">存钱详情</view>
+  <view class="section-title section-title-text">存钱明细</view>
   <view class="period-list">
     <view
-      class="period-item {{item.completed ? 'done' : 'todo'}}"
+      class="period-item {{item.completed ? 'done period-done-animate' : 'todo'}}"
       wx:for="{{plan.periods}}"
       wx:key="index"
       data-index="{{item.index}}"
@@ -43,17 +41,18 @@
     >
       <view class="period-left">
         <text class="period-index">第{{item.index}}期</text>
-        <text class="period-date">{{item.date}}</text>
+        <text class="period-date helper-text">{{item.date}}</text>
       </view>
       <view class="period-right">
         <text class="period-amount">¥{{item.expectedAmount}}</text>
-        <text class="period-status">{{item.completed ? '已完成' : '待存入'}}</text>
+        <text class="period-status helper-text">{{item.completed ? '已完成' : '待存入'}}</text>
       </view>
+      <text class="period-check" wx:if="{{item.completed}}">✓</text>
     </view>
   </view>
 
   <view class="delete-wrap">
-    <button class="delete-btn" bindtap="deletePlan">删除计划</button>
+    <button class="delete-btn btn-ghost" bindtap="deletePlan">删除计划</button>
   </view>
 
   <deposit-sheet

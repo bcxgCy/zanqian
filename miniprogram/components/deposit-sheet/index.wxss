@@ -4,7 +4,7 @@
   right: 0;
   top: 0;
   bottom: 0;
-  background: rgba(74, 93, 82, 0.25);
+  background: var(--mask);
   z-index: 1000;
 }
 
@@ -13,11 +13,11 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: var(--color-card);
-  border-radius: 24rpx 24rpx 0 0;
+  background: var(--color-card-white);
+  border-radius: var(--radius-sheet) var(--radius-sheet) 0 0;
   z-index: 1001;
   transform: translateY(100%);
-  transition: transform 0.25s ease;
+  transition: transform 0.3s ease;
   padding-bottom: env(safe-area-inset-bottom);
 }
 
@@ -26,54 +26,46 @@
 }
 
 .sheet-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 28rpx 32rpx;
+  padding: 28rpx var(--spacing);
   border-bottom: 1rpx solid var(--color-border);
 }
 
 .sheet-title {
-  font-size: 32rpx;
-  font-weight: 600;
+  font-size: 28rpx;
+  font-weight: 500;
   color: var(--color-text);
 }
 
-.close {
-  font-size: 44rpx;
-  color: var(--color-text-muted);
-  line-height: 1;
-}
-
 .sheet-body {
-  padding: 24rpx 32rpx;
+  padding: var(--spacing);
 }
 
 .field {
-  margin-bottom: 24rpx;
+  margin-bottom: var(--spacing);
 }
 
 .label {
   display: block;
-  font-size: 26rpx;
-  color: var(--color-text-secondary);
   margin-bottom: 12rpx;
 }
 
 .input, .picker {
-  background: var(--color-input-bg);
-  border-radius: 16rpx;
-  padding: 20rpx 24rpx;
-  font-size: 28rpx;
+  background: var(--color-page-bg);
+  border-radius: var(--radius-btn);
+  padding: 20rpx var(--spacing);
+  font-size: 26rpx;
   color: var(--color-text);
   border: 1rpx solid var(--color-border);
 }
 
-.confirm-btn {
-  margin: 8rpx 32rpx 32rpx;
-  background: linear-gradient(135deg, #95d9b3, var(--color-primary)) !important;
-  color: #fff !important;
-  border-radius: var(--radius-btn);
-  font-size: 30rpx;
-  box-shadow: 0 8rpx 20rpx rgba(126, 205, 163, 0.25);
+.sheet-footer {
+  display: flex;
+  gap: 16rpx;
+  padding: 0 var(--spacing) var(--spacing);
+}
+
+.cancel-btn, .confirm-btn {
+  flex: 1;
+  font-size: 28rpx;
+  padding: 20rpx 0;
 }

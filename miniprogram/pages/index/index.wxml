@@ -1,60 +1,66 @@
 <view class="page">
+  <!-- 区域 A：顶部概览大卡片 -->
   <view class="overview card">
-    <view class="overview-main">
-      <text class="label">剩余金额</text>
-      <text class="amount">¥{{overview.remaining}}</text>
+    <view class="overview-title-row">
+      <text class="overview-title">存钱计划</text>
+      <text class="star-deco">✦</text>
     </view>
+    <text class="label helper-text">剩余待存金额</text>
+    <text class="amount page-amount">¥{{overview.remaining}}</text>
+    <view class="divider"></view>
     <view class="overview-sub">
       <view class="sub-item">
-        <text class="sub-label">目标</text>
-        <text class="sub-value">¥{{overview.targetTotal}}</text>
+        <text class="sub-label helper-text">🪙 目标：¥{{overview.targetTotal}}</text>
       </view>
       <view class="sub-item">
-        <text class="sub-label">已存</text>
-        <text class="sub-value green">¥{{overview.savedTotal}}</text>
+        <text class="sub-label helper-text mint">🏦 已存：¥{{overview.savedTotal}}</text>
       </view>
     </view>
   </view>
 
+  <!-- 区域 B：列表头部 -->
   <view class="section-header">
-    <view class="section-title" bindtap="goStatistics">
-      <text>存钱计划</text>
-      <text class="arrow">></text>
+    <text class="section-title-text">我的存钱计划</text>
+    <view class="stats-link" bindtap="goStatistics">
+      <text class="mint">存钱计划</text>
+      <text class="arrow mint"> ›</text>
     </view>
-    <view class="add-btn" bindtap="goAddPlan">+ 添加</view>
   </view>
 
+  <!-- 区域 C：计划列表 -->
   <view class="plan-list">
     <view
-      class="plan-card card"
+      class="plan-card {{item.progress >= 100 ? 'plan-done' : ''}}"
       wx:for="{{plans}}"
       wx:key="id"
       data-id="{{item.id}}"
       bindtap="goPlanDetail"
     >
-      <view class="plan-top">
-        <text class="plan-icon">{{item.icon}}</text>
-        <view class="plan-info">
-          <text class="plan-name">{{item.name}}</text>
-          <text class="plan-type">{{item.planTypeName}}</text>
-        </view>
-        <view class="plan-amounts">
-          <text class="saved">¥{{item.savedAmount}}</text>
-          <text class="target">/ ¥{{item.targetAmount}}</text>
+      <view class="plan-row">
+        <view class="icon-circle plan-icon-wrap">{{item.icon}}</view>
+        <view class="plan-body">
+          <view class="plan-head">
+            <text class="plan-name">{{item.name}}</text>
+            <text class="plan-arrow">›</text>
+          </view>
+          <text class="plan-type helper-text">{{item.planTypeName}}</text>
+          <view class="progress-bar">
+            <view class="progress-fill progress-fill-animated" style="width: {{item.progress}}%"></view>
+          </view>
+          <text class="plan-meta helper-text">已存 ¥{{item.savedAmount}} / 目标 ¥{{item.targetAmount}} · {{item.progress}}%</text>
         </view>
       </view>
-      <view class="progress-wrap">
-        <view class="progress-bar">
-          <view class="progress-fill" style="width: {{item.progress}}%"></view>
-        </view>
-        <text class="progress-text">{{item.progress}}%</text>
-      </view>
+      <text class="done-watermark" wx:if="{{item.progress >= 100}}">✓</text>
     </view>
 
     <view class="empty" wx:if="{{!plans.length}}">
-      <text class="empty-icon">💰</text>
-      <text class="empty-text">还没有存钱计划，点击添加开始吧</text>
-      <button class="empty-btn" bindtap="goAddPlan">添加存钱计划</button>
+      <text class="empty-icon">🏦</text>
+      <text class="empty-text helper-text">还没有存钱目标，点击右下角 + 开启第一份储蓄计划</text>
     </view>
+  </view>
+
+  <!-- 区域 D：悬浮新增按钮 -->
+  <view class="fab fab-peach" bindtap="goAddPlan">
+    <text class="fab-icon">+</text>
   </view>
 </view>

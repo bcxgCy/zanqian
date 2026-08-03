@@ -12,27 +12,27 @@
     "pages/privacy/privacy"
   ],
   "window": {
-    "backgroundColor": "#F5FAF7",
+    "backgroundColor": "#FCFEFE",
     "backgroundTextStyle": "light",
-    "navigationBarBackgroundColor": "#F5FAF7",
+    "navigationBarBackgroundColor": "#FCFEFE",
     "navigationBarTitleText": "存钱计划",
     "navigationBarTextStyle": "black"
   },
   "tabBar": {
-    "color": "#A8BDB2",
-    "selectedColor": "#7ECDA3",
+    "color": "#9AABA9",
+    "selectedColor": "#9ADFD6",
     "backgroundColor": "#FFFFFF",
     "borderStyle": "white",
     "list": [
       {
         "pagePath": "pages/index/index",
-        "text": "首页",
+        "text": "存钱计划",
         "iconPath": "images/tab/home.png",
         "selectedIconPath": "images/tab/home-active.png"
       },
       {
         "pagePath": "pages/calculator/calculator",
-        "text": "计算器",
+        "text": "存款计算器",
         "iconPath": "images/tab/calc.png",
         "selectedIconPath": "images/tab/calc-active.png"
       },

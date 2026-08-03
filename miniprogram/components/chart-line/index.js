@@ -1,7 +1,7 @@
 Component({
   properties: {
     data: { type: Array, value: [] },
-    color: { type: String, value: '#8ECAE6' },
+    color: { type: String, value: '#C8E8FA' },
     height: { type: Number, value: 200 },
   },
   observers: {
@@ -41,7 +41,7 @@ Component({
             x: padding.left + (i / Math.max(data.length - 1, 1)) * chartW,
             y: padding.top + chartH - (item.value / maxVal) * chartH,
           }));
-          ctx.strokeStyle = '#E5F0EA';
+          ctx.strokeStyle = '#EDF3F2';
           ctx.beginPath();
           ctx.moveTo(padding.left, padding.top + chartH);
           ctx.lineTo(padding.left + chartW, padding.top + chartH);

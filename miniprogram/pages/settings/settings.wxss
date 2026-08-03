@@ -1,13 +1,12 @@
 .page {
-  padding: 24rpx;
+  padding: var(--spacing);
 }
 
 .card {
   background: var(--color-card);
   border-radius: var(--radius-card);
-  padding: 0 28rpx;
+  padding: 0 var(--spacing);
   box-shadow: var(--shadow-card);
-  border: 1rpx solid var(--color-border);
 }
 
 .menu-item {
@@ -15,7 +14,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 32rpx 0;
-  font-size: 28rpx;
+  font-size: 26rpx;
   color: var(--color-text);
 }
 
@@ -25,7 +24,7 @@
 
 .tip {
   text-align: center;
-  color: var(--color-text-muted);
+  color: var(--color-text-secondary);
   font-size: 24rpx;
   margin-top: 40rpx;
 }

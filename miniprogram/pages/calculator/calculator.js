@@ -20,6 +20,8 @@ Page({
     randomAmount: false,
     presetSheetShow: false,
     presetSheetContent: null,
+    galleryShow: false,
+    expandedPresetName: '',
   },
 
   onInput(e) {
@@ -56,10 +58,31 @@ Page({
     this.setData({ randomAmount: e.detail.value });
   },
 
+  onFreqTap(e) {
+    const map = ['day', 'week', 'month'];
+    const idx = Number(e.currentTarget.dataset.index);
+    this.setData({ frequencyIndex: idx, customFrequency: map[idx] });
+  },
+
+  openGallery() {
+    this.setData({ galleryShow: true });
+  },
+
+  closeSheets() {
+    this.setData({ galleryShow: false, presetSheetShow: false });
+  },
+
   showPresetSheet(e) {
     const id = e.currentTarget.dataset.id;
     const preset = planUtil.getPreset(id);
-    this.setData({ presetSheetShow: true, presetSheetContent: preset, expandedPreset: id });
+    this.setData({
+      presetSheetShow: true,
+      presetSheetContent: preset,
+      expandedPreset: id,
+      expandedPresetName: preset.name,
+      calcMode: 'preset',
+      galleryShow: false,
+    });
   },
 
   closePresetSheet() {

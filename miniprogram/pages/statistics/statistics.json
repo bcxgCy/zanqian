@@ -1,5 +1,5 @@
 {
-  "navigationBarTitleText": "存钱统计",
+  "navigationBarTitleText": "存钱数据总览",
   "usingComponents": {
     "chart-bar": "/components/chart-bar/index",
     "chart-line": "/components/chart-line/index",

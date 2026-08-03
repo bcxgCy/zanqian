@@ -36,11 +36,11 @@ Component({
           const cy = height / 2;
           const radius = Math.min(width, height) / 2 - 20;
           const inner = radius * 0.62;
-          const colors = ['#7ECDA3', '#8ECAE6', '#F9DDA4', '#F5C4B8', '#C4B5E8', '#A8E0C4'];
+          const colors = ['#9ADFD6', '#FFD4E8', '#C8E8FA', '#B8EDE7', '#F0FAF8', '#D4F0EC'];
           const total = data.reduce((s, d) => s + d.value, 0) || 1;
           let start = -Math.PI / 2;
           if (!data.length) {
-            ctx.strokeStyle = '#E5F0EA';
+            ctx.strokeStyle = '#EDF3F2';
             ctx.lineWidth = radius - inner;
             ctx.beginPath();
             ctx.arc(cx, cy, (radius + inner) / 2, 0, Math.PI * 2);
@@ -56,7 +56,7 @@ Component({
               start += angle;
             });
           }
-          ctx.fillStyle = '#4A5D52';
+          ctx.fillStyle = '#3D4A49';
           ctx.font = 'bold 16px sans-serif';
           ctx.textAlign = 'center';
           ctx.fillText('¥' + this.properties.total, cx, cy + 6);

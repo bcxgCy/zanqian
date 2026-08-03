@@ -5,38 +5,38 @@
   </view>
 
   <picker mode="selector" range="{{keyOptions}}" value="{{keyIndex}}" bindchange="onKeyChange">
-    <view class="picker-bar">{{currentKey}} ▼</view>
+    <view class="picker-bar helper-text">{{currentKey}} ▼</view>
   </picker>
 
-  <view class="card summary">
-    <view class="summary-item">
-      <text class="num green">¥{{summary.saved}}</text>
-      <text class="txt">存入</text>
+  <view class="summary-cards">
+    <view class="summary-card card">
+      <text class="summary-label helper-text">累计存入</text>
+      <text class="summary-num module-amount mint">¥{{summary.saved}}</text>
     </view>
-    <view class="summary-item">
-      <text class="num">¥{{summary.remaining}}</text>
-      <text class="txt">目标剩余</text>
+    <view class="summary-card card">
+      <text class="summary-label helper-text">目标剩余</text>
+      <text class="summary-num module-amount peach">¥{{summary.remaining}}</text>
     </view>
-    <view class="summary-item">
-      <text class="num">¥{{summary.dailyAvg}}</text>
-      <text class="txt">日均存入</text>
+    <view class="summary-card card">
+      <text class="summary-label helper-text">日均存入</text>
+      <text class="summary-num module-amount blue">¥{{summary.dailyAvg}}</text>
     </view>
   </view>
 
   <view class="card chart-block">
-    <view class="chart-title">柱状图</view>
-    <chart-bar data="{{barData}}" height="{{200}}"></chart-bar>
-    <view class="empty-chart" wx:if="{{!barData.length}}">暂无数据</view>
+    <view class="chart-title section-title-text">每日存入统计</view>
+    <chart-bar data="{{barData}}" height="{{200}}" color="#9ADFD6"></chart-bar>
+    <view class="empty-chart helper-text" wx:if="{{!barData.length}}">暂无数据</view>
   </view>
 
   <view class="card chart-block">
-    <view class="chart-title">折线图</view>
-    <chart-line data="{{lineData}}" height="{{200}}"></chart-line>
-    <view class="empty-chart" wx:if="{{!lineData.length}}">暂无数据</view>
+    <view class="chart-title section-title-text">存款走势</view>
+    <chart-line data="{{lineData}}" height="{{200}}" color="#C8E8FA"></chart-line>
+    <view class="empty-chart helper-text" wx:if="{{!lineData.length}}">暂无数据</view>
   </view>
 
-  <view class="card chart-block">
-    <view class="chart-title">圆环图</view>
-    <chart-ring data="{{ringData}}" total="{{ringTotal}}" height="{{220}}"></chart-ring>
+  <view class="card chart-block ring-block">
+    <view class="chart-title section-title-text">计划占比 <text class="star-deco">✦</text></view>
+    <chart-ring data="{{ringData}}" total="{{ringTotal}}" height="{{240}}"></chart-ring>
   </view>
 </view>

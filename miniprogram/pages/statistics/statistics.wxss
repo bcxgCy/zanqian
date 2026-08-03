@@ -1,86 +1,89 @@
 .page {
-  padding: 24rpx;
+  padding: var(--spacing);
   min-height: 100vh;
 }
 
 .tabs {
   display: flex;
-  background: var(--color-input-bg);
-  border-radius: 16rpx;
-  padding: 8rpx;
-  margin-bottom: 20rpx;
-  border: 1rpx solid var(--color-border);
+  gap: 16rpx;
+  margin-bottom: var(--spacing);
 }
 
 .tab {
   flex: 1;
   text-align: center;
-  padding: 16rpx 0;
-  font-size: 28rpx;
+  padding: 14rpx 0;
+  font-size: 26rpx;
   color: var(--color-text-secondary);
-  border-radius: 12rpx;
+  border-radius: var(--radius-btn);
+  background: var(--color-card-white);
 }
 
 .tab.active {
-  background: linear-gradient(135deg, #95d9b3, var(--color-primary));
+  background: var(--color-primary);
   color: #fff;
-  box-shadow: 0 4rpx 12rpx rgba(126, 205, 163, 0.2);
 }
 
 .picker-bar {
   background: var(--color-card);
-  border-radius: 16rpx;
-  padding: 20rpx 24rpx;
-  margin-bottom: 20rpx;
-  font-size: 28rpx;
+  border-radius: var(--radius-card);
+  padding: 16rpx var(--spacing);
+  margin-bottom: var(--spacing);
+  font-size: 26rpx;
   color: var(--color-text);
+}
+
+.summary-cards {
+  display: flex;
+  gap: 12rpx;
+  margin-bottom: var(--spacing);
+}
+
+.summary-card {
+  flex: 1;
+  padding: 16rpx 12rpx;
+  text-align: center;
+  background: var(--color-card);
+  border-radius: var(--radius-card);
   box-shadow: var(--shadow-card);
-  border: 1rpx solid var(--color-border);
+}
+
+.summary-label {
+  display: block;
+  margin-bottom: 8rpx;
+}
+
+.summary-num {
+  display: block;
 }
 
 .card {
   background: var(--color-card);
   border-radius: var(--radius-card);
-  padding: 24rpx;
-  margin-bottom: 20rpx;
+  padding: var(--spacing);
+  margin-bottom: var(--spacing);
   box-shadow: var(--shadow-card);
-  border: 1rpx solid var(--color-border);
 }
 
-.summary {
-  display: flex;
-  justify-content: space-around;
-  text-align: center;
-}
-
-.summary-item .num {
-  display: block;
-  font-size: 34rpx;
-  font-weight: 700;
-  color: var(--color-text);
-}
-
-.summary-item .num.green {
-  color: var(--color-primary-dark);
-}
-
-.summary-item .txt {
-  display: block;
-  font-size: 24rpx;
-  color: var(--color-text-muted);
-  margin-top: 8rpx;
+.chart-block {
+  margin-bottom: var(--spacing);
 }
 
 .chart-title {
-  font-size: 28rpx;
-  font-weight: 600;
-  color: var(--color-text);
   margin-bottom: 16rpx;
+}
+
+.star-deco {
+  font-size: 18rpx;
+  color: var(--color-primary);
+  margin-left: 4rpx;
 }
 
 .empty-chart {
   text-align: center;
-  color: var(--color-text-muted);
-  font-size: 26rpx;
   padding: 40rpx 0;
+}
+
+.ring-block {
+  margin-bottom: 40rpx;
 }

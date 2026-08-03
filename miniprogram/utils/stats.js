@@ -54,7 +54,7 @@ function getRingData(plans) {
     .filter((item) => money.isPositive(item.value));
 }
 
-const RING_COLORS = ['#7ECDA3', '#8ECAE6', '#F9DDA4', '#F5C4B8', '#C4B5E8', '#A8E0C4'];
+const RING_COLORS = ['#9ADFD6', '#FFD4E8', '#C8E8FA', '#B8EDE7', '#F0FAF8', '#D4F0EC'];
 
 function assignRingColors(plans) {
   return plans.map((plan, i) =>

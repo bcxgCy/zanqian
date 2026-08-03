@@ -23,4 +23,8 @@ Page({
       wx.switchTab({ url: '/pages/index/index' });
     }, 600);
   },
+
+  goBack() {
+    wx.navigateBack();
+  },
 });
