@@ -73,7 +73,7 @@
 
 .icon-item.active {
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 4rpx rgba(154, 223, 214, 0.28);
+  box-shadow: 0 0 0 4rpx rgba(22, 93, 255, 0.16);
 }
 
 .panel {
@@ -91,11 +91,11 @@
 }
 
 .mint-header {
-  background: rgba(154, 223, 214, 0.18);
+  background: var(--color-primary-light);
 }
 
 .peach-header {
-  background: rgba(255, 212, 232, 0.35);
+  background: rgba(212, 175, 55, 0.12);
 }
 
 .panel-header.active {
@@ -123,7 +123,7 @@
 }
 
 .preset-head.selected .preset-name {
-  color: var(--color-primary-dark);
+  color: var(--color-primary);
   font-weight: 500;
 }
 

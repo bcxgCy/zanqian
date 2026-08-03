@@ -89,14 +89,14 @@
 }
 
 .icon-item.active {
-  border-color: var(--color-peach);
-  box-shadow: 0 0 0 4rpx rgba(255, 212, 232, 0.45);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 4rpx rgba(22, 93, 255, 0.16);
 }
 
 .mode-tabs {
   display: flex;
   margin-bottom: var(--spacing);
-  background: rgba(255, 212, 232, 0.28);
+  background: var(--color-disabled-bg);
   border-radius: var(--radius-btn);
   padding: 6rpx;
 }
@@ -118,7 +118,7 @@
 
 .preset-hint {
   padding: 12rpx 16rpx;
-  background: rgba(154, 223, 214, 0.16);
+  background: var(--color-primary-light);
   border-radius: var(--radius-btn);
   margin-bottom: var(--spacing);
 }
@@ -140,8 +140,8 @@
 }
 
 .freq-item.active {
-  background: rgba(255, 212, 232, 0.45);
-  border-color: var(--color-peach);
+  background: var(--color-primary-light);
+  border-color: var(--color-primary);
   color: var(--color-text);
 }
 

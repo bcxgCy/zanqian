@@ -1,24 +1,32 @@
-/**app.wxss - UI设计规范 V1.0（明亮版）**/
+/**app.wxss - 心愿存钱商务财富主题**/
 page {
-  --color-primary: #9ADFD6;
-  --color-primary-dark: #7ECBC3;
-  --color-primary-light: #F2FBF9;
-  --color-primary-soft: #FAFFFE;
-  --color-peach: #FFD4E8;
-  --color-peach-dark: #F5A0C0;
-  --color-blue: #C8E8FA;
-  --color-page-bg: #FCFEFE;
-  --color-card: #F7FCFB;
+  --color-primary: #165DFF;
+  --color-primary-dark: #0E4BD9;
+  --color-primary-light: #E8F3FF;
+  --color-primary-soft: #F2F6FF;
+  --color-gold: #D4AF37;
+  --color-success: #00B42A;
+  --color-warning: #FF7D00;
+  --color-peach: #D4AF37;
+  --color-peach-dark: #B78F1F;
+  --color-blue: #165DFF;
+  --color-page-bg: #F7F8FA;
+  --color-card: #FFFFFF;
   --color-card-white: #FFFFFF;
-  --color-text: #3D4A49;
-  --color-text-secondary: #9AABA9;
-  --color-text-muted: #9AABA9;
-  --color-border: #EDF3F2;
+  --color-text: #1D2129;
+  --color-text-secondary: #4E5969;
+  --color-text-muted: #86909C;
+  --color-placeholder: #C9CDD4;
+  --color-border: #E5E6EB;
   --color-input-bg: #FFFFFF;
-  --color-danger: #F5B0A8;
-  --color-done-bg: #F0FAF8;
-  --mask: rgba(0, 0, 0, 0.25);
-  --shadow-card: 0 4rpx 20rpx rgba(154, 223, 214, 0.12);
+  --color-danger: #F53F3F;
+  --color-done-bg: #F0FFF4;
+  --color-disabled-bg: #F2F3F5;
+  --color-ad-bg: #F2F3F5;
+  --progress-bg: #E8F3FF;
+  --mask: rgba(0, 0, 0, 0.55);
+  --shadow-card: 0 8rpx 24rpx rgba(29, 33, 41, 0.06);
+  --shadow-primary: 0 8rpx 20rpx rgba(22, 93, 255, 0.22);
   --radius-card: 16rpx;
   --radius-item: 8rpx;
   --radius-btn: 12rpx;
@@ -49,16 +57,20 @@ button::after {
   border-radius: var(--radius-card);
 }
 
-.green, .mint {
-  color: var(--color-primary-dark);
+.green {
+  color: var(--color-success);
+}
+
+.mint {
+  color: var(--color-primary);
 }
 
 .peach {
-  color: var(--color-peach-dark);
+  color: var(--color-gold);
 }
 
 .blue {
-  color: #7EC0E8;
+  color: var(--color-primary);
 }
 
 .arrow {
@@ -71,7 +83,7 @@ button::after {
 }
 
 .progress-fill-animated {
-  background: linear-gradient(90deg, #9ADFD6, #B8EDE7, #9ADFD6, #B8EDE7);
+  background: linear-gradient(90deg, #165DFF, #0E4BD9, #165DFF, #00B42A);
   background-size: 200% 100%;
   animation: progress-flow 3s ease infinite;
 }
@@ -96,9 +108,9 @@ button::after {
 }
 
 @keyframes badge-glow {
-  0% { box-shadow: 0 0 0 0 rgba(154, 223, 214, 0.5); }
-  70% { box-shadow: 0 0 0 12rpx rgba(154, 223, 214, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(154, 223, 214, 0); }
+  0% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.45); }
+  70% { box-shadow: 0 0 0 12rpx rgba(212, 175, 55, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); }
 }
 
 .badge-glow {
@@ -106,17 +118,17 @@ button::after {
 }
 
 .btn-mint {
-  background: linear-gradient(135deg, #B8EDE7, var(--color-primary)) !important;
+  background: var(--color-primary) !important;
   color: #fff !important;
   border-radius: var(--radius-btn);
-  box-shadow: 0 6rpx 16rpx rgba(154, 223, 214, 0.35);
+  box-shadow: var(--shadow-primary);
 }
 
 .btn-peach {
-  background: linear-gradient(135deg, #FFE8F2, var(--color-peach)) !important;
-  color: var(--color-text) !important;
+  background: var(--color-primary) !important;
+  color: #fff !important;
   border-radius: var(--radius-btn);
-  box-shadow: 0 6rpx 16rpx rgba(255, 212, 232, 0.45);
+  box-shadow: var(--shadow-primary);
 }
 
 .btn-ghost {
@@ -135,17 +147,17 @@ button::after {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 8rpx 24rpx rgba(255, 212, 232, 0.55);
+  box-shadow: var(--shadow-primary);
   z-index: 100;
 }
 
 .fab-peach {
-  background: linear-gradient(135deg, #FFE8F2, var(--color-peach));
+  background: var(--color-primary);
 }
 
 .fab-icon {
   font-size: 44rpx;
-  color: var(--color-text);
+  color: #FFFFFF;
   font-weight: 300;
   line-height: 1;
 }
@@ -171,7 +183,7 @@ button::after {
 .page-amount {
   font-size: 60rpx;
   font-weight: 600;
-  color: var(--color-primary-dark);
+  color: var(--color-warning);
 }
 
 .module-amount {

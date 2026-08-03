@@ -2,32 +2,47 @@
   <!-- 区域 A：顶部概览大卡片 -->
   <view class="overview card">
     <view class="overview-title-row">
-      <text class="overview-title">存钱计划</text>
+      <text class="overview-title">总储蓄目标</text>
       <text class="star-deco">✦</text>
     </view>
-    <text class="label helper-text">剩余待存金额</text>
+    <text class="label helper-text">全部计划剩余待存入金额</text>
     <text class="amount page-amount">¥{{overview.remaining}}</text>
+    <text class="wish-line">把每个心愿，慢慢存成真的</text>
     <view class="divider"></view>
     <view class="overview-sub">
       <view class="sub-item">
-        <text class="sub-label helper-text">🪙 目标：¥{{overview.targetTotal}}</text>
+        <text class="sub-label helper-text">目标总额</text>
+        <text class="sub-value">¥{{overview.targetTotal}}</text>
       </view>
       <view class="sub-item">
-        <text class="sub-label helper-text mint">🏦 已存：¥{{overview.savedTotal}}</text>
+        <text class="sub-label helper-text">已存总额</text>
+        <text class="sub-value mint">¥{{overview.savedTotal}}</text>
       </view>
     </view>
   </view>
 
-  <!-- 区域 B：列表头部 -->
+  <!-- 区域 B：今日打卡引导 -->
+  <view class="checkin-card" bindtap="goStatistics">
+    <view class="checkin-left">
+      <view class="checkin-icon">✦</view>
+      <view class="checkin-copy">
+        <text class="checkin-title">今日打卡：{{checkin.todayText}}</text>
+        <text class="checkin-desc helper-text">连续打卡 {{checkin.streakDays}} 天</text>
+      </view>
+    </view>
+    <view class="checkin-action">去打卡</view>
+  </view>
+
+  <!-- 区域 C：列表头部 -->
   <view class="section-header">
     <text class="section-title-text">我的存钱计划</text>
     <view class="stats-link" bindtap="goStatistics">
-      <text class="mint">存钱计划</text>
+      <text class="mint">查看全部</text>
       <text class="arrow mint"> ›</text>
     </view>
   </view>
 
-  <!-- 区域 C：计划列表 -->
+  <!-- 区域 D：计划列表 -->
   <view class="plan-list">
     <view
       class="plan-card {{item.progress >= 100 ? 'plan-done' : ''}}"
@@ -37,11 +52,14 @@
       bindtap="goPlanDetail"
     >
       <view class="plan-row">
-        <view class="icon-circle plan-icon-wrap">{{item.icon}}</view>
+        <view class="piggy-icon plan-icon-wrap">
+          <text class="piggy-mark">🐷</text>
+          <text class="plan-small-icon">{{item.icon}}</text>
+        </view>
         <view class="plan-body">
           <view class="plan-head">
             <text class="plan-name">{{item.name}}</text>
-            <text class="plan-arrow">›</text>
+            <text class="plan-percent">{{item.progress}}%</text>
           </view>
           <text class="plan-type helper-text">{{item.planTypeName}}</text>
           <view class="progress-bar">
@@ -54,13 +72,15 @@
     </view>
 
     <view class="empty" wx:if="{{!plans.length}}">
-      <text class="empty-icon">🏦</text>
-      <text class="empty-text helper-text">还没有存钱目标，点击右下角 + 开启第一份储蓄计划</text>
+      <view class="empty-piggy">🐷</view>
+      <text class="empty-title">还没有存钱心愿</text>
+      <text class="empty-text helper-text">点击右下角 + 开启第一份攒钱目标</text>
     </view>
   </view>
 
-  <!-- 区域 D：悬浮新增按钮 -->
+  <!-- 区域 E：悬浮新增按钮 -->
   <view class="fab fab-peach" bindtap="goAddPlan">
     <text class="fab-icon">+</text>
+    <text class="fab-label">新建计划</text>
   </view>
 </view>

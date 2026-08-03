@@ -92,7 +92,7 @@
 
   <view class="sheet-mask" wx:if="{{presetSheetShow || galleryShow}}" bindtap="closeSheets"></view>
 
-  <view class="sheet {{galleryShow ? 'show sheet-show-animate' : ''}}" catchtap="">
+  <view class="sheet {{galleryShow ? 'show' : ''}}" catchtap="">
     <view class="sheet-title section-title-text">预设存钱方案一览</view>
     <scroll-view scroll-x class="gallery-scroll" enable-flex>
       <view class="gallery-list">
@@ -104,7 +104,7 @@
     </scroll-view>
   </view>
 
-  <view class="sheet detail-sheet {{presetSheetShow ? 'show sheet-show-animate' : ''}}" catchtap="">
+  <view class="sheet detail-sheet {{presetSheetShow ? 'show' : ''}}" catchtap="">
     <view class="sheet-title section-title-text">{{presetSheetContent.name}}</view>
     <text class="sheet-desc helper-text">{{presetSheetContent.description}}</text>
     <button class="sheet-close btn-mint" bindtap="closePresetSheet">知道了</button>

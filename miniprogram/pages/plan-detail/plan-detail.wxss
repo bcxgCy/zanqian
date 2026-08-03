@@ -126,7 +126,7 @@
   right: 16rpx;
   bottom: 12rpx;
   font-size: 36rpx;
-  color: rgba(154, 223, 214, 0.45);
+  color: rgba(0, 180, 42, 0.38);
 }
 
 .delete-wrap {

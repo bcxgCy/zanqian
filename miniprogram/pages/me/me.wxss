@@ -11,7 +11,7 @@
 }
 
 .profile-card {
-  background: linear-gradient(160deg, #F2FBF9 0%, #FAFFFE 100%);
+  background: var(--color-card);
 }
 
 .profile-top {
@@ -108,8 +108,8 @@
 }
 
 .badge-item.unlocked {
-  background: linear-gradient(135deg, rgba(154, 223, 214, 0.3), rgba(200, 232, 250, 0.28));
-  border: 1rpx solid var(--color-primary);
+  background: rgba(212, 175, 55, 0.12);
+  border: 1rpx solid var(--color-gold);
 }
 
 .badge-item.locked {

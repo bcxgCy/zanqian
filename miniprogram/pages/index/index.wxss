@@ -15,6 +15,7 @@
 .overview {
   text-align: center;
   margin-bottom: var(--spacing);
+  background: var(--color-card);
 }
 
 .overview-title-row {
@@ -43,6 +44,13 @@
 
 .amount {
   display: block;
+  margin-bottom: 10rpx;
+}
+
+.wish-line {
+  display: block;
+  color: var(--color-gold);
+  font-size: 24rpx;
   margin-bottom: var(--spacing);
 }
 
@@ -55,11 +63,85 @@
 .overview-sub {
   display: flex;
   justify-content: space-between;
+  gap: 16rpx;
 }
 
 .sub-item {
   flex: 1;
   text-align: center;
+  background: #FFFFFF;
+  border-radius: var(--radius-item);
+  padding: 16rpx 8rpx;
+}
+
+.sub-label,
+.sub-value {
+  display: block;
+}
+
+.sub-value {
+  margin-top: 6rpx;
+  font-size: 30rpx;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.checkin-card {
+  margin-bottom: var(--spacing);
+  padding: 18rpx 20rpx;
+  border-radius: var(--radius-card);
+  background: #FFFFFF;
+  box-shadow: var(--shadow-card);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.checkin-left {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.checkin-icon {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  background: rgba(212, 175, 55, 0.12);
+  color: var(--color-gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 14rpx;
+  flex-shrink: 0;
+}
+
+.checkin-copy {
+  min-width: 0;
+}
+
+.checkin-title,
+.checkin-desc {
+  display: block;
+}
+
+.checkin-title {
+  font-size: 26rpx;
+  color: var(--color-text);
+  font-weight: 500;
+}
+
+.checkin-desc {
+  margin-top: 4rpx;
+}
+
+.checkin-action {
+  flex-shrink: 0;
+  padding: 10rpx 18rpx;
+  border-radius: 999rpx;
+  background: var(--color-primary);
+  color: #FFFFFF;
+  font-size: 24rpx;
 }
 
 .section-header {
@@ -88,6 +170,7 @@
   border-radius: var(--radius-item);
   padding: 20rpx;
   overflow: hidden;
+  border: 1rpx solid var(--color-border);
 }
 
 .plan-done {
@@ -102,8 +185,35 @@
 .plan-icon-wrap {
   width: 72rpx;
   height: 72rpx;
-  font-size: 36rpx;
   margin-right: 16rpx;
+}
+
+.piggy-icon {
+  position: relative;
+  border-radius: 50%;
+  background: rgba(212, 175, 55, 0.14);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.piggy-mark {
+  font-size: 40rpx;
+}
+
+.plan-small-icon {
+  position: absolute;
+  right: -4rpx;
+  bottom: -4rpx;
+  width: 30rpx;
+  height: 30rpx;
+  border-radius: 50%;
+  background: #FFFFFF;
+  font-size: 18rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .plan-body {
@@ -129,6 +239,14 @@
   line-height: 1;
 }
 
+.plan-percent {
+  color: var(--color-success);
+  font-size: 28rpx;
+  font-weight: 700;
+  flex-shrink: 0;
+  margin-left: 12rpx;
+}
+
 .plan-type {
   display: block;
   margin-top: 4rpx;
@@ -136,16 +254,16 @@
 }
 
 .progress-bar {
-  height: 10rpx;
-  background: var(--color-border);
-  border-radius: 5rpx;
+  height: 14rpx;
+  background: var(--progress-bg);
+  border-radius: 999rpx;
   overflow: hidden;
   margin-bottom: 8rpx;
 }
 
 .progress-fill {
   height: 100%;
-  border-radius: 5rpx;
+  border-radius: 999rpx;
 }
 
 .plan-meta {
@@ -157,20 +275,36 @@
   right: 16rpx;
   bottom: 12rpx;
   font-size: 48rpx;
-  color: rgba(154, 223, 214, 0.35);
+  color: rgba(0, 180, 42, 0.28);
   font-weight: 300;
 }
 
 .empty {
   text-align: center;
   padding: 100rpx 40rpx;
+  background: #FFFFFF;
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
 }
 
-.empty-icon {
+.empty-piggy {
+  width: 116rpx;
+  height: 116rpx;
+  margin: 0 auto 24rpx;
+  border-radius: 50%;
+  background: rgba(212, 175, 55, 0.14);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 64rpx;
+}
+
+.empty-title {
   display: block;
-  font-size: 80rpx;
+  font-size: 30rpx;
+  color: var(--color-text);
+  font-weight: 500;
   margin-bottom: 24rpx;
-  opacity: 0.6;
 }
 
 .empty-text {
@@ -180,4 +314,24 @@
 
 .page .fab {
   bottom: calc(120rpx + env(safe-area-inset-bottom));
+  width: 112rpx;
+  height: 112rpx;
+  flex-direction: column;
+  transition: transform 0.18s ease;
+}
+
+.page .fab:active {
+  transform: scale(0.94);
+}
+
+.page .fab-icon {
+  font-size: 40rpx;
+  line-height: 40rpx;
+}
+
+.fab-label {
+  margin-top: 4rpx;
+  font-size: 18rpx;
+  color: #FFFFFF;
+  line-height: 1;
 }

@@ -12,15 +12,15 @@
     "pages/privacy/privacy"
   ],
   "window": {
-    "backgroundColor": "#FCFEFE",
+    "backgroundColor": "#F7F8FA",
     "backgroundTextStyle": "light",
-    "navigationBarBackgroundColor": "#FCFEFE",
+    "navigationBarBackgroundColor": "#F7F8FA",
     "navigationBarTitleText": "存钱计划",
     "navigationBarTextStyle": "black"
   },
   "tabBar": {
-    "color": "#9AABA9",
-    "selectedColor": "#9ADFD6",
+    "color": "#86909C",
+    "selectedColor": "#165DFF",
     "backgroundColor": "#FFFFFF",
     "borderStyle": "white",
     "list": [
@@ -38,7 +38,7 @@
       },
       {
         "pagePath": "pages/me/me",
-        "text": "我的",
+        "text": "我的徽章",
         "iconPath": "images/tab/me.png",
         "selectedIconPath": "images/tab/me-active.png"
       }

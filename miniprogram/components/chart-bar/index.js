@@ -1,7 +1,7 @@
 Component({
   properties: {
     data: { type: Array, value: [] },
-    color: { type: String, value: '#9ADFD6' },
+    color: { type: String, value: '#165DFF' },
     height: { type: Number, value: 200 },
   },
   observers: {
@@ -39,7 +39,7 @@ Component({
           const chartH = height - padding.top - padding.bottom;
           const barW = Math.min(24, chartW / data.length - 4);
           const gap = (chartW - barW * data.length) / (data.length + 1);
-          ctx.fillStyle = '#9AABA9';
+          ctx.fillStyle = '#86909C';
           ctx.font = '10px sans-serif';
           ctx.fillText('¥' + maxVal, 2, padding.top + 8);
           data.forEach((item, i) => {
@@ -49,7 +49,7 @@ Component({
             ctx.fillStyle = this.properties.color;
             ctx.fillRect(x, y, barW, h);
             if (data.length <= 10) {
-              ctx.fillStyle = '#9AABA9';
+              ctx.fillStyle = '#86909C';
               ctx.fillText(item.label, x, height - 8);
             }
           });
