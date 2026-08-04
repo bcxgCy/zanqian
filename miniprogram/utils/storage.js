@@ -1,72 +1,91 @@
 const planUtil = require('./plan');
 const money = require('./money');
+const cloudSync = require('./cloudSync');
 
-const PLANS_KEY = 'saving_plans';
-const USER_KEY = 'saving_user';
+const defaultUser = {
+  nickName: '存钱达人',
+  avatarUrl: '',
+  savingDays: 0,
+};
+
+function normalizeState(state) {
+  return {
+    openid: state && state.openid ? state.openid : '',
+    user: Object.assign({}, defaultUser, state && state.user ? state.user : {}),
+    plans: state && Array.isArray(state.plans) ? state.plans : [],
+  };
+}
+
+function getState() {
+  return cloudSync.login().then(normalizeState);
+}
 
 function getPlans() {
-  return wx.getStorageSync(PLANS_KEY) || [];
+  return getState().then((state) => state.plans);
 }
 
 function savePlans(plans) {
-  wx.setStorageSync(PLANS_KEY, plans);
+  return cloudSync.savePlans(plans || []).then(normalizeState);
 }
 
 function getPlan(id) {
-  return getPlans().find((p) => p.id === id);
+  return getPlans().then((plans) => plans.find((p) => p.id === id));
 }
 
 function addPlan(plan) {
-  const plans = getPlans();
-  plans.unshift(plan);
-  savePlans(plans);
-  return plan;
+  return getPlans().then((plans) => {
+    const next = [plan].concat(plans);
+    return savePlans(next).then(() => plan);
+  });
 }
 
 function updatePlan(id, updates) {
-  const plans = getPlans();
-  const idx = plans.findIndex((p) => p.id === id);
-  if (idx === -1) return null;
-  plans[idx] = Object.assign({}, plans[idx], updates);
-  savePlans(plans);
-  return plans[idx];
+  return getPlans().then((plans) => {
+    const idx = plans.findIndex((p) => p.id === id);
+    if (idx === -1) return null;
+    const next = plans.slice();
+    next[idx] = Object.assign({}, next[idx], updates);
+    return savePlans(next).then(() => next[idx]);
+  });
 }
 
 function deletePlan(id) {
-  const plans = getPlans().filter((p) => p.id !== id);
-  savePlans(plans);
+  return getPlans().then((plans) => savePlans(plans.filter((p) => p.id !== id)));
 }
 
 function updatePeriod(planId, periodIndex, data) {
-  const plan = getPlan(planId);
-  if (!plan) return null;
-  const periods = plan.periods.map((p) => {
-    if (p.index !== periodIndex) return p;
-    const savedAmount = money.toMoney(
-      data.savedAmount !== undefined ? data.savedAmount : p.savedAmount
-    );
-    const expectedAmount = money.toMoney(p.expectedAmount);
-    const completed = money.gte(savedAmount, money.mul(expectedAmount, 0.99));
-    return Object.assign({}, p, data, { savedAmount, completed });
+  return getPlan(planId).then((plan) => {
+    if (!plan) return null;
+    const periods = plan.periods.map((p) => {
+      if (p.index !== periodIndex) return p;
+      const savedAmount = money.toMoney(
+        data.savedAmount !== undefined ? data.savedAmount : p.savedAmount
+      );
+      const expectedAmount = money.toMoney(p.expectedAmount);
+      const completed = money.gte(savedAmount, money.mul(expectedAmount, 0.99));
+      return Object.assign({}, p, data, { savedAmount, completed });
+    });
+    return updatePlan(planId, { periods });
   });
-  return updatePlan(planId, { periods });
 }
 
 function getUser() {
-  const defaults = {
-    nickName: '存钱达人',
-    avatarUrl: '',
-    savingDays: 0,
-  };
-  return Object.assign(defaults, wx.getStorageSync(USER_KEY) || {});
+  return getState().then((state) => state.user);
 }
 
 function saveUser(user) {
-  wx.setStorageSync(USER_KEY, user);
+  return cloudSync.saveUser(Object.assign({}, defaultUser, user || {})).then(normalizeState);
+}
+
+function getLoginState() {
+  return cloudSync.getLoginState();
 }
 
 function getOverview() {
-  const plans = getPlans();
+  return getPlans().then(getOverviewFromPlans);
+}
+
+function getOverviewFromPlans(plans) {
   const targetTotal = money.sum(plans, (plan) => plan.targetAmount);
   const savedTotal = money.sum(plans, (plan) => planUtil.calcSavedAmount(plan.periods));
   return {
@@ -78,6 +97,7 @@ function getOverview() {
 }
 
 module.exports = {
+  getState,
   getPlans,
   savePlans,
   getPlan,
@@ -87,5 +107,7 @@ module.exports = {
   updatePeriod,
   getUser,
   saveUser,
+  getLoginState,
   getOverview,
+  getOverviewFromPlans,
 };

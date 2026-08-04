@@ -7,6 +7,7 @@ Page({
     user: {},
     stats: {},
     badges: [],
+    cloudLogin: {},
   },
 
   onShow() {
@@ -14,33 +15,55 @@ Page({
   },
 
   loadData() {
-    const user = storage.getUser();
-    const plans = storage.getPlans();
-    const stats = statsUtil.getUserStats(plans);
-    stats.planCount = plans.length;
-    const badges = badgesUtil.getBadges(stats);
-    this.setData({ user, stats, badges });
+    wx.showLoading({ title: '加载中' });
+    storage.getState()
+      .then((state) => {
+        const user = state.user;
+        const plans = state.plans;
+        const stats = statsUtil.getUserStats(plans);
+        stats.planCount = plans.length;
+        const badges = badgesUtil.getBadges(stats);
+        this.setData({
+          user,
+          stats,
+          badges,
+          cloudLogin: storage.getLoginState(),
+        });
+      })
+      .catch((err) => {
+        wx.showToast({ title: '云端数据加载失败', icon: 'none' });
+        console.warn('我的页面加载失败', err);
+      })
+      .finally(() => {
+        wx.hideLoading();
+      });
   },
 
-  chooseAvatar() {
-    wx.getUserProfile({
-      desc: '用于展示头像昵称',
-      success: (res) => {
-        const user = Object.assign({}, storage.getUser(), {
-          nickName: res.userInfo.nickName,
-          avatarUrl: res.userInfo.avatarUrl,
+  loginCloud() {
+    wx.showLoading({ title: '登录中' });
+    storage.getState()
+      .then(() => {
+        this.loadData();
+        wx.showToast({ title: '登录成功', icon: 'success' });
+      })
+      .catch((err) => {
+        wx.showModal({
+          title: '登录失败',
+          content: err.errMsg || err.message || '请确认云函数 dataService 已上传部署。',
+          showCancel: false,
         });
-        storage.saveUser(user);
-        this.setData({ user });
-      },
-      fail: () => {
-        wx.showToast({ title: '授权失败', icon: 'none' });
-      },
-    });
+      })
+      .finally(() => {
+        wx.hideLoading();
+      });
   },
 
   goStatistics() {
     wx.navigateTo({ url: '/pages/statistics/statistics' });
+  },
+
+  goProfileEdit() {
+    wx.navigateTo({ url: '/pages/profile-edit/profile-edit' });
   },
 
   goSettings() {

@@ -1,18 +1,20 @@
 <view class="page">
   <view class="card profile-card">
     <view class="profile-top">
-      <view class="avatar-wrap" bindtap="chooseAvatar">
+      <view class="avatar-wrap">
         <image wx:if="{{user.avatarUrl}}" class="avatar" src="{{user.avatarUrl}}" mode="aspectFill"></image>
         <view wx:else class="avatar avatar-placeholder">👤</view>
       </view>
       <view class="profile-info">
         <text class="nickname">{{user.nickName}}</text>
-        <text class="edit-tip helper-text" bindtap="chooseAvatar">编辑</text>
+        <text class="edit-tip helper-text" bindtap="goProfileEdit">编辑资料</text>
+        <text class="cloud-status helper-text">{{cloudLogin.loggedIn ? '云端已登录' : '未登录云端'}}</text>
       </view>
       <view class="stats-link-top" bindtap="goStatistics">
         <text class="mint">存钱统计 ›</text>
       </view>
     </view>
+    <button wx:if="{{!cloudLogin.loggedIn}}" class="login-btn btn-mint" bindtap="loginCloud">登录并同步云端</button>
     <view class="stats-row">
       <view class="stat-item">
         <text class="stat-num module-amount">{{stats.savingDays}}</text>

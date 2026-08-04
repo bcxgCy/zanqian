@@ -33,15 +33,25 @@ Page({
   },
 
   loadStats() {
-    const plans = storage.getPlans();
-    const summary = statsUtil.getStatsSummary(plans, this.data.mode, this.data.currentKey);
-    this.setData({
-      summary,
-      barData: summary.barData,
-      lineData: summary.lineData,
-      ringData: summary.ringData,
-      ringTotal: summary.ringTotal,
-    });
+    wx.showLoading({ title: '加载中' });
+    storage.getPlans()
+      .then((plans) => {
+        const summary = statsUtil.getStatsSummary(plans, this.data.mode, this.data.currentKey);
+        this.setData({
+          summary,
+          barData: summary.barData,
+          lineData: summary.lineData,
+          ringData: summary.ringData,
+          ringTotal: summary.ringTotal,
+        });
+      })
+      .catch((err) => {
+        wx.showToast({ title: '统计加载失败', icon: 'none' });
+        console.warn('统计加载失败', err);
+      })
+      .finally(() => {
+        wx.hideLoading();
+      });
   },
 
   switchMode(e) {

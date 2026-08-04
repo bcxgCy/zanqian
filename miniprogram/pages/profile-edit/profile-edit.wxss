@@ -1,0 +1,83 @@
+.page {
+  padding: var(--spacing);
+  padding-bottom: calc(var(--spacing) + env(safe-area-inset-bottom));
+}
+
+.card {
+  background: var(--color-card);
+  border-radius: var(--radius-card);
+  padding: var(--spacing);
+  margin-bottom: var(--spacing);
+  box-shadow: var(--shadow-card);
+}
+
+.profile-card {
+  text-align: center;
+}
+
+.avatar-picker {
+  width: 132rpx;
+  height: 132rpx;
+  margin: 8rpx auto 16rpx;
+  padding: 0;
+  background: transparent;
+  border-radius: 50%;
+  line-height: 1;
+}
+
+.avatar-picker::after {
+  border: none;
+}
+
+.avatar {
+  width: 132rpx;
+  height: 132rpx;
+  border-radius: 50%;
+  border: 2rpx solid var(--color-primary);
+  box-sizing: border-box;
+}
+
+.avatar-placeholder {
+  width: 132rpx;
+  height: 132rpx;
+  border-radius: 50%;
+  border: 2rpx solid var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 60rpx;
+  background: var(--color-card-white);
+  box-sizing: border-box;
+}
+
+.avatar-tip {
+  display: block;
+}
+
+.field {
+  margin-bottom: var(--spacing);
+}
+
+.field:last-child {
+  margin-bottom: 0;
+}
+
+.label {
+  display: block;
+  margin-bottom: 12rpx;
+}
+
+.input {
+  background: var(--color-input-bg);
+  border-radius: var(--radius-btn);
+  padding: 20rpx var(--spacing);
+  font-size: 26rpx;
+  color: var(--color-text);
+  border: 1rpx solid var(--color-border);
+}
+
+.save-btn {
+  width: 100%;
+  font-size: 28rpx;
+  padding: 24rpx 0;
+}

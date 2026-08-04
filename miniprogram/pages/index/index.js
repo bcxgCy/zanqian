@@ -2,7 +2,7 @@ const storage = require('../../utils/storage');
 const planUtil = require('../../utils/plan');
 const dateUtil = require('../../utils/date');
 
-const GUIDE_KEY = 'home_new_plan_guide_shown';
+let guideShown = false;
 
 Page({
   data: {
@@ -12,33 +12,41 @@ Page({
 
   onShow() {
     this.loadData();
-    this.showNewUserGuide();
   },
 
   loadData() {
-    const rawPlans = storage.getPlans();
-    const today = dateUtil.today();
-    const plans = rawPlans.map((plan) => {
-      const summary = planUtil.getPlanSummary(plan);
-      const actionPeriod = this.getActionPeriod(plan, today);
-      return Object.assign({}, plan, summary, {
-        planTypeName: planUtil.getPlanTypeName(plan),
-        nextSaveDate: actionPeriod ? actionPeriod.date : '',
-        nextSaveText: actionPeriod ? '下次存钱 ' + actionPeriod.date : '计划已完成',
-        nextPeriodIndex: actionPeriod ? actionPeriod.index : 0,
-        actionText: this.getPlanActionText(actionPeriod, today),
-        actionType: this.getPlanActionType(actionPeriod, today),
-        sortGroup: this.getPlanSortGroup(actionPeriod, today),
+    wx.showLoading({ title: '加载中' });
+    storage.getPlans()
+      .then((rawPlans) => {
+        const overview = storage.getOverviewFromPlans(rawPlans);
+        const today = dateUtil.today();
+        const plans = rawPlans.map((plan) => {
+          const summary = planUtil.getPlanSummary(plan);
+          const actionPeriod = this.getActionPeriod(plan, today);
+          return Object.assign({}, plan, summary, {
+            planTypeName: planUtil.getPlanTypeName(plan),
+            nextSaveDate: actionPeriod ? actionPeriod.date : '',
+            nextSaveText: actionPeriod ? '下次存钱 ' + actionPeriod.date : '计划已完成',
+            nextPeriodIndex: actionPeriod ? actionPeriod.index : 0,
+            actionText: this.getPlanActionText(actionPeriod, today),
+            actionType: this.getPlanActionType(actionPeriod, today),
+            sortGroup: this.getPlanSortGroup(actionPeriod, today),
+          });
+        }).sort((a, b) => {
+          if (a.sortGroup !== b.sortGroup) return a.sortGroup - b.sortGroup;
+          if (a.sortGroup === 1) return b.nextSaveDate.localeCompare(a.nextSaveDate);
+          return a.nextSaveDate.localeCompare(b.nextSaveDate);
+        });
+        this.setData({ overview, plans });
+        this.showNewUserGuide(plans);
+      })
+      .catch((err) => {
+        wx.showToast({ title: '云端数据加载失败', icon: 'none' });
+        console.warn('首页数据加载失败', err);
+      })
+      .finally(() => {
+        wx.hideLoading();
       });
-    }).sort((a, b) => {
-      if (a.sortGroup !== b.sortGroup) return a.sortGroup - b.sortGroup;
-      if (a.sortGroup === 1) return b.nextSaveDate.localeCompare(a.nextSaveDate);
-      return a.nextSaveDate.localeCompare(b.nextSaveDate);
-    });
-    this.setData({
-      overview: storage.getOverview(),
-      plans,
-    });
   },
 
   getActionPeriod(plan, today) {
@@ -67,9 +75,9 @@ Page({
     return 2;
   },
 
-  showNewUserGuide() {
-    if (wx.getStorageSync(GUIDE_KEY) || storage.getPlans().length) return;
-    wx.setStorageSync(GUIDE_KEY, true);
+  showNewUserGuide(plans) {
+    if (guideShown || plans.length) return;
+    guideShown = true;
     setTimeout(() => {
       wx.showModal({
         title: '创建第一份心愿',

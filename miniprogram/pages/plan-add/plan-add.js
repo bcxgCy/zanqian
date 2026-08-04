@@ -110,8 +110,18 @@ Page({
     }
 
     const plan = planUtil.buildPlanFromCalc(planData);
-    storage.addPlan(plan);
-    wx.showToast({ title: '添加成功', icon: 'success' });
-    setTimeout(() => wx.navigateBack(), 500);
+    wx.showLoading({ title: '保存中' });
+    storage.addPlan(plan)
+      .then(() => {
+        wx.showToast({ title: '添加成功', icon: 'success' });
+        setTimeout(() => wx.navigateBack(), 500);
+      })
+      .catch((err) => {
+        wx.showToast({ title: '添加失败', icon: 'none' });
+        console.warn('添加计划失败', err);
+      })
+      .finally(() => {
+        wx.hideLoading();
+      });
   },
 });

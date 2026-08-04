@@ -17,11 +17,21 @@ Page({
   applyPlan() {
     const { result } = this.data;
     const plan = planUtil.buildPlanFromCalc(result);
-    storage.addPlan(plan);
-    wx.showToast({ title: '已添加到首页', icon: 'success' });
-    setTimeout(() => {
-      wx.switchTab({ url: '/pages/index/index' });
-    }, 600);
+    wx.showLoading({ title: '保存中' });
+    storage.addPlan(plan)
+      .then(() => {
+        wx.showToast({ title: '已添加到首页', icon: 'success' });
+        setTimeout(() => {
+          wx.switchTab({ url: '/pages/index/index' });
+        }, 600);
+      })
+      .catch((err) => {
+        wx.showToast({ title: '添加失败', icon: 'none' });
+        console.warn('添加计算结果失败', err);
+      })
+      .finally(() => {
+        wx.hideLoading();
+      });
   },
 
   goBack() {
