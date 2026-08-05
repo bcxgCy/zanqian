@@ -1,6 +1,7 @@
 const planUtil = require('./plan');
 const money = require('./money');
 const cloudSync = require('./cloudSync');
+const dateUtil = require('./date');
 
 const defaultUser = {
   nickName: '存钱达人',
@@ -86,6 +87,35 @@ function allocateRemainingAmounts(periods, remaining) {
   }));
 }
 
+function getPlanFrequency(plan) {
+  if (plan && plan.customConfig && plan.customConfig.frequency) {
+    return plan.customConfig.frequency;
+  }
+  if (plan && plan.planType === 'preset') {
+    if (plan.presetId === '52week') return 'week';
+    if (plan.presetId === '12month') return 'month';
+  }
+  return 'day';
+}
+
+function createRemainingPeriod(plan, completedPeriods, remaining) {
+  const lastPeriod = completedPeriods.reduce((latest, period) => {
+    if (!latest) return period;
+    return period.index > latest.index ? period : latest;
+  }, null);
+  const frequency = getPlanFrequency(plan);
+  const lastDate = lastPeriod && lastPeriod.date ? lastPeriod.date : plan.startDate;
+
+  return {
+    index: lastPeriod ? lastPeriod.index + 1 : 1,
+    expectedAmount: money.toMoney(remaining),
+    savedAmount: 0,
+    date: dateUtil.getPeriodDate(lastDate, frequency, 1),
+    completed: false,
+    note: '',
+  };
+}
+
 function rebalancePeriods(plan, updatedPeriod) {
   const targetAmount = money.toMoney(plan.targetAmount);
   const completedPeriods = [];
@@ -107,6 +137,9 @@ function rebalancePeriods(plan, updatedPeriod) {
   }
 
   const rebalancedPending = allocateRemainingAmounts(pendingPeriods, remaining);
+  if (!rebalancedPending.length) {
+    rebalancedPending.push(createRemainingPeriod(plan, completedPeriods, remaining));
+  }
   return completedPeriods.concat(rebalancedPending).sort((a, b) => a.index - b.index);
 }
 
