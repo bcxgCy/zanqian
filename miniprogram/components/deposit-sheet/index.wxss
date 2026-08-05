@@ -58,6 +58,18 @@
   border: 1rpx solid var(--color-border);
 }
 
+.input-readonly {
+  background: var(--color-page-bg);
+  border-color: var(--color-border);
+  color: var(--color-helper);
+}
+
+.input-editable {
+  background: var(--color-card-white);
+  border-color: rgba(154, 223, 214, 0.9);
+  color: var(--color-text);
+}
+
 .sheet-footer {
   display: flex;
   gap: 16rpx;

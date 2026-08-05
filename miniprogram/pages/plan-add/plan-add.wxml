@@ -1,21 +1,31 @@
 <view class="page">
   <!-- 区域 A：基础信息 -->
   <view class="card">
-    <view class="field">
-      <text class="label helper-text">选择分类图标</text>
-      <scroll-view scroll-x class="icon-scroll" enable-flex>
-        <view class="icon-list">
-          <view
-            class="icon-item {{icon === item ? 'active' : ''}}"
-            wx:for="{{icons}}"
-            wx:key="*this"
-            data-icon="{{item}}"
-            bindtap="selectIcon"
-          >
-            <text>{{item}}</text>
-          </view>
+    <view class="field media-field">
+      <view class="avatar-picker" bindtap="chooseAvatar">
+        <text class="label helper-text">计划头像</text>
+        <view class="avatar-preview">
+          <image wx:if="{{avatarUrl}}" class="avatar-image" src="{{avatarUrl}}" mode="aspectFill"></image>
+          <text wx:else class="avatar-fallback">🐷</text>
         </view>
-      </scroll-view>
+        <text class="avatar-action">{{avatarUrl ? '更换照片' : '拍照 / 相册'}}</text>
+      </view>
+      <view class="category-picker">
+        <text class="label helper-text">选择分类图标</text>
+        <scroll-view scroll-x class="icon-scroll" enable-flex>
+          <view class="icon-list">
+            <view
+              class="icon-item {{icon === item ? 'active' : ''}}"
+              wx:for="{{icons}}"
+              wx:key="*this"
+              data-icon="{{item}}"
+              bindtap="selectIcon"
+            >
+              <text>{{item}}</text>
+            </view>
+          </view>
+        </scroll-view>
+      </view>
     </view>
     <view class="field">
       <text class="label helper-text">存钱目的</text>

@@ -22,7 +22,11 @@
       <text>坚持 {{persistDays}} 天</text>
     </view>
     <view class="plan-brief">
-      <view class="icon-circle">{{plan.icon}}</view>
+      <view class="plan-avatar-wrap">
+        <image wx:if="{{plan.avatarUrl}}" class="plan-avatar" src="{{plan.avatarUrl}}" mode="aspectFill"></image>
+        <view wx:else class="icon-circle">🐷</view>
+        <text class="plan-small-icon">{{plan.icon}}</text>
+      </view>
       <view>
         <text class="name">{{plan.name}}</text>
         <text class="scheme helper-text">{{planTypeName}} · 目标 ¥{{plan.targetAmount}}</text>
@@ -33,7 +37,7 @@
   <view class="section-title section-title-text">存钱明细</view>
   <view class="period-list">
     <view
-      class="period-item {{item.completed ? 'done period-done-animate' : 'todo'}}"
+      class="period-item {{item.completed ? 'done period-done-animate' : 'todo'}} {{item.dateClass}}"
       wx:for="{{plan.periods}}"
       wx:key="index"
       data-index="{{item.index}}"
@@ -44,8 +48,8 @@
         <text class="period-date helper-text">{{item.date}}</text>
       </view>
       <view class="period-right">
-        <text class="period-amount">¥{{item.expectedAmount}}</text>
-        <text class="period-status helper-text">{{item.completed ? '已完成' : '待存入'}}</text>
+        <text class="period-amount">¥{{item.displayAmount}}</text>
+        <text class="period-status helper-text">{{item.dateStatus}}</text>
       </view>
       <text class="period-check" wx:if="{{item.completed}}">✓</text>
     </view>
@@ -58,6 +62,7 @@
   <deposit-sheet
     show="{{showSheet}}"
     period="{{selectedPeriod}}"
+    readonly="{{sheetReadonly}}"
     bind:close="closeSheet"
     bind:confirm="onDepositConfirm"
   ></deposit-sheet>

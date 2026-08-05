@@ -1,26 +1,24 @@
 <view class="mask" wx:if="{{show}}" bindtap="onClose"></view>
 <view class="sheet {{show ? 'show sheet-show-animate' : ''}}" catchtap="noop">
   <view class="sheet-header">
-    <text class="sheet-title section-title-text">记录本期存款</text>
+    <text class="sheet-title section-title-text">{{readonly ? '查看本期存款' : '记录本期存款'}}</text>
   </view>
   <view class="sheet-body">
     <view class="field">
-      <text class="label helper-text">存入金额</text>
-      <input class="input" type="digit" value="{{amount}}" data-field="amount" bindinput="onInput" placeholder="请输入金额" />
+      <text class="label helper-text">存款日期</text>
+      <view class="picker input input-readonly">{{date || '选择日期'}}</view>
     </view>
     <view class="field">
-      <text class="label helper-text">存款日期</text>
-      <picker mode="date" value="{{date}}" bindchange="onDateChange">
-        <view class="picker input">{{date || '选择日期'}}</view>
-      </picker>
+      <text class="label helper-text">存入金额</text>
+      <input class="input {{readonly ? 'input-readonly' : 'input-editable'}}" type="digit" value="{{amount}}" data-field="amount" bindinput="onInput" placeholder="请输入金额" disabled="{{readonly}}" />
     </view>
     <view class="field">
       <text class="label helper-text">备注（选填）</text>
-      <input class="input" value="{{note}}" data-field="note" bindinput="onInput" placeholder="可选" />
+      <input class="input {{readonly ? 'input-readonly' : 'input-editable'}}" value="{{note}}" data-field="note" bindinput="onInput" placeholder="可选" disabled="{{readonly}}" />
     </view>
   </view>
   <view class="sheet-footer">
-    <button class="cancel-btn btn-ghost" bindtap="onClose">取消</button>
-    <button class="confirm-btn btn-mint" bindtap="onConfirm">确认存入</button>
+    <button class="cancel-btn btn-ghost" bindtap="onClose">{{readonly ? '关闭' : '取消'}}</button>
+    <button wx:if="{{!readonly}}" class="confirm-btn btn-mint" bindtap="onConfirm">确认存入</button>
   </view>
 </view>

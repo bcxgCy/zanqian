@@ -78,14 +78,22 @@ button::after {
 }
 
 @keyframes progress-flow {
-  0% { background-position: 0% 50%; }
-  100% { background-position: 200% 50%; }
+  from { background-position: 200% 50%; }
+  to { background-position: 0% 50%; }
+}
+
+@keyframes progress-enter {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
 }
 
 .progress-fill-animated {
   background: linear-gradient(90deg, #165DFF, #0E4BD9, #165DFF, #00B42A);
   background-size: 200% 100%;
-  animation: progress-flow 3s ease infinite;
+  transform-origin: left center;
+  animation:
+    progress-enter 0.8s ease-out,
+    progress-flow 2.4s linear 0.8s infinite;
 }
 
 @keyframes item-done-bounce {

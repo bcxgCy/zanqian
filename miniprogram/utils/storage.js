@@ -53,18 +53,76 @@ function deletePlan(id) {
   return getPlans().then((plans) => savePlans(plans.filter((p) => p.id !== id)));
 }
 
+function allocateRemainingAmounts(periods, remaining) {
+  const remainingCents = money.toCents(remaining);
+  if (remainingCents <= 0 || !periods.length) return [];
+
+  const count = Math.min(periods.length, remainingCents);
+  const nextPeriods = periods.slice(0, count);
+  const baseCents = count;
+  const extraCents = remainingCents - baseCents;
+  const weights = nextPeriods.map((p) => Math.max(0, money.toCents(p.expectedAmount)));
+  const weightTotal = weights.reduce((sum, value) => sum + value, 0);
+  const extras = [];
+  let usedExtra = 0;
+
+  for (let i = 0; i < count; i++) {
+    const raw = weightTotal ? (extraCents * weights[i]) / weightTotal : extraCents / count;
+    const cents = Math.floor(raw);
+    extras.push({ index: i, cents, remainder: raw - cents });
+    usedExtra += cents;
+  }
+
+  let leftExtra = extraCents - usedExtra;
+  extras.sort((a, b) => b.remainder - a.remainder);
+  for (let i = 0; i < extras.length && leftExtra > 0; i++) {
+    extras[i].cents += 1;
+    leftExtra--;
+  }
+  extras.sort((a, b) => a.index - b.index);
+
+  return nextPeriods.map((period, idx) => Object.assign({}, period, {
+    expectedAmount: money.fromCents(1 + extras[idx].cents),
+  }));
+}
+
+function rebalancePeriods(plan, updatedPeriod) {
+  const targetAmount = money.toMoney(plan.targetAmount);
+  const completedPeriods = [];
+  const pendingPeriods = [];
+
+  plan.periods.forEach((period) => {
+    const next = period.index === updatedPeriod.index ? updatedPeriod : period;
+    if (next.completed) {
+      completedPeriods.push(next);
+    } else {
+      pendingPeriods.push(next);
+    }
+  });
+
+  const savedTotal = money.sum(completedPeriods, (p) => p.savedAmount || 0);
+  const remaining = money.sub(targetAmount, savedTotal);
+  if (!money.greaterThanZero(remaining)) {
+    return completedPeriods.sort((a, b) => a.index - b.index);
+  }
+
+  const rebalancedPending = allocateRemainingAmounts(pendingPeriods, remaining);
+  return completedPeriods.concat(rebalancedPending).sort((a, b) => a.index - b.index);
+}
+
 function updatePeriod(planId, periodIndex, data) {
   return getPlan(planId).then((plan) => {
     if (!plan) return null;
-    const periods = plan.periods.map((p) => {
-      if (p.index !== periodIndex) return p;
-      const savedAmount = money.toMoney(
-        data.savedAmount !== undefined ? data.savedAmount : p.savedAmount
-      );
-      const expectedAmount = money.toMoney(p.expectedAmount);
-      const completed = money.gte(savedAmount, money.mul(expectedAmount, 0.99));
-      return Object.assign({}, p, data, { savedAmount, completed });
+    const period = plan.periods.find((p) => p.index === periodIndex);
+    if (!period) return null;
+    const savedAmount = money.toMoney(
+      data.savedAmount !== undefined ? data.savedAmount : period.savedAmount
+    );
+    const updatedPeriod = Object.assign({}, period, data, {
+      savedAmount,
+      completed: money.isPositive(savedAmount),
     });
+    const periods = rebalancePeriods(plan, updatedPeriod);
     return updatePlan(planId, { periods });
   });
 }

@@ -9,6 +9,7 @@ Page({
     presets: planUtil.PRESETS,
     name: '',
     icon: '💰',
+    avatarUrl: '',
     targetAmount: '',
     planMode: 'preset',
     expandedPreset: '',
@@ -29,6 +30,31 @@ Page({
 
   selectIcon(e) {
     this.setData({ icon: e.currentTarget.dataset.icon });
+  },
+
+  chooseAvatar() {
+    wx.chooseMedia({
+      count: 1,
+      mediaType: ['image'],
+      sourceType: ['album', 'camera'],
+      success: (res) => {
+        const file = res.tempFiles && res.tempFiles[0];
+        if (!file || !file.tempFilePath) return;
+        wx.saveFile({
+          tempFilePath: file.tempFilePath,
+          success: (saveRes) => {
+            this.setData({ avatarUrl: saveRes.savedFilePath });
+          },
+          fail: () => {
+            this.setData({ avatarUrl: file.tempFilePath });
+          },
+        });
+      },
+      fail: (err) => {
+        if (err && err.errMsg && err.errMsg.indexOf('cancel') !== -1) return;
+        wx.showToast({ title: '选择图片失败', icon: 'none' });
+      },
+    });
   },
 
   switchPlanMode(e) {
@@ -68,7 +94,7 @@ Page({
   },
 
   submit() {
-    const { name, icon, targetAmount, planMode, selectedPreset, customAmount, customFrequency, startDate, endDate } = this.data;
+    const { name, icon, avatarUrl, targetAmount, planMode, selectedPreset, customAmount, customFrequency, startDate, endDate } = this.data;
     if (!name.trim()) {
       wx.showToast({ title: '请输入存钱目的', icon: 'none' });
       return;
@@ -79,7 +105,7 @@ Page({
       return;
     }
 
-    let planData = { name, icon, targetAmount: target, startDate };
+    let planData = { name, icon, avatarUrl, targetAmount: target, startDate };
 
     if (planMode === 'preset') {
       if (!selectedPreset) {

@@ -56,6 +56,61 @@
   opacity: 0.6;
 }
 
+.media-field {
+  display: flex;
+  align-items: flex-start;
+  gap: 24rpx;
+}
+
+.avatar-picker {
+  width: 132rpx;
+  flex-shrink: 0;
+}
+
+.avatar-picker .label,
+.category-picker .label {
+  margin-bottom: 12rpx;
+}
+
+.avatar-preview {
+  position: relative;
+  width: 112rpx;
+  height: 112rpx;
+}
+
+.avatar-image,
+.avatar-fallback {
+  width: 112rpx;
+  height: 112rpx;
+  border-radius: 50%;
+  border: 2rpx solid var(--color-border);
+  background: var(--color-card-white);
+}
+
+.avatar-image {
+  display: block;
+}
+
+.avatar-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48rpx;
+}
+
+.avatar-action {
+  margin-top: 12rpx;
+  font-size: 24rpx;
+  color: var(--color-primary);
+  display: block;
+  line-height: 1.3;
+}
+
+.category-picker {
+  flex: 1;
+  min-width: 0;
+}
+
 .icon-scroll {
   white-space: nowrap;
 }

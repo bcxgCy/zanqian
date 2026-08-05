@@ -54,10 +54,37 @@
   gap: 16rpx;
 }
 
+.plan-avatar-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
 .plan-brief .icon-circle {
   width: 64rpx;
   height: 64rpx;
-  font-size: 32rpx;
+  font-size: 36rpx;
+}
+
+.plan-brief .plan-avatar {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 50%;
+  display: block;
+  flex-shrink: 0;
+}
+
+.plan-brief .plan-small-icon {
+  position: absolute;
+  right: -4rpx;
+  bottom: -4rpx;
+  width: 28rpx;
+  height: 28rpx;
+  border-radius: 50%;
+  background: #FFFFFF;
+  font-size: 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .name {
@@ -93,6 +120,32 @@
 .period-item.todo {
   background: var(--color-card-white);
   border: 1rpx solid var(--color-border);
+}
+
+.period-item.is-overdue {
+  background: #f5f5f5;
+  border-color: #e5e5e5;
+  opacity: 0.68;
+}
+
+.period-item.is-overdue .period-index,
+.period-item.is-overdue .period-date,
+.period-item.is-overdue .period-amount,
+.period-item.is-overdue .period-status {
+  color: #9a8f8f;
+}
+
+.period-item.is-early {
+  background: #f6f8fb;
+  border-color: #dfe7f0;
+  opacity: 0.58;
+}
+
+.period-item.is-early .period-index,
+.period-item.is-early .period-date,
+.period-item.is-early .period-amount,
+.period-item.is-early .period-status {
+  color: #8f9bad;
 }
 
 .period-index {

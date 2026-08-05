@@ -41,7 +41,8 @@
     >
       <view class="plan-row">
         <view class="piggy-icon plan-icon-wrap">
-          <text class="piggy-mark">🐷</text>
+          <image wx:if="{{item.avatarUrl}}" class="plan-avatar" src="{{item.avatarUrl}}" mode="aspectFill"></image>
+          <text wx:else class="piggy-mark">🐷</text>
           <text class="plan-small-icon">{{item.icon}}</text>
         </view>
         <view class="plan-body">

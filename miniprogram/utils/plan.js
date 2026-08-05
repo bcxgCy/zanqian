@@ -257,6 +257,7 @@ function buildPlanFromCalc(data) {
     id: 'plan_' + Date.now(),
     name: data.name,
     icon: data.icon || '💰',
+    avatarUrl: data.avatarUrl || '',
     targetAmount,
     planType,
     presetId: data.presetId || null,

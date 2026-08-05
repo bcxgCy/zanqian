@@ -4,6 +4,7 @@ Component({
   properties: {
     show: { type: Boolean, value: false },
     period: { type: Object, value: null },
+    readonly: { type: Boolean, value: false },
   },
   data: {
     amount: '',
@@ -13,8 +14,9 @@ Component({
   observers: {
     period(p) {
       if (p) {
+        const amount = p.completed && p.savedAmount !== undefined ? p.savedAmount : p.expectedAmount;
         this.setData({
-          amount: p.savedAmount ? String(p.savedAmount) : String(p.expectedAmount),
+          amount: String(amount),
           date: p.date || '',
           note: p.note || '',
         });
@@ -26,13 +28,16 @@ Component({
       this.triggerEvent('close');
     },
     onInput(e) {
+      if (this.properties.readonly) return;
       const field = e.currentTarget.dataset.field;
       this.setData({ [field]: e.detail.value });
     },
     onDateChange(e) {
+      if (this.properties.readonly) return;
       this.setData({ date: e.detail.value });
     },
     onConfirm() {
+      if (this.properties.readonly) return;
       const amount = money.toMoney(this.data.amount);
       if (!money.isPositive(amount)) {
         wx.showToast({ title: '请输入有效金额', icon: 'none' });
