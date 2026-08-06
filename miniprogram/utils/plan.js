@@ -39,6 +39,7 @@ function getPreset(id) {
 }
 
 function generate365Periods(startDate, targetAmount) {
+  // 365 法默认合计 66795；用户输入自定义目标时按比例缩放每期金额。
   const total = money.toMoney(targetAmount);
   const presetTotal = 66795;
   const useCustom = total && total !== presetTotal;
@@ -55,6 +56,7 @@ function generate365Periods(startDate, targetAmount) {
     });
   }
   if (useCustom) {
+    // 金额按比例缩放会有分位误差，最后一期修正保证总额精确等于目标。
     const amounts = periods.map((p) => p.expectedAmount);
     const fixed = money.fixTotal(amounts, total);
     fixed.forEach((amount, idx) => {
@@ -65,6 +67,7 @@ function generate365Periods(startDate, targetAmount) {
 }
 
 function generate52WeekPeriods(startDate, targetAmount) {
+  // 52 周法默认每周递增 10 元；自定义目标同样按比例缩放。
   const total = money.toMoney(targetAmount);
   const presetTotal = 13780;
   const useCustom = total && total !== presetTotal;
@@ -116,6 +119,7 @@ function generateRandom365Periods(startDate, targetAmount) {
 }
 
 function generateCustomFixedPeriods(startDate, targetAmount, amountPerPeriod, frequency) {
+  // 固定金额模式按“每期金额”滚动生成，最后一期用剩余金额收尾。
   const periods = [];
   let remaining = money.toMoney(targetAmount);
   const perPeriod = money.toMoney(amountPerPeriod);
@@ -137,6 +141,7 @@ function generateCustomFixedPeriods(startDate, targetAmount, amountPerPeriod, fr
 }
 
 function generateDeadlinePeriods(startDate, endDate, targetAmount, frequency, randomAmount) {
+  // 截止日期模式先算期数，再决定平均拆分或随机拆分。
   const count = dateUtil.countPeriods(startDate, endDate, frequency);
   const total = money.toMoney(targetAmount);
   const amounts = randomAmount
@@ -153,6 +158,7 @@ function generateDeadlinePeriods(startDate, endDate, targetAmount, frequency, ra
 }
 
 function generatePeriods(plan) {
+  // 统一计划生成入口，页面和计算器都通过这里保持规则一致。
   const { planType, presetId, targetAmount, customConfig, startDate } = plan;
   if (planType === 'preset') {
     if (presetId === '365') return generate365Periods(startDate, targetAmount);
@@ -189,6 +195,7 @@ function calcProgress(saved, target) {
 }
 
 function getPlanSummary(plan) {
+  // 计划卡片和详情页共用的摘要，避免各页面各算一套进度。
   const savedAmount = calcSavedAmount(plan.periods);
   const targetAmount = money.toMoney(plan.targetAmount);
   const progress = calcProgress(savedAmount, targetAmount);
@@ -228,6 +235,7 @@ function calculateDeadlineResult(targetAmount, startDate, endDate, frequency, ra
 }
 
 function buildPlanFromCalc(data) {
+  // 计算器结果和新建计划最终都收敛成同一种 plan 数据结构。
   const startDate = data.startDate || dateUtil.today();
   let periods = [];
   const planType = data.planType;
@@ -235,6 +243,7 @@ function buildPlanFromCalc(data) {
   const targetAmount = money.toMoney(data.targetAmount);
 
   if (data.periods && data.periods.length) {
+    // 计算器已经算好 periods 时直接复用，但重置为未打卡状态。
     periods = data.periods.map((p) => ({
       index: p.index,
       expectedAmount: money.toMoney(p.expectedAmount),
@@ -269,6 +278,7 @@ function buildPlanFromCalc(data) {
 }
 
 function buildCalcTable(periods) {
+  // 测算结果页展示累计和剩余金额，不影响真实计划数据。
   let cumulative = 0;
   const total = money.sum(periods, (p) => p.expectedAmount);
   return periods.map((p) => {

@@ -3,6 +3,7 @@ const planUtil = require('./plan');
 const money = require('./money');
 
 function getAllRecords(plans) {
+  // 当前没有独立流水表，统计流水由所有已打卡 period 反推出。
   const records = [];
   plans.forEach((plan) => {
     plan.periods.forEach((p) => {
@@ -45,6 +46,7 @@ function getDailyAverage(records, days) {
 }
 
 function getRingData(plans) {
+  // 圆环图按计划累计已存金额占比分配，只展示有存入记录的计划。
   return plans
     .map((plan) => ({
       name: plan.name,
@@ -63,6 +65,7 @@ function assignRingColors(plans) {
 }
 
 function getUserStats(plans) {
+  // 存钱天数优先覆盖从最早计划到今天的跨度，用于体现持续使用时间。
   const records = getAllRecords(plans);
   const savedTotal = money.sum(records, (r) => r.amount);
   const dates = records.map((r) => r.date);
@@ -81,6 +84,7 @@ function getUserStats(plans) {
 }
 
 function getStatsSummary(plans, mode, key) {
+  // 统计页按当前筛选范围算存入，但目标剩余仍基于全量计划和全量已存。
   const allRecords = getAllRecords(plans);
   const records = filterByRange(allRecords, mode, key);
   const saved = money.sum(records, (r) => r.amount);

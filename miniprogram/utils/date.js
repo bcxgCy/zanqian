@@ -8,6 +8,7 @@ function formatDate(d) {
 }
 
 function parseDate(str) {
+  // 手动按本地时区构造日期，避免 new Date('YYYY-MM-DD') 在部分环境按 UTC 解析导致日期偏移。
   const parts = str.split('-').map(Number);
   return new Date(parts[0], parts[1] - 1, parts[2]);
 }
@@ -46,6 +47,7 @@ function getPeriodDate(startDate, frequency, index) {
 }
 
 function countPeriods(startDate, endDate, frequency) {
+  // 起止日期都计入期数；若结束日期早于开始日期，至少返回 1 期作为兜底。
   let count = 0;
   let cur = parseDate(startDate);
   const end = parseDate(endDate);

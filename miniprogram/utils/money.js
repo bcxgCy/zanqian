@@ -1,6 +1,7 @@
 const SCALE = 100;
 
 function toCents(value) {
+  // 所有金额先转成“分”参与计算，规避 JS 浮点数精度问题。
   const num = Number(value);
   if (!Number.isFinite(num)) return 0;
   return Math.round(num * SCALE + Number.EPSILON);
@@ -83,6 +84,7 @@ function isPositive(value) {
 }
 
 function splitEqual(total, count) {
+  // 平均拆分时把分位余数放到最后一期，保证总额不丢分。
   if (count <= 0) return [];
   const totalCents = toCents(total);
   const base = Math.floor(totalCents / count);
@@ -96,6 +98,7 @@ function splitEqual(total, count) {
 }
 
 function fixTotal(parts, total) {
+  // 对比例缩放/随机拆分后的数组做尾差修正，确保合计等于目标金额。
   if (!parts.length) return parts;
   const next = parts.slice();
   const head = sum(next.slice(0, -1));
@@ -104,6 +107,7 @@ function fixTotal(parts, total) {
 }
 
 function randomSplit(total, count) {
+  // 用随机切点拆分总额，最后再通过 fixTotal 校正总和。
   if (count <= 0) return [];
   if (count === 1) return [toMoney(total)];
 
@@ -124,6 +128,7 @@ function randomSplit(total, count) {
 }
 
 function percent(value, total) {
+  // 进度最多显示 100%，超额存入不会把进度条撑破。
   if (!total) return 0;
   return Math.min(100, Math.round((toCents(value) / toCents(total)) * 1000) / 10);
 }

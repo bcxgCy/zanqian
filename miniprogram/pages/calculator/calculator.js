@@ -142,8 +142,11 @@ Page({
       endDate: result.endDate,
       periodCount: result.periodCount,
     };
+    // periods 数据较大，放 URL 容易超长；这里只传临时缓存 key 到结果页。
+    const resultKey = 'calc_result_' + Date.now();
+    wx.setStorageSync(resultKey, payload);
     wx.navigateTo({
-      url: '/pages/calculator-result/calculator-result?data=' + encodeURIComponent(JSON.stringify(payload)),
+      url: '/pages/calculator-result/calculator-result?key=' + resultKey,
     });
   },
 });

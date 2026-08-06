@@ -10,6 +10,7 @@ const defaultUser = {
 };
 
 function normalizeState(state) {
+  // 云端可能返回旧数据或空字段，这里统一补齐默认用户和 plans 数组。
   return {
     openid: state && state.openid ? state.openid : '',
     user: Object.assign({}, defaultUser, state && state.user ? state.user : {}),
@@ -26,6 +27,7 @@ function getPlans() {
 }
 
 function savePlans(plans) {
+  // 仅用于清空/兼容旧接口；常规计划操作走 addPlan/updatePlan/deletePlan。
   return cloudSync.savePlans(plans || []).then(normalizeState);
 }
 
@@ -34,27 +36,19 @@ function getPlan(id) {
 }
 
 function addPlan(plan) {
-  return getPlans().then((plans) => {
-    const next = [plan].concat(plans);
-    return savePlans(next).then(() => plan);
-  });
+  return cloudSync.addPlan(plan).then((result) => result.plan || plan);
 }
 
 function updatePlan(id, updates) {
-  return getPlans().then((plans) => {
-    const idx = plans.findIndex((p) => p.id === id);
-    if (idx === -1) return null;
-    const next = plans.slice();
-    next[idx] = Object.assign({}, next[idx], updates);
-    return savePlans(next).then(() => next[idx]);
-  });
+  return cloudSync.updatePlan(id, updates).then((result) => result.plan || null);
 }
 
 function deletePlan(id) {
-  return getPlans().then((plans) => savePlans(plans.filter((p) => p.id !== id)));
+  return cloudSync.deletePlan(id).then(normalizeState);
 }
 
 function allocateRemainingAmounts(periods, remaining) {
+  // 打卡后按剩余目标重摊未完成期数，保证每期至少 0.01 元并尽量保持原权重。
   const remainingCents = money.toCents(remaining);
   if (remainingCents <= 0 || !periods.length) return [];
 
@@ -88,6 +82,7 @@ function allocateRemainingAmounts(periods, remaining) {
 }
 
 function getPlanFrequency(plan) {
+  // 暂停重启、最后一期补差额都需要知道下一期按天/周/月顺延。
   if (plan && plan.customConfig && plan.customConfig.frequency) {
     return plan.customConfig.frequency;
   }
@@ -99,6 +94,7 @@ function getPlanFrequency(plan) {
 }
 
 function createRemainingPeriod(plan, completedPeriods, remaining) {
+  // 所有期数完成但金额还没达标时，追加一期补齐剩余差额。
   const lastPeriod = completedPeriods.reduce((latest, period) => {
     if (!latest) return period;
     return period.index > latest.index ? period : latest;
@@ -117,6 +113,7 @@ function createRemainingPeriod(plan, completedPeriods, remaining) {
 }
 
 function reschedulePendingPeriods(plan, restartDate) {
+  // 重启计划只重排未完成期数；已完成记录保留原日期，避免历史流水被改写。
   const frequency = getPlanFrequency(plan);
   let pendingIndex = 0;
   return (plan.periods || []).map((period) => {
@@ -128,6 +125,7 @@ function reschedulePendingPeriods(plan, restartDate) {
 }
 
 function rebalancePeriods(plan, updatedPeriod) {
+  // 记录一次存入后，重新计算后续未完成期数，确保最终目标金额能被补齐。
   const targetAmount = money.toMoney(plan.targetAmount);
   const completedPeriods = [];
   const pendingPeriods = [];
@@ -144,6 +142,7 @@ function rebalancePeriods(plan, updatedPeriod) {
   const savedTotal = money.sum(completedPeriods, (p) => p.savedAmount || 0);
   const remaining = money.sub(targetAmount, savedTotal);
   if (!money.greaterThanZero(remaining)) {
+    // 已存达到或超过目标时，未完成期数不再保留，计划视为完成。
     return completedPeriods.sort((a, b) => a.index - b.index);
   }
 
@@ -155,6 +154,7 @@ function rebalancePeriods(plan, updatedPeriod) {
 }
 
 function updatePeriod(planId, periodIndex, data) {
+  // 单期打卡是唯一会改变 periods 金额分配的入口。
   return getPlan(planId).then((plan) => {
     if (!plan) return null;
     const period = plan.periods.find((p) => p.index === periodIndex);
@@ -172,6 +172,7 @@ function updatePeriod(planId, periodIndex, data) {
 }
 
 function pausePlan(id) {
+  // 暂停只打标记，不改期数；首页和详情页根据 paused 控制排序与只读状态。
   return updatePlan(id, {
     paused: true,
     pausedAt: new Date().toISOString(),
@@ -179,6 +180,7 @@ function pausePlan(id) {
 }
 
 function restartPlan(id) {
+  // 重启从今天开始重新安排未完成期数，并同步截止日期型计划的新 endDate。
   return getPlan(id).then((plan) => {
     if (!plan) return null;
     const periods = reschedulePendingPeriods(plan, dateUtil.today());
@@ -215,6 +217,7 @@ function getOverview() {
 }
 
 function getOverviewFromPlans(plans) {
+  // 首页总览直接按所有计划汇总，暂停计划仍计入目标和已存金额。
   const targetTotal = money.sum(plans, (plan) => plan.targetAmount);
   const savedTotal = money.sum(plans, (plan) => planUtil.calcSavedAmount(plan.periods));
   return {

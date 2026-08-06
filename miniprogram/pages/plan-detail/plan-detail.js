@@ -48,6 +48,7 @@ Page({
           today,
           canPause: !plan.paused && summary.progress < 100,
         }, () => {
+          // 首页快捷打卡参数只消费一次；暂停计划不会自动弹出打卡面板。
           if (!this.autoCheckin) return;
           this.autoCheckin = false;
           if (!plan.paused) this.openCheckinSheet();
@@ -63,6 +64,7 @@ Page({
   },
 
   formatPeriod(period, today) {
+    // 期数状态只影响展示和交互提示，真实完成状态仍以 completed 为准。
     const isToday = period.date === today;
     const isOverdue = !period.completed && period.date < today;
     const isEarly = !period.completed && period.date > today;
@@ -93,6 +95,7 @@ Page({
 
   handlePeriodTap(period) {
     if (!period) return;
+    // 暂停计划进入只读模式，历史和未来期数都不能编辑。
     if (this.data.plan.paused) {
       this.showDepositSheet(period, true);
       return;
@@ -144,6 +147,7 @@ Page({
   },
 
   onDepositConfirm(e) {
+    // 防止暂停前已打开的弹层在暂停后仍提交打卡。
     if (this.data.plan && this.data.plan.paused) {
       wx.showToast({ title: '计划已暂停', icon: 'none' });
       this.closeSheet();
@@ -189,6 +193,7 @@ Page({
   },
 
   pausePlan() {
+    // 暂停不改日期和金额，只改变计划状态，方便之后重启重新排期。
     wx.showModal({
       title: '暂停计划',
       content: '暂停后该计划会排到首页底部，期间只能查看，不能打卡。确认暂停吗？',
@@ -214,6 +219,7 @@ Page({
   },
 
   restartPlan() {
+    // 重启会把未完成期数从今天开始重排，已完成流水保持不变。
     wx.showModal({
       title: '重启计划',
       content: '重启后会从今天开始重新安排未完成期数的预计完成时间。确认重启吗？',

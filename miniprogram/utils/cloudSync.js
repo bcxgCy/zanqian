@@ -8,6 +8,7 @@ function callDataService(data) {
   if (!isReady()) {
     return Promise.reject(new Error('当前基础库不支持云能力'));
   }
+  // 所有云端读写集中到 dataService，便于后续统一加重试、离线队列或错误上报。
   return wx.cloud.callFunction({
     name: 'dataService',
     data,
@@ -27,6 +28,7 @@ function getLoginState() {
 }
 
 function login() {
+  // login 同时承担拉取完整业务状态的职责，返回 user + plans。
   return callDataService({ action: 'login' }).then((result) => {
     cacheLogin(result);
     return result;
@@ -41,7 +43,32 @@ function saveUser(user) {
 }
 
 function savePlans(plans) {
+  // 兼容旧版整包保存接口；新增/更新/删除计划优先使用下面的计划级接口。
   return callDataService({ action: 'savePlans', plans }).then((result) => {
+    cacheLogin(result);
+    return result;
+  });
+}
+
+function addPlan(plan) {
+  // 计划级写入，避免每次新增都从客户端覆盖全部 plans。
+  return callDataService({ action: 'addPlan', plan }).then((result) => {
+    cacheLogin(result);
+    return result;
+  });
+}
+
+function updatePlan(planId, updates) {
+  // 只提交被修改计划的增量字段，云端负责合并为完整计划快照。
+  return callDataService({ action: 'updatePlan', planId, updates }).then((result) => {
+    cacheLogin(result);
+    return result;
+  });
+}
+
+function deletePlan(planId) {
+  // 删除单个计划文档，避免整包过滤保存造成并发覆盖。
+  return callDataService({ action: 'deletePlan', planId }).then((result) => {
     cacheLogin(result);
     return result;
   });
@@ -59,5 +86,8 @@ module.exports = {
   login,
   saveUser,
   savePlans,
+  addPlan,
+  updatePlan,
+  deletePlan,
   clearPlans,
 };

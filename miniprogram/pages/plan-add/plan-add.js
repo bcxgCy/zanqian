@@ -2,6 +2,7 @@ const dateUtil = require('../../utils/date');
 const planUtil = require('../../utils/plan');
 const storage = require('../../utils/storage');
 const money = require('../../utils/money');
+const cloudFile = require('../../utils/cloudFile');
 
 Page({
   data: {
@@ -40,15 +41,19 @@ Page({
       success: (res) => {
         const file = res.tempFiles && res.tempFiles[0];
         if (!file || !file.tempFilePath) return;
-        wx.saveFile({
-          tempFilePath: file.tempFilePath,
-          success: (saveRes) => {
-            this.setData({ avatarUrl: saveRes.savedFilePath });
-          },
-          fail: () => {
-            this.setData({ avatarUrl: file.tempFilePath });
-          },
-        });
+        wx.showLoading({ title: '上传中' });
+        // 计划头像保存云文件 ID，避免本地路径跨设备不可用。
+        cloudFile.uploadImage(file.tempFilePath, 'plan-avatars')
+          .then((fileID) => {
+            this.setData({ avatarUrl: fileID });
+          })
+          .catch((err) => {
+            wx.showToast({ title: '头像上传失败', icon: 'none' });
+            console.warn('计划头像上传失败', err);
+          })
+          .finally(() => {
+            wx.hideLoading();
+          });
       },
       fail: (err) => {
         if (err && err.errMsg && err.errMsg.indexOf('cancel') !== -1) return;
@@ -108,6 +113,7 @@ Page({
     let planData = { name, icon, avatarUrl, targetAmount: target, startDate };
 
     if (planMode === 'preset') {
+      // 预设计划只需要目标金额和方案 id，具体期数由 planUtil 统一生成。
       if (!selectedPreset) {
         wx.showToast({ title: '请选择预设方案', icon: 'none' });
         return;
@@ -120,6 +126,7 @@ Page({
         return;
       }
       if (endDate) {
+        // 设置结束时间时按目标金额和期数自动分摊，不使用“每期金额”作为生成依据。
         planData.planType = 'custom_deadline';
         planData.customConfig = {
           endDate,
@@ -136,6 +143,7 @@ Page({
     }
 
     const plan = planUtil.buildPlanFromCalc(planData);
+    // 保存时只提交单个计划，云端按计划文档增量写入。
     wx.showLoading({ title: '保存中' });
     storage.addPlan(plan)
       .then(() => {

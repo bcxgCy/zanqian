@@ -22,6 +22,7 @@ Page({
         const today = dateUtil.today();
         const plans = rawPlans.map((plan) => {
           const summary = planUtil.getPlanSummary(plan);
+          // 暂停计划不提供首页快捷打卡，只允许进入详情查看。
           const actionPeriod = plan.paused ? null : this.getActionPeriod(plan, today);
           return Object.assign({}, plan, summary, {
             planTypeName: planUtil.getPlanTypeName(plan),
@@ -37,6 +38,7 @@ Page({
             sortGroup: plan.paused ? 4 : this.getPlanSortGroup(actionPeriod, today),
           });
         }).sort((a, b) => {
+          // 排序优先级：今日待打卡、逾期补打卡、未来计划、已完成、已暂停。
           if (a.sortGroup !== b.sortGroup) return a.sortGroup - b.sortGroup;
           if (a.sortGroup === 1) return b.nextSaveDate.localeCompare(a.nextSaveDate);
           return a.nextSaveDate.localeCompare(b.nextSaveDate);
@@ -54,6 +56,7 @@ Page({
   },
 
   getActionPeriod(plan, today) {
+    // 首页只露出一个最需要处理的期数：优先今天，其次最早未完成期。
     const periods = plan.periods || [];
     const todayPeriod = periods.find((period) => !period.completed && period.date === today);
     if (todayPeriod) return todayPeriod;
@@ -80,6 +83,7 @@ Page({
   },
 
   showNewUserGuide(plans) {
+    // 新用户引导只在本次小程序生命周期内弹一次，避免反复打扰。
     if (guideShown || plans.length) return;
     guideShown = true;
     setTimeout(() => {
