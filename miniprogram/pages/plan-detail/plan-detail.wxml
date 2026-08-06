@@ -51,7 +51,6 @@
         <text class="period-amount">¥{{item.displayAmount}}</text>
         <text class="period-status helper-text">{{item.dateStatus}}</text>
       </view>
-      <text class="period-check" wx:if="{{item.completed}}">✓</text>
     </view>
   </view>
 

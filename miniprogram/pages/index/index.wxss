@@ -258,15 +258,6 @@
   border: 1rpx solid var(--color-border);
 }
 
-.done-watermark {
-  position: absolute;
-  right: 16rpx;
-  bottom: 12rpx;
-  font-size: 48rpx;
-  color: rgba(0, 180, 42, 0.28);
-  font-weight: 300;
-}
-
 .empty {
   text-align: center;
   padding: 100rpx 40rpx;

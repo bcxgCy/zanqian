@@ -67,7 +67,6 @@
           </view>
         </view>
       </view>
-      <text class="done-watermark" wx:if="{{item.progress >= 100}}">✓</text>
     </view>
 
     <view class="empty" wx:if="{{!plans.length}}">
