@@ -119,6 +119,37 @@
   border: 1rpx solid var(--color-primary-light);
 }
 
+.plan-paused {
+  background: var(--color-disabled-bg);
+  border-color: var(--color-border);
+  box-shadow: none;
+}
+
+.plan-paused .piggy-icon,
+.plan-paused .plan-avatar,
+.plan-paused .progress-bar {
+  opacity: 0.58;
+}
+
+.plan-paused .progress-fill {
+  background: #C9CDD4;
+  animation: none;
+}
+
+.plan-paused .plan-name,
+.plan-paused .plan-percent,
+.plan-paused .plan-meta,
+.plan-paused .next-save,
+.plan-paused .plan-type {
+  color: var(--color-text-muted);
+}
+
+.plan-paused .plan-action {
+  color: var(--color-text-muted);
+  background: #FFFFFF;
+  border: 1rpx solid var(--color-border);
+}
+
 .plan-row {
   display: flex;
   align-items: flex-start;

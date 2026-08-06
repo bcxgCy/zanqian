@@ -12,6 +12,7 @@ Page({
     showSheet: false,
     sheetReadonly: false,
     selectedPeriod: null,
+    canPause: false,
   },
 
   onLoad(options) {
@@ -45,11 +46,11 @@ Page({
           planTypeName: planUtil.getPlanTypeName(plan),
           persistDays,
           today,
+          canPause: !plan.paused && summary.progress < 100,
         }, () => {
-          if (this.autoCheckin) {
-            this.openCheckinSheet();
-            this.autoCheckin = false;
-          }
+          if (!this.autoCheckin) return;
+          this.autoCheckin = false;
+          if (!plan.paused) this.openCheckinSheet();
         });
       })
       .catch((err) => {
@@ -92,6 +93,11 @@ Page({
 
   handlePeriodTap(period) {
     if (!period) return;
+    if (this.data.plan.paused) {
+      this.showDepositSheet(period, true);
+      return;
+    }
+
     const isToday = period.date === this.data.today;
 
     if (period.completed) {
@@ -123,6 +129,7 @@ Page({
   },
 
   openCheckinSheet() {
+    if (this.data.plan && this.data.plan.paused) return;
     const periods = this.data.plan.periods || [];
     const period =
       periods.find((p) => p.index === this.autoPeriodIndex) ||
@@ -137,6 +144,11 @@ Page({
   },
 
   onDepositConfirm(e) {
+    if (this.data.plan && this.data.plan.paused) {
+      wx.showToast({ title: '计划已暂停', icon: 'none' });
+      this.closeSheet();
+      return;
+    }
     const { savedAmount, note } = e.detail;
     wx.showLoading({ title: '保存中' });
     storage.updatePeriod(this.planId, this.data.selectedPeriod.index, {
@@ -172,6 +184,56 @@ Page({
             wx.hideLoading();
           });
         }
+      },
+    });
+  },
+
+  pausePlan() {
+    wx.showModal({
+      title: '暂停计划',
+      content: '暂停后该计划会排到首页底部，期间只能查看，不能打卡。确认暂停吗？',
+      confirmText: '暂停',
+      cancelText: '取消',
+      success: (res) => {
+        if (!res.confirm) return;
+        wx.showLoading({ title: '暂停中' });
+        storage.pausePlan(this.planId)
+          .then(() => this.loadPlan(false))
+          .then(() => {
+            wx.showToast({ title: '已暂停', icon: 'success' });
+          })
+          .catch((err) => {
+            wx.showToast({ title: '暂停失败', icon: 'none' });
+            console.warn('暂停计划失败', err);
+          })
+          .finally(() => {
+            wx.hideLoading();
+          });
+      },
+    });
+  },
+
+  restartPlan() {
+    wx.showModal({
+      title: '重启计划',
+      content: '重启后会从今天开始重新安排未完成期数的预计完成时间。确认重启吗？',
+      confirmText: '重启',
+      cancelText: '取消',
+      success: (res) => {
+        if (!res.confirm) return;
+        wx.showLoading({ title: '重启中' });
+        storage.restartPlan(this.planId)
+          .then(() => this.loadPlan(false))
+          .then(() => {
+            wx.showToast({ title: '已重启', icon: 'success' });
+          })
+          .catch((err) => {
+            wx.showToast({ title: '重启失败', icon: 'none' });
+            console.warn('重启计划失败', err);
+          })
+          .finally(() => {
+            wx.hideLoading();
+          });
       },
     });
   },

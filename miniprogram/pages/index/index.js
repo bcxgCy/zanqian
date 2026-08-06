@@ -22,15 +22,19 @@ Page({
         const today = dateUtil.today();
         const plans = rawPlans.map((plan) => {
           const summary = planUtil.getPlanSummary(plan);
-          const actionPeriod = this.getActionPeriod(plan, today);
+          const actionPeriod = plan.paused ? null : this.getActionPeriod(plan, today);
           return Object.assign({}, plan, summary, {
             planTypeName: planUtil.getPlanTypeName(plan),
             nextSaveDate: actionPeriod ? actionPeriod.date : '',
-            nextSaveText: actionPeriod ? '下次存钱 ' + actionPeriod.date : '计划已完成',
+            nextSaveText: plan.paused
+              ? '已暂停'
+              : actionPeriod
+                ? '下次存钱 ' + actionPeriod.date
+                : '计划已完成',
             nextPeriodIndex: actionPeriod ? actionPeriod.index : 0,
-            actionText: this.getPlanActionText(actionPeriod, today),
-            actionType: this.getPlanActionType(actionPeriod, today),
-            sortGroup: this.getPlanSortGroup(actionPeriod, today),
+            actionText: plan.paused ? '查看' : this.getPlanActionText(actionPeriod, today),
+            actionType: plan.paused ? 'view' : this.getPlanActionType(actionPeriod, today),
+            sortGroup: plan.paused ? 4 : this.getPlanSortGroup(actionPeriod, today),
           });
         }).sort((a, b) => {
           if (a.sortGroup !== b.sortGroup) return a.sortGroup - b.sortGroup;

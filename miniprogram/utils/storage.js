@@ -116,6 +116,17 @@ function createRemainingPeriod(plan, completedPeriods, remaining) {
   };
 }
 
+function reschedulePendingPeriods(plan, restartDate) {
+  const frequency = getPlanFrequency(plan);
+  let pendingIndex = 0;
+  return (plan.periods || []).map((period) => {
+    if (period.completed) return period;
+    const date = dateUtil.getPeriodDate(restartDate, frequency, pendingIndex);
+    pendingIndex++;
+    return Object.assign({}, period, { date });
+  });
+}
+
 function rebalancePeriods(plan, updatedPeriod) {
   const targetAmount = money.toMoney(plan.targetAmount);
   const completedPeriods = [];
@@ -160,6 +171,33 @@ function updatePeriod(planId, periodIndex, data) {
   });
 }
 
+function pausePlan(id) {
+  return updatePlan(id, {
+    paused: true,
+    pausedAt: new Date().toISOString(),
+  });
+}
+
+function restartPlan(id) {
+  return getPlan(id).then((plan) => {
+    if (!plan) return null;
+    const periods = reschedulePendingPeriods(plan, dateUtil.today());
+    const lastPeriod = periods[periods.length - 1];
+    const updates = {
+      paused: false,
+      pausedAt: '',
+      restartedAt: new Date().toISOString(),
+      periods,
+    };
+    if (plan.planType === 'custom_deadline' && plan.customConfig) {
+      updates.customConfig = Object.assign({}, plan.customConfig, {
+        endDate: lastPeriod ? lastPeriod.date : plan.customConfig.endDate,
+      });
+    }
+    return updatePlan(id, updates);
+  });
+}
+
 function getUser() {
   return getState().then((state) => state.user);
 }
@@ -196,6 +234,8 @@ module.exports = {
   updatePlan,
   deletePlan,
   updatePeriod,
+  pausePlan,
+  restartPlan,
   getUser,
   saveUser,
   getLoginState,

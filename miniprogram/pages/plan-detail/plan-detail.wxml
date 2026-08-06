@@ -54,7 +54,17 @@
     </view>
   </view>
 
-  <view class="delete-wrap">
+  <view class="plan-action-wrap">
+    <button
+      wx:if="{{canPause}}"
+      class="plan-state-btn pause-btn btn-ghost"
+      bindtap="pausePlan"
+    >暂停计划</button>
+    <button
+      wx:if="{{plan.paused}}"
+      class="plan-state-btn restart-btn btn-mint"
+      bindtap="restartPlan"
+    >重启计划</button>
     <button class="delete-btn btn-ghost" bindtap="deletePlan">删除计划</button>
   </view>
 

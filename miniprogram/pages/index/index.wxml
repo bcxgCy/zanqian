@@ -33,7 +33,7 @@
   <!-- 区域 D：计划列表 -->
   <view class="plan-list">
     <view
-      class="plan-card {{item.progress >= 100 ? 'plan-done' : ''}}"
+      class="plan-card {{item.progress >= 100 ? 'plan-done' : ''}} {{item.paused ? 'plan-paused' : ''}}"
       wx:for="{{plans}}"
       wx:key="id"
       data-id="{{item.id}}"
