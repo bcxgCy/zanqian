@@ -1,6 +1,7 @@
 const dateUtil = require('../../utils/date');
 const planUtil = require('../../utils/plan');
 const storage = require('../../utils/storage');
+const money = require('../../utils/money');
 
 Page({
   data: {
@@ -46,12 +47,12 @@ Page({
           planTypeName: planUtil.getPlanTypeName(plan),
           persistDays,
           today,
-          canPause: !plan.paused && summary.progress < 100,
+          canPause: !plan.paused && !plan.completed && summary.progress < 100,
         }, () => {
-          // 首页快捷打卡参数只消费一次；暂停计划不会自动弹出打卡面板。
+          // 首页快捷打卡参数只消费一次；只读计划不会自动弹出打卡面板。
           if (!this.autoCheckin) return;
           this.autoCheckin = false;
-          if (!plan.paused) this.openCheckinSheet();
+          if (!this.isPlanReadonly()) this.openCheckinSheet();
         });
       })
       .catch((err) => {
@@ -95,8 +96,8 @@ Page({
 
   handlePeriodTap(period) {
     if (!period) return;
-    // 暂停计划进入只读模式，历史和未来期数都不能编辑。
-    if (this.data.plan.paused) {
+    // 暂停/完成计划进入只读模式，历史和未来期数都不能编辑。
+    if (this.isPlanReadonly()) {
       this.showDepositSheet(period, true);
       return;
     }
@@ -132,7 +133,7 @@ Page({
   },
 
   openCheckinSheet() {
-    if (this.data.plan && this.data.plan.paused) return;
+    if (this.isPlanReadonly()) return;
     const periods = this.data.plan.periods || [];
     const period =
       periods.find((p) => p.index === this.autoPeriodIndex) ||
@@ -147,29 +148,62 @@ Page({
   },
 
   onDepositConfirm(e) {
-    // 防止暂停前已打开的弹层在暂停后仍提交打卡。
-    if (this.data.plan && this.data.plan.paused) {
-      wx.showToast({ title: '计划已暂停', icon: 'none' });
+    // 防止进入只读前已打开的弹层在状态变化后仍提交打卡。
+    if (this.isPlanReadonly()) {
+      wx.showToast({ title: this.data.plan.completed ? '计划已完成' : '计划已暂停', icon: 'none' });
       this.closeSheet();
       return;
     }
     const { savedAmount, note } = e.detail;
+    if (this.shouldConfirmCompletion(savedAmount)) {
+      wx.showModal({
+        title: '确认完成计划',
+        content: '本次存入后该计划将达成目标，确认将计划标记为完成吗？完成后只能查看，不能继续打卡。',
+        confirmText: '确认完成',
+        cancelText: '再想想',
+        success: (res) => {
+          if (res.confirm) this.saveDeposit(savedAmount, note, true);
+        },
+      });
+      return;
+    }
+    this.saveDeposit(savedAmount, note, false);
+  },
+
+  saveDeposit(savedAmount, note, completePlan) {
     wx.showLoading({ title: '保存中' });
     storage.updatePeriod(this.planId, this.data.selectedPeriod.index, {
       savedAmount,
       date: this.data.selectedPeriod.date,
       note,
+      completePlan,
     }).then(() => {
       this.closeSheet();
       return this.loadPlan(false);
     }).then(() => {
-      wx.showToast({ title: '存入成功', icon: 'success' });
+      wx.showToast({ title: completePlan ? '计划已完成' : '存入成功', icon: 'success' });
     }).catch((err) => {
       wx.showToast({ title: '存入失败', icon: 'none' });
       console.warn('存入失败', err);
     }).finally(() => {
       wx.hideLoading();
     });
+  },
+
+  isPlanReadonly() {
+    const plan = this.data.plan;
+    return !!(plan && (plan.paused || plan.completed || this.data.summary.progress >= 100));
+  },
+
+  shouldConfirmCompletion(savedAmount) {
+    const plan = this.data.plan;
+    const selectedPeriod = this.data.selectedPeriod;
+    if (!plan || !selectedPeriod || plan.completed || selectedPeriod.completed) return false;
+
+    const savedTotal = money.sum(plan.periods || [], (period) =>
+      period.index === selectedPeriod.index ? savedAmount : period.savedAmount || 0
+    );
+    return money.gte(savedTotal, plan.targetAmount);
   },
 
   deletePlan() {

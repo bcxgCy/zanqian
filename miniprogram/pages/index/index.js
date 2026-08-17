@@ -22,19 +22,22 @@ Page({
         const today = dateUtil.today();
         const plans = rawPlans.map((plan) => {
           const summary = planUtil.getPlanSummary(plan);
-          // 暂停计划不提供首页快捷打卡，只允许进入详情查看。
-          const actionPeriod = plan.paused ? null : this.getActionPeriod(plan, today);
+          // 暂停/完成计划不提供首页快捷打卡，只允许进入详情查看。
+          const isReadonlyPlan = plan.paused || plan.completed || summary.progress >= 100;
+          const actionPeriod = isReadonlyPlan ? null : this.getActionPeriod(plan, today);
           return Object.assign({}, plan, summary, {
             planTypeName: planUtil.getPlanTypeName(plan),
             nextSaveDate: actionPeriod ? actionPeriod.date : '',
             nextSaveText: plan.paused
               ? '已暂停'
+              : plan.completed
+                ? '已完成'
               : actionPeriod
                 ? '下次存钱 ' + actionPeriod.date
                 : '计划已完成',
             nextPeriodIndex: actionPeriod ? actionPeriod.index : 0,
-            actionText: plan.paused ? '查看' : this.getPlanActionText(actionPeriod, today),
-            actionType: plan.paused ? 'view' : this.getPlanActionType(actionPeriod, today),
+            actionText: isReadonlyPlan ? '查看' : this.getPlanActionText(actionPeriod, today),
+            actionType: isReadonlyPlan ? 'view' : this.getPlanActionType(actionPeriod, today),
             sortGroup: plan.paused ? 4 : this.getPlanSortGroup(actionPeriod, today),
           });
         }).sort((a, b) => {
@@ -64,10 +67,10 @@ Page({
   },
 
   getPlanActionText(period, today) {
-    if (!period) return '去查看';
+    if (!period) return '查看';
     if (period.date === today) return '去打卡';
     if (period.date < today) return '补打卡';
-    return '去查看';
+    return '查看';
   },
 
   getPlanActionType(period, today) {

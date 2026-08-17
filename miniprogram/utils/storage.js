@@ -142,7 +142,7 @@ function rebalancePeriods(plan, updatedPeriod) {
   const savedTotal = money.sum(completedPeriods, (p) => p.savedAmount || 0);
   const remaining = money.sub(targetAmount, savedTotal);
   if (!money.greaterThanZero(remaining)) {
-    // 已存达到或超过目标时，未完成期数不再保留，计划视为完成。
+    // 已存达到或超过目标时，未完成期数不再保留；计划完成状态由详情页确认后写入。
     return completedPeriods.sort((a, b) => a.index - b.index);
   }
 
@@ -159,15 +159,25 @@ function updatePeriod(planId, periodIndex, data) {
     if (!plan) return null;
     const period = plan.periods.find((p) => p.index === periodIndex);
     if (!period) return null;
+    const periodData = Object.assign({}, data);
+    const completePlan = !!periodData.completePlan;
+    delete periodData.completePlan;
     const savedAmount = money.toMoney(
-      data.savedAmount !== undefined ? data.savedAmount : period.savedAmount
+      periodData.savedAmount !== undefined ? periodData.savedAmount : period.savedAmount
     );
-    const updatedPeriod = Object.assign({}, period, data, {
+    const updatedPeriod = Object.assign({}, period, periodData, {
       savedAmount,
       completed: money.isPositive(savedAmount),
     });
     const periods = rebalancePeriods(plan, updatedPeriod);
-    return updatePlan(planId, { periods });
+    const updates = { periods };
+    if (completePlan) {
+      updates.completed = true;
+      updates.completedAt = new Date().toISOString();
+      updates.paused = false;
+      updates.pausedAt = '';
+    }
+    return updatePlan(planId, updates);
   });
 }
 

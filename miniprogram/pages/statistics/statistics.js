@@ -24,10 +24,9 @@ Page({
   initKeys() {
     const now = new Date();
     const monthKey = dateUtil.getMonthKey(dateUtil.formatDate(now));
-    const yearKey = dateUtil.getYearKey(dateUtil.formatDate(now));
     this.setData({
       currentKey: monthKey,
-      keyOptions: [monthKey, yearKey],
+      keyOptions: [monthKey],
       keyIndex: 0,
     });
   },

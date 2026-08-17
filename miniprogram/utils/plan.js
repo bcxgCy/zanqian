@@ -273,6 +273,8 @@ function buildPlanFromCalc(data) {
     customConfig,
     startDate,
     periods,
+    completed: false,
+    completedAt: '',
     createdAt: new Date().toISOString(),
   };
 }
