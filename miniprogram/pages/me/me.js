@@ -1,4 +1,5 @@
 const storage = require('../../utils/storage');
+const badgePoster = require('../../utils/badgePoster');
 
 Page({
   data: {
@@ -13,6 +14,7 @@ Page({
     unlockQueue: [],
     activeUnlockBadge: null,
     sharingBadgeId: '',
+    shareImageUrl: '',
   },
 
   onShow() {
@@ -107,6 +109,8 @@ Page({
     this.setData({ showBadgeDetail: false, activeBadge: null, sharingBadgeId: '' });
   },
 
+  noop() {},
+
   goBadges() {
     wx.navigateTo({ url: '/pages/badges/badges' });
   },
@@ -123,16 +127,27 @@ Page({
     const badgeId = (e && e.currentTarget && e.currentTarget.dataset.id) ||
       (this.data.activeBadge && this.data.activeBadge.id) ||
       (this.data.activeUnlockBadge && this.data.activeUnlockBadge.id) || '';
-    this.setData({ sharingBadgeId: badgeId });
+    this.setData({ sharingBadgeId: badgeId, shareImageUrl: '' });
+    const badge = (this.data.badges || []).find((item) => item.id === badgeId);
+    if (!badge) return;
+    badgePoster.drawBadgeSharePoster(this, {
+      badge,
+      nickName: this.data.user.nickName || '存钱达人',
+    }).then((tempFilePath) => {
+      this.setData({ shareImageUrl: tempFilePath });
+    }).catch((err) => {
+      console.warn('生成徽章分享图失败', err);
+    });
   },
 
   onShareAppMessage() {
     const shareBadgeId = this.data.sharingBadgeId;
     const badge = (this.data.badges || []).find((item) => item.id === shareBadgeId);
     return {
-      title: '我解锁了一枚超酷攒钱徽章！',
+      title: '我解锁了徽章「' + ((badge && badge.name) || '攒钱成就') + '」！',
       desc: '坚持存钱，慢慢变富，一起来打卡攒钱吧～',
       path: '/pages/index/index',
+      imageUrl: this.data.shareImageUrl || (badge && badge.image) || '',
       success: () => {
         if (!badge || !badge.id) return;
         storage.recordBadgeShare(badge.id).then((res) => {

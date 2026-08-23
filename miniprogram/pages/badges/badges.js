@@ -1,4 +1,5 @@
 const storage = require('../../utils/storage');
+const badgePoster = require('../../utils/badgePoster');
 
 const TABS = [
   { key: 'progress', name: '进度类' },
@@ -15,6 +16,9 @@ Page({
     showBadgeDetail: false,
     activeBadge: null,
     sharingBadgeId: '',
+    shareImageUrl: '',
+    badgeModalLoading: false,
+    user: {},
   },
 
   onShow() {
@@ -23,9 +27,9 @@ Page({
 
   loadData() {
     wx.showLoading({ title: '加载中' });
-    storage.syncBadgeState()
-      .then((res) => {
-        this.setData({ badges: res.badges }, () => this.refreshFiltered());
+    Promise.all([storage.syncBadgeState(), storage.getUser()])
+      .then(([res, user]) => {
+        this.setData({ badges: res.badges, user: user || {} }, () => this.refreshFiltered());
       })
       .catch((err) => {
         wx.showToast({ title: '加载失败', icon: 'none' });
@@ -51,28 +55,44 @@ Page({
       return;
     }
 
-    const openModal = () => {
-      this.setData({ showBadgeDetail: true, activeBadge: Object.assign({}, badge, { isViewed: true }) });
-    };
+    // 先打开弹窗，再异步同步已读状态，避免等待网络造成“点了没反应”的体感。
+    this.setData({
+      showBadgeDetail: true,
+      activeBadge: Object.assign({}, badge, { isViewed: true }),
+      badgeModalLoading: true,
+    });
 
-    if (badge.isViewed !== false) {
-      openModal();
-      return;
-    }
-
+    if (badge.isViewed !== false) return;
     storage.syncBadgeState({ markViewedIds: [badge.id] })
       .then((res) => {
-        this.setData({ badges: res.badges }, () => {
-          this.refreshFiltered();
-          openModal();
-        });
+        this.setData({ badges: res.badges }, () => this.refreshFiltered());
       })
-      .catch(() => openModal());
+      .catch((err) => {
+        console.warn('徽章已读状态同步失败', err);
+      });
+  },
+
+  onBadgeImageLoad() {
+    if (!this.data.showBadgeDetail) return;
+    this.setData({ badgeModalLoading: false });
+  },
+
+  onBadgeImageError() {
+    if (!this.data.showBadgeDetail) return;
+    this.setData({ badgeModalLoading: false });
   },
 
   closeBadgeDetail() {
-    this.setData({ showBadgeDetail: false, activeBadge: null, sharingBadgeId: '' });
+    this.setData({
+      showBadgeDetail: false,
+      activeBadge: null,
+      sharingBadgeId: '',
+      shareImageUrl: '',
+      badgeModalLoading: false,
+    });
   },
+
+  noop() {},
 
   saveBadgePoster() {
     wx.showToast({
@@ -85,16 +105,27 @@ Page({
   startShareBadge(e) {
     const badgeId = (e && e.currentTarget && e.currentTarget.dataset.id) ||
       (this.data.activeBadge && this.data.activeBadge.id) || '';
-    this.setData({ sharingBadgeId: badgeId });
+    this.setData({ sharingBadgeId: badgeId, shareImageUrl: '' });
+    const badge = (this.data.badges || []).find((item) => item.id === badgeId);
+    if (!badge) return;
+    badgePoster.drawBadgeSharePoster(this, {
+      badge,
+      nickName: this.data.user.nickName || '存钱达人',
+    }).then((tempFilePath) => {
+      this.setData({ shareImageUrl: tempFilePath });
+    }).catch((err) => {
+      console.warn('生成徽章分享图失败', err);
+    });
   },
 
   onShareAppMessage() {
     const shareBadgeId = this.data.sharingBadgeId;
     const badge = (this.data.badges || []).find((item) => item.id === shareBadgeId);
     return {
-      title: '我解锁了一枚超酷攒钱徽章！',
+      title: '我解锁了徽章「' + ((badge && badge.name) || '攒钱成就') + '」！',
       desc: '坚持存钱，慢慢变富，一起来打卡攒钱吧～',
       path: '/pages/index/index',
+      imageUrl: this.data.shareImageUrl || (badge && badge.image) || '',
       success: () => {
         if (!badge || !badge.id) return;
         storage.recordBadgeShare(badge.id).then((res) => {

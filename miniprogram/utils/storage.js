@@ -55,6 +55,14 @@ function buildBadgePayload(state) {
 }
 
 function mergeBadgeList(definitions, badgeState) {
+  const normalizeUnlockTime = (value) => {
+    if (!value) return '';
+    const text = String(value).trim();
+    if (!text) return '';
+    if (text === 'undefined' || text === 'null') return '';
+    return text;
+  };
+
   const unlockMap = {};
   (badgeState.unlocked || []).forEach((item) => {
     unlockMap[item.badgeId] = item;
@@ -63,9 +71,13 @@ function mergeBadgeList(definitions, badgeState) {
   return definitions.map((badge) => {
     const unlockedItem = unlockMap[badge.id];
     const unlocked = !!unlockedItem;
+    const unlockTime = unlockedItem ? normalizeUnlockTime(unlockedItem.unlockTime) : '';
     return Object.assign({}, badge, {
       unlocked,
-      unlockTime: unlockedItem ? unlockedItem.unlockTime : '',
+      unlockTime,
+      unlockTimeText: unlockTime
+        ? ('解锁时间：' + unlockTime.replace('T', ' ').slice(0, 19))
+        : '恭喜你解锁了这枚徽章，继续加油呀！',
       isViewed: unlockedItem ? !!unlockedItem.isViewed : true,
       isFirstShared: unlockedItem ? !!unlockedItem.isFirstShared : false,
       shareTime: unlockedItem ? unlockedItem.shareTime || '' : '',
@@ -88,6 +100,15 @@ function syncBadgeState(options) {
     });
 
     const newUnlockedBadges = [];
+    let fixedLegacyUnlockTime = false;
+
+    Object.keys(unlockedMap).forEach((badgeId) => {
+      if (!unlockedMap[badgeId]) return;
+      if (unlockedMap[badgeId].unlockTime) return;
+      unlockedMap[badgeId].unlockTime = now;
+      fixedLegacyUnlockTime = true;
+    });
+
     shouldUnlock.forEach((badgeId) => {
       if (unlockedMap[badgeId]) return;
       unlockedMap[badgeId] = {
@@ -114,7 +135,7 @@ function syncBadgeState(options) {
       unlocked: nextUnlocked,
       dayShare: badgeState.dayShare,
     };
-    const changed = JSON.stringify(nextBadgeState) !== JSON.stringify(badgeState);
+    const changed = fixedLegacyUnlockTime || JSON.stringify(nextBadgeState) !== JSON.stringify(badgeState);
     const finish = (savedUser) => {
       const list = mergeBadgeList(badgesUtil.BADGES, nextBadgeState);
       const unlockedList = list

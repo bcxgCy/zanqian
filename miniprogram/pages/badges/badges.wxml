@@ -16,17 +16,30 @@
     </view>
   </view>
 
-  <view wx:if="{{showBadgeDetail && activeBadge}}" class="mask">
-    <view class="modal">
+  <view wx:if="{{showBadgeDetail && activeBadge}}" class="mask" bindtap="closeBadgeDetail">
+    <view class="modal" catchtap="noop">
       <text class="title">{{activeBadge.name}}</text>
-      <image class="modal-image" src="{{activeBadge.image}}" mode="aspectFill"></image>
+      <view class="modal-image-wrap">
+        <image
+          class="modal-image"
+          src="{{activeBadge.image}}"
+          mode="aspectFill"
+          bindload="onBadgeImageLoad"
+          binderror="onBadgeImageError"
+        ></image>
+        <view wx:if="{{badgeModalLoading}}" class="modal-image-loading">
+          <loading size="24" color="#165DFF"></loading>
+          <text class="loading-text">加载中...</text>
+        </view>
+      </view>
       <text class="desc">{{activeBadge.desc}}</text>
-      <text class="time">解锁时间：{{activeBadge.unlockTime ? activeBadge.unlockTime.replace('T', ' ').slice(0, 19) : '-'}}</text>
+      <text class="time">{{activeBadge.unlockTimeText}}</text>
       <view class="actions">
-        <button class="btn-sub" bindtap="saveBadgePoster">保存图片</button>
         <button class="btn-mint" open-type="share" data-id="{{activeBadge.id}}" bindtap="startShareBadge">分享好友</button>
-        <button class="btn-sub" bindtap="closeBadgeDetail">关闭</button>
+        <button class="btn-ghost" bindtap="closeBadgeDetail">关闭</button>
       </view>
     </view>
   </view>
+
+  <canvas canvas-id="badgePosterCanvas" style="position: fixed; left: -9999px; top: -9999px; width: 750px; height: 1200px;"></canvas>
 </view>

@@ -3,16 +3,46 @@
 .tab { flex: 1; text-align: center; font-size: 24rpx; padding: 18rpx 0; color: #4e5969; }
 .tab.active { background: #e8f3ff; color: var(--color-primary); font-weight: 600; }
 .grid { margin-top: 20rpx; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16rpx; }
-.item { background: #fff; border-radius: 16rpx; padding: 18rpx 8rpx; text-align: center; position: relative; }
-.badge-image { width: 88rpx; height: 88rpx; border-radius: 18rpx; display: block; margin: 0 auto; }
+.item { background: #fff; border-radius: 16rpx; padding: 20rpx 10rpx; text-align: center; position: relative; }
+.badge-image { width: 102rpx; height: 102rpx; border-radius: 50%; display: block; margin: 0 auto; }
 .badge-image.locked { opacity: 0.45; }
 .name { margin-top: 10rpx; font-size: 22rpx; color: #1d2129; display: block; }
 .mask { position: fixed; inset: 0; background: rgba(0,0,0,.48); display: flex; align-items: center; justify-content: center; z-index: 99; }
 .modal { width: 620rpx; background: #fff; border-radius: 24rpx; padding: 32rpx; box-sizing: border-box; }
 .title { text-align: center; font-size: 30rpx; color: #1d2129; font-weight: 600; display: block; }
-.modal-image { width: 160rpx; height: 160rpx; border-radius: 20rpx; display: block; margin: 24rpx auto; }
+.modal-image-wrap {
+  width: 264rpx;
+  height: 264rpx;
+  margin: 24rpx auto;
+  border-radius: 50%;
+  overflow: hidden;
+  position: relative;
+  border: 6rpx solid rgba(212, 175, 55, 0.3);
+  box-shadow: 0 12rpx 28rpx rgba(22, 93, 255, 0.14);
+  background: #f2f3f5;
+}
+.modal-image {
+  width: 100%;
+  height: 100%;
+  display: block;
+  transform: scale(1.12);
+  transform-origin: center;
+}
+.modal-image-loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  background: rgba(242, 243, 245, 0.9);
+}
+.loading-text {
+  margin-top: 10rpx;
+  color: #86909c;
+  font-size: 22rpx;
+}
 .desc { font-size: 24rpx; color: #1d2129; text-align: center; line-height: 1.5; display: block; }
 .time { text-align: center; margin-top: 10rpx; color: #86909c; font-size: 22rpx; display: block; }
 .actions { margin-top: 26rpx; display: flex; gap: 14rpx; }
-.actions button { flex: 1; border-radius: 16rpx; font-size: 24rpx; padding: 0; }
-.btn-sub { background: #f2f3f5; color: #4e5969; }
+.actions button { flex: 1; font-size: 26rpx; padding: 16rpx 0; }

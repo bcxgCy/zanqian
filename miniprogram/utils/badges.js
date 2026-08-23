@@ -4,11 +4,6 @@ const CATEGORY = {
   behavior: 'behavior',
 };
 
-function badgeImage(id, unlocked) {
-  // 占位图片：每枚徽章独立资源，后续可按 id 定向替换正式美术。
-  return '/images/badges/' + id + (unlocked ? '-unlocked.png' : '-locked.png');
-}
-
 const BADGES = [
   {
     id: 'first_bucket',
@@ -16,8 +11,8 @@ const BADGES = [
     category: CATEGORY.progress,
     desc: '恭喜完成你的第一个攒钱计划，开启储蓄之路',
     slogan: '开启储蓄第一步，未来可期！',
-    image: badgeImage('first_bucket', true),
-    lockedImage: badgeImage('first_bucket', false),
+    image: 'cloud://cloud1-d1g1g2urwd9ff5a66.636c-cloud1-d1g1g2urwd9ff5a66-1462912205/badges/1.jpg',
+    lockedImage: 'cloud://cloud1-d1g1g2urwd9ff5a66.636c-cloud1-d1g1g2urwd9ff5a66-1462912205/badges/14.jpg',
   },
   {
     id: 'save_1000',
@@ -25,8 +20,8 @@ const BADGES = [
     category: CATEGORY.progress,
     desc: '累计攒钱达到 1000 元，积少成多，步步向前',
     slogan: '点滴积累，初见成效',
-    image: badgeImage('save_1000', true),
-    lockedImage: badgeImage('save_1000', false),
+    image: 'cloud://cloud1-d1g1g2urwd9ff5a66.636c-cloud1-d1g1g2urwd9ff5a66-1462912205/badges/2.jpg',
+    lockedImage: 'cloud://cloud1-d1g1g2urwd9ff5a66.636c-cloud1-d1g1g2urwd9ff5a66-1462912205/badges/15.jpg',
   },
   {
     id: 'save_5000',
@@ -34,8 +29,8 @@ const BADGES = [
     category: CATEGORY.progress,
     desc: '累计攒钱达到 5000 元，点滴付出终有回报',
     slogan: '聚沙成塔，攒钱路上稳步前行',
-    image: badgeImage('save_5000', true),
-    lockedImage: badgeImage('save_5000', false),
+    image: 'cloud://cloud1-d1g1g2urwd9ff5a66.636c-cloud1-d1g1g2urwd9ff5a66-1462912205/badges/3.jpg',
+    lockedImage: 'cloud://cloud1-d1g1g2urwd9ff5a66.636c-cloud1-d1g1g2urwd9ff5a66-1462912205/badges/16.jpg',
   },
   {
     id: 'save_10000',
@@ -43,8 +38,8 @@ const BADGES = [
     category: CATEGORY.progress,
     desc: '累计攒钱达到 10000 元，财富的种子正在发芽',
     slogan: '财富生根发芽，未来持续增值',
-    image: badgeImage('save_10000', true),
-    lockedImage: badgeImage('save_10000', false),
+    image: 'cloud://cloud1-d1g1g2urwd9ff5a66.636c-cloud1-d1g1g2urwd9ff5a66-1462912205/badges/4.jpg',
+    lockedImage: 'cloud://cloud1-d1g1g2urwd9ff5a66.636c-cloud1-d1g1g2urwd9ff5a66-1462912205/badges/17.jpg',
   },
   {
     id: 'save_30000',
@@ -52,8 +47,8 @@ const BADGES = [
     category: CATEGORY.progress,
     desc: '累计攒钱达到 30000 元，你是名副其实储蓄新星',
     slogan: '超强储蓄力，新晋攒钱达人',
-    image: badgeImage('save_30000', true),
-    lockedImage: badgeImage('save_30000', false),
+    image: 'cloud://cloud1-d1g1g2urwd9ff5a66.636c-cloud1-d1g1g2urwd9ff5a66-1462912205/badges/5.jpg',
+    lockedImage: 'cloud://cloud1-d1g1g2urwd9ff5a66.636c-cloud1-d1g1g2urwd9ff5a66-1462912205/badges/18.jpg',
   },
   {
     id: 'first_checkin',
@@ -61,8 +56,8 @@ const BADGES = [
     category: CATEGORY.checkin,
     desc: '完成第一次存钱打卡，储蓄习惯由此开始',
     slogan: '储蓄习惯，从此刻开始',
-    image: badgeImage('first_checkin', true),
-    lockedImage: badgeImage('first_checkin', false),
+    image: 'cloud://cloud1-d1g1g2urwd9ff5a66.636c-cloud1-d1g1g2urwd9ff5a66-1462912205/badges/6.jpg',
+    lockedImage: 'cloud://cloud1-d1g1g2urwd9ff5a66.636c-cloud1-d1g1g2urwd9ff5a66-1462912205/badges/19.jpg',
   },
   {
     id: 'streak_7',
@@ -70,8 +65,8 @@ const BADGES = [
     category: CATEGORY.checkin,
     desc: '连续打卡 7 天，坚持是储蓄最好的伙伴',
     slogan: '自律 7 天，好习惯正在养成',
-    image: badgeImage('streak_7', true),
-    lockedImage: badgeImage('streak_7', false),
+    image: 'cloud://cloud1-d1g1g2urwd9ff5a66.636c-cloud1-d1g1g2urwd9ff5a66-1462912205/badges/7.jpg',
+    lockedImage: 'cloud://cloud1-d1g1g2urwd9ff5a66.636c-cloud1-d1g1g2urwd9ff5a66-1462912205/badges/20.jpg',
   },
   {
     id: 'streak_30',
@@ -79,8 +74,8 @@ const BADGES = [
     category: CATEGORY.checkin,
     desc: '连续打卡 30 天，一个月的自律值得嘉奖',
     slogan: '整月坚持，极度自律！',
-    image: badgeImage('streak_30', true),
-    lockedImage: badgeImage('streak_30', false),
+    image: 'cloud://cloud1-d1g1g2urwd9ff5a66.636c-cloud1-d1g1g2urwd9ff5a66-1462912205/badges/8.jpg',
+    lockedImage: 'cloud://cloud1-d1g1g2urwd9ff5a66.636c-cloud1-d1g1g2urwd9ff5a66-1462912205/badges/21.jpg',
   },
   {
     id: 'streak_90',
@@ -88,8 +83,8 @@ const BADGES = [
     category: CATEGORY.checkin,
     desc: '连续打卡 90 天，长期坚持收获更好的自己',
     slogan: '90 天长期主义，战胜拖延',
-    image: badgeImage('streak_90', true),
-    lockedImage: badgeImage('streak_90', false),
+    image: 'cloud://cloud1-d1g1g2urwd9ff5a66.636c-cloud1-d1g1g2urwd9ff5a66-1462912205/badges/9.jpg',
+    lockedImage: 'cloud://cloud1-d1g1g2urwd9ff5a66.636c-cloud1-d1g1g2urwd9ff5a66-1462912205/badges/22.jpg',
   },
   {
     id: 'create_5',
@@ -97,8 +92,8 @@ const BADGES = [
     category: CATEGORY.behavior,
     desc: '累计创建 5 个攒钱计划，善于规划自己的目标',
     slogan: '擅长规划，目标感超强',
-    image: badgeImage('create_5', true),
-    lockedImage: badgeImage('create_5', false),
+    image: 'cloud://cloud1-d1g1g2urwd9ff5a66.636c-cloud1-d1g1g2urwd9ff5a66-1462912205/badges/10.jpg',
+    lockedImage: 'cloud://cloud1-d1g1g2urwd9ff5a66.636c-cloud1-d1g1g2urwd9ff5a66-1462912205/badges/23.jpg',
   },
   {
     id: 'multi_3',
@@ -106,8 +101,8 @@ const BADGES = [
     category: CATEGORY.behavior,
     desc: '同时拥有多个进行中的攒钱计划，多目标并行努力',
     slogan: '多目标并行，努力加倍',
-    image: badgeImage('multi_3', true),
-    lockedImage: badgeImage('multi_3', false),
+    image: 'cloud://cloud1-d1g1g2urwd9ff5a66.636c-cloud1-d1g1g2urwd9ff5a66-1462912205/badges/11.jpg',
+    lockedImage: 'cloud://cloud1-d1g1g2urwd9ff5a66.636c-cloud1-d1g1g2urwd9ff5a66-1462912205/badges/24.jpg',
   },
   {
     id: 'record_10',
@@ -115,8 +110,8 @@ const BADGES = [
     category: CATEGORY.behavior,
     desc: '完成多次存钱记录，善于记录和复盘收支',
     slogan: '善于复盘，财富稳步增长',
-    image: badgeImage('record_10', true),
-    lockedImage: badgeImage('record_10', false),
+    image: 'cloud://cloud1-d1g1g2urwd9ff5a66.636c-cloud1-d1g1g2urwd9ff5a66-1462912205/badges/12.jpg',
+    lockedImage: 'cloud://cloud1-d1g1g2urwd9ff5a66.636c-cloud1-d1g1g2urwd9ff5a66-1462912205/badges/25.jpg',
   },
   {
     id: 'restart_once',
@@ -124,8 +119,8 @@ const BADGES = [
     category: CATEGORY.behavior,
     desc: '跌倒之后重新出发，重新开启你的攒钱计划',
     slogan: '不惧重来，自律更坚定',
-    image: badgeImage('restart_once', true),
-    lockedImage: badgeImage('restart_once', false),
+    image: 'cloud://cloud1-d1g1g2urwd9ff5a66.636c-cloud1-d1g1g2urwd9ff5a66-1462912205/badges/13.jpg',
+    lockedImage: 'cloud://cloud1-d1g1g2urwd9ff5a66.636c-cloud1-d1g1g2urwd9ff5a66-1462912205/badges/26.jpg',
   },
 ];
 
