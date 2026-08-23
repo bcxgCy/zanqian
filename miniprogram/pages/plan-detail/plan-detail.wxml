@@ -27,10 +27,16 @@
         <view wx:else class="icon-circle">🐷</view>
         <text class="plan-small-icon">{{plan.icon}}</text>
       </view>
-      <view>
+      <view class="plan-info">
         <text class="name">{{plan.name}}</text>
         <text class="scheme helper-text">{{planTypeName}} · 目标 ¥{{plan.targetAmount}}</text>
       </view>
+      <!-- 打卡提醒按钮：居右对齐 -->
+      <button
+        class="subscribe-btn-inline {{subscribeBtnStatus === 'active' ? 'btn-mint' : 'btn-disabled'}}"
+        bindtap="onSubscribeTap"
+        disabled="{{subscribeBtnStatus !== 'active'}}"
+      >{{subscribeBtnText}}</button>
     </view>
   </view>
 

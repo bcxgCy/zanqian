@@ -54,6 +54,12 @@
   gap: 16rpx;
 }
 
+/* 心愿信息区域：占据剩余空间 */
+.plan-brief .plan-info {
+  flex: 1;
+  min-width: 0; /* 防止文字溢出 */
+}
+
 .plan-avatar-wrap {
   position: relative;
   flex-shrink: 0;
@@ -182,6 +188,7 @@
 }
 
 .plan-state-btn,
+.subscribe-btn,
 .delete-btn {
   flex: 1;
   min-width: 0;
@@ -203,4 +210,54 @@
 .pause-btn {
   color: var(--color-warning) !important;
   border: 1rpx solid rgba(255, 125, 0, 0.35) !important;
+}
+
+/* 订阅按钮样式 */
+.subscribe-btn.btn-mint {
+  background: linear-gradient(135deg, #4ecdc4, #44a08d);
+  color: #fff !important;
+  border: none !important;
+  font-weight: 500;
+}
+
+.subscribe-btn.btn-disabled {
+  background: #f5f5f5;
+  color: #999 !important;
+  border: 1rpx solid #eee !important;
+}
+
+.subscribe-btn.btn-disabled[disabled] {
+  opacity: 0.8;
+}
+
+/* 内联订阅按钮样式（在名称右边） */
+.subscribe-btn-inline {
+  flex-shrink: 0;
+  height: 64rpx;
+  line-height: 64rpx;
+  font-size: 22rpx;
+  padding: 0 20rpx;
+  border-radius: 32rpx;
+  margin-left: auto; /* 居右对齐 */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 280rpx;
+}
+
+.subscribe-btn-inline.btn-mint {
+  background: linear-gradient(135deg, #4ecdc4, #44a08d);
+  color: #fff !important;
+  border: none !important;
+  font-weight: 500;
+}
+
+.subscribe-btn-inline.btn-disabled {
+  background: #f5f5f5;
+  color: #999 !important;
+  border: 1rpx solid #eee !important;
+}
+
+.subscribe-btn-inline.btn-disabled[disabled] {
+  opacity: 0.8;
 }

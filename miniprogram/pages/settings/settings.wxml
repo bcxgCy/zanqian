@@ -1,9 +1,13 @@
 <view class="page">
   <view class="card">
-    <view class="menu-item" bindtap="testCloud">
+    <!-- <view class="menu-item" bindtap="testCloud">
       <text>测试云服务</text>
       <text class="arrow">></text>
-    </view>
+    </view> -->
+    <!-- <view class="menu-item" bindtap="testSubscribeMessage">
+      <text>测试打卡提醒推送</text>
+      <text class="arrow">></text>
+    </view> -->
     <view class="menu-item danger" bindtap="clearData">
       <text>清除所有存钱数据</text>
       <text class="arrow">></text>

@@ -2,6 +2,7 @@ const dateUtil = require('../../utils/date');
 const planUtil = require('../../utils/plan');
 const storage = require('../../utils/storage');
 const money = require('../../utils/money');
+const subscribe = require('../../utils/subscribe');
 
 Page({
   data: {
@@ -14,6 +15,9 @@ Page({
     sheetReadonly: false,
     selectedPeriod: null,
     canPause: false,
+    // 订阅消息按钮状态
+    subscribeBtnStatus: 'active', // active | disabled | cooldown
+    subscribeBtnText: '开启打卡消息提醒',
   },
 
   onLoad(options) {
@@ -49,6 +53,8 @@ Page({
           today,
           canPause: !plan.paused && !plan.completed && summary.progress < 100,
         }, () => {
+          // 更新订阅按钮状态
+          this.updateSubscribeButtonStatus();
           // 首页快捷打卡参数只消费一次；只读计划不会自动弹出打卡面板。
           if (!this.autoCheckin) return;
           this.autoCheckin = false;
@@ -182,6 +188,10 @@ Page({
       return this.loadPlan(false);
     }).then(() => {
       wx.showToast({ title: completePlan ? '计划已完成' : '存入成功', icon: 'success' });
+      // 场景二：打卡成功后触发订阅授权（为下一次打卡预存提醒额度）
+      if (!completePlan) {
+        subscribe.triggerAfterCheckin(this.planId);
+      }
     }).catch((err) => {
       wx.showToast({ title: '存入失败', icon: 'none' });
       console.warn('存入失败', err);
@@ -214,6 +224,8 @@ Page({
         if (res.confirm) {
           wx.showLoading({ title: '删除中' });
           storage.deletePlan(this.planId).then(() => {
+            // 清除该心愿的所有订阅记录（本地 + 云端）
+            subscribe.clearAllRecords(this.planId);
             wx.navigateBack();
           }).catch((err) => {
             wx.showToast({ title: '删除失败', icon: 'none' });
@@ -275,6 +287,47 @@ Page({
             wx.hideLoading();
           });
       },
+    });
+  },
+
+  /**
+   * 更新订阅按钮状态
+   * 根据文档规范的三种状态更新按钮文案和可点击状态
+   */
+  updateSubscribeButtonStatus() {
+    const btnStatus = subscribe.getButtonStatus(this.planId);
+    this.setData({
+      subscribeBtnStatus: btnStatus.status,
+      subscribeBtnText: btnStatus.text,
+    });
+  },
+
+  /**
+   * 手动点击订阅按钮
+   * 场景三：用户主动点击开启提醒
+   */
+  onSubscribeTap() {
+    const btnStatus = subscribe.getButtonStatus(this.planId);
+    if (btnStatus.status === 'cooldown') {
+      wx.showToast({
+        title: `暂时无法开启，${btnStatus.remainingDays}天后重试`,
+        icon: 'none',
+      });
+      return;
+    }
+    if (btnStatus.status === 'disabled') {
+      wx.showToast({
+        title: '打卡提醒已生效',
+        icon: 'none',
+      });
+      return;
+    }
+
+    // 主动触发订阅授权
+    subscribe.triggerManual(this.planId).then((success) => {
+      if (success) {
+        this.updateSubscribeButtonStatus();
+      }
     });
   },
 });

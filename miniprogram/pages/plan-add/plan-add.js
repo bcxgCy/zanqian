@@ -3,6 +3,7 @@ const planUtil = require('../../utils/plan');
 const storage = require('../../utils/storage');
 const money = require('../../utils/money');
 const cloudFile = require('../../utils/cloudFile');
+const subscribe = require('../../utils/subscribe');
 
 Page({
   data: {
@@ -146,8 +147,10 @@ Page({
     // 保存时只提交单个计划，云端按计划文档增量写入。
     wx.showLoading({ title: '保存中' });
     storage.addPlan(plan)
-      .then(() => {
+      .then((savedPlan) => {
         wx.showToast({ title: '添加成功', icon: 'success' });
+        // 场景一：新建心愿成功后触发订阅授权
+        subscribe.triggerAfterCreate(savedPlan._id || plan.id);
         setTimeout(() => wx.navigateBack(), 500);
       })
       .catch((err) => {
