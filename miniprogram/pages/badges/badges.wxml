@@ -1,0 +1,32 @@
+<view class="page">
+  <view class="tabs">
+    <view
+      wx:for="{{tabs}}"
+      wx:key="key"
+      class="tab {{item.key===currentTab ? 'active' : ''}}"
+      data-tab="{{item.key}}"
+      bindtap="switchTab"
+    >{{item.name}}</view>
+  </view>
+
+  <view class="grid">
+    <view wx:for="{{filteredBadges}}" wx:key="id" class="item" data-id="{{item.id}}" bindtap="openBadge">
+      <image class="badge-image {{item.unlocked ? '' : 'locked'}}" src="{{item.displayImage}}" mode="aspectFill"></image>
+      <text class="name">{{item.name}}</text>
+    </view>
+  </view>
+
+  <view wx:if="{{showBadgeDetail && activeBadge}}" class="mask">
+    <view class="modal">
+      <text class="title">{{activeBadge.name}}</text>
+      <image class="modal-image" src="{{activeBadge.image}}" mode="aspectFill"></image>
+      <text class="desc">{{activeBadge.desc}}</text>
+      <text class="time">解锁时间：{{activeBadge.unlockTime ? activeBadge.unlockTime.replace('T', ' ').slice(0, 19) : '-'}}</text>
+      <view class="actions">
+        <button class="btn-sub" bindtap="saveBadgePoster">保存图片</button>
+        <button class="btn-mint" open-type="share" data-id="{{activeBadge.id}}" bindtap="startShareBadge">分享好友</button>
+        <button class="btn-sub" bindtap="closeBadgeDetail">关闭</button>
+      </view>
+    </view>
+  </view>
+</view>

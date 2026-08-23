@@ -2,6 +2,8 @@ const planUtil = require('./plan');
 const money = require('./money');
 const cloudSync = require('./cloudSync');
 const dateUtil = require('./date');
+const statsUtil = require('./stats');
+const badgesUtil = require('./badges');
 
 const defaultUser = {
   nickName: '存钱达人',
@@ -22,6 +24,154 @@ function getState() {
   return cloudSync.login().then(normalizeState);
 }
 
+function getBadgeStateFromUser(user) {
+  const raw = user && user.badgeState ? user.badgeState : {};
+  const unlocked = Array.isArray(raw.unlocked) ? raw.unlocked : [];
+  const dayShare = raw.dayShare && typeof raw.dayShare === 'object' ? raw.dayShare : {};
+  return {
+    unlocked,
+    dayShare: {
+      date: dayShare.date || '',
+      count: Number(dayShare.count || 0),
+    },
+  };
+}
+
+function buildBadgePayload(state) {
+  const plans = state.plans || [];
+  const stats = statsUtil.getUserStats(plans);
+  const completedPlanCount = plans.filter((plan) => !!plan.completed).length;
+  const activePlanCount = plans.filter((plan) => !plan.completed && !plan.paused).length;
+  const maxStreakDays = badgesUtil.getMaxContinuousDays(stats.records || []);
+  return {
+    savedTotal: stats.savedTotal,
+    recordCount: stats.recordCount,
+    completedPlanCount,
+    activePlanCount,
+    maxStreakDays,
+    createdPlanCount: Number((state.user && state.user.createdPlanCount) || 0),
+    rebuiltOnce: !!(state.user && state.user.rebuiltOnce),
+  };
+}
+
+function mergeBadgeList(definitions, badgeState) {
+  const unlockMap = {};
+  (badgeState.unlocked || []).forEach((item) => {
+    unlockMap[item.badgeId] = item;
+  });
+
+  return definitions.map((badge) => {
+    const unlockedItem = unlockMap[badge.id];
+    const unlocked = !!unlockedItem;
+    return Object.assign({}, badge, {
+      unlocked,
+      unlockTime: unlockedItem ? unlockedItem.unlockTime : '',
+      isViewed: unlockedItem ? !!unlockedItem.isViewed : true,
+      isFirstShared: unlockedItem ? !!unlockedItem.isFirstShared : false,
+      shareTime: unlockedItem ? unlockedItem.shareTime || '' : '',
+      displayImage: unlocked ? badge.image : (badge.lockedImage || badge.image),
+    });
+  });
+}
+
+function syncBadgeState(options) {
+  const opts = Object.assign({ markViewedIds: [] }, options || {});
+  return getState().then((state) => {
+    const user = Object.assign({}, state.user || {});
+    const now = new Date().toISOString();
+    const badgeState = getBadgeStateFromUser(user);
+    const payload = buildBadgePayload(state);
+    const shouldUnlock = badgesUtil.evaluateUnlockIds(payload);
+    const unlockedMap = {};
+    (badgeState.unlocked || []).forEach((item) => {
+      unlockedMap[item.badgeId] = Object.assign({}, item);
+    });
+
+    const newUnlockedBadges = [];
+    shouldUnlock.forEach((badgeId) => {
+      if (unlockedMap[badgeId]) return;
+      unlockedMap[badgeId] = {
+        badgeId,
+        unlockTime: now,
+        isViewed: false,
+        isFirstShared: false,
+        shareTime: '',
+      };
+      const badge = badgesUtil.getBadgeById(badgeId);
+      if (badge) newUnlockedBadges.push(Object.assign({}, badge, unlockedMap[badgeId]));
+    });
+
+    (opts.markViewedIds || []).forEach((badgeId) => {
+      if (!unlockedMap[badgeId]) return;
+      unlockedMap[badgeId].isViewed = true;
+    });
+
+    const nextUnlocked = Object.keys(unlockedMap)
+      .map((badgeId) => unlockedMap[badgeId])
+      .sort((a, b) => (b.unlockTime || '').localeCompare(a.unlockTime || ''));
+
+    const nextBadgeState = {
+      unlocked: nextUnlocked,
+      dayShare: badgeState.dayShare,
+    };
+    const changed = JSON.stringify(nextBadgeState) !== JSON.stringify(badgeState);
+    const finish = (savedUser) => {
+      const list = mergeBadgeList(badgesUtil.BADGES, nextBadgeState);
+      const unlockedList = list
+        .filter((item) => item.unlocked)
+        .sort((a, b) => (b.unlockTime || '').localeCompare(a.unlockTime || ''));
+      return {
+        user: savedUser || user,
+        badges: list,
+        unlockedBadges: unlockedList,
+        latestUnlocked: unlockedList.slice(0, 6),
+        newUnlockedBadges: newUnlockedBadges.sort((a, b) => (a.unlockTime || '').localeCompare(b.unlockTime || '')),
+      };
+    };
+
+    if (!changed) return finish(user);
+    const nextUser = Object.assign({}, user, { badgeState: nextBadgeState });
+    return saveUser(nextUser).then((result) => finish((result && result.user) || nextUser));
+  });
+}
+
+function recordBadgeShare(badgeId) {
+  if (!badgeId) return Promise.resolve({ rewarded: false, reason: 'empty_badge_id' });
+  return getState().then((state) => {
+    const user = Object.assign({}, state.user || {});
+    const badgeState = getBadgeStateFromUser(user);
+    const today = dateUtil.today();
+    const dayShare = badgeState.dayShare.date === today
+      ? { date: today, count: Number(badgeState.dayShare.count || 0) }
+      : { date: today, count: 0 };
+    const unlockMap = {};
+    (badgeState.unlocked || []).forEach((item) => {
+      unlockMap[item.badgeId] = Object.assign({}, item);
+    });
+
+    const target = unlockMap[badgeId];
+    if (!target) return { rewarded: false, reason: 'badge_not_unlocked' };
+    if (target.isFirstShared) return { rewarded: false, reason: 'badge_already_shared' };
+    if (dayShare.count >= 3) return { rewarded: false, reason: 'daily_limit' };
+
+    target.isFirstShared = true;
+    target.shareTime = new Date().toISOString();
+    dayShare.count += 1;
+
+    const nextBadgeState = {
+      unlocked: Object.keys(unlockMap).map((id) => unlockMap[id]),
+      dayShare,
+    };
+    const nextUser = Object.assign({}, user, { badgeState: nextBadgeState });
+
+    return saveUser(nextUser).then(() => ({
+      rewarded: true,
+      points: 10,
+      dayShareCount: dayShare.count,
+    }));
+  });
+}
+
 function getPlans() {
   return getState().then((state) => state.plans);
 }
@@ -36,7 +186,15 @@ function getPlan(id) {
 }
 
 function addPlan(plan) {
-  return cloudSync.addPlan(plan).then((result) => result.plan || plan);
+  return getUser().then((user) => {
+    const nextUser = Object.assign({}, user, {
+      createdPlanCount: Number(user.createdPlanCount || 0) + 1,
+      rebuiltOnce: !!user.rebuiltOnce || Number(user.deletedPlanCount || 0) > 0,
+    });
+    return saveUser(nextUser)
+      .catch(() => null)
+      .then(() => cloudSync.addPlan(plan).then((result) => result.plan || plan));
+  });
 }
 
 function updatePlan(id, updates) {
@@ -44,7 +202,14 @@ function updatePlan(id, updates) {
 }
 
 function deletePlan(id) {
-  return cloudSync.deletePlan(id).then(normalizeState);
+  return getUser().then((user) => {
+    const nextUser = Object.assign({}, user, {
+      deletedPlanCount: Number(user.deletedPlanCount || 0) + 1,
+    });
+    return saveUser(nextUser)
+      .catch(() => null)
+      .then(() => cloudSync.deletePlan(id).then(normalizeState));
+  });
 }
 
 function allocateRemainingAmounts(periods, remaining) {
@@ -252,6 +417,8 @@ module.exports = {
   getUser,
   saveUser,
   getLoginState,
+  syncBadgeState,
+  recordBadgeShare,
   getOverview,
   getOverviewFromPlans,
 };

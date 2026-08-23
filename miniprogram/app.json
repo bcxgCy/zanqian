@@ -10,14 +10,17 @@
     "pages/profile-edit/profile-edit",
     "pages/settings/settings",
     "pages/help/help",
-    "pages/privacy/privacy"
+    "pages/privacy/privacy",
+    "pages/badges/badges"
   ],
   "window": {
     "backgroundColor": "#F7F8FA",
     "backgroundTextStyle": "light",
     "navigationBarBackgroundColor": "#F7F8FA",
     "navigationBarTitleText": "存钱计划",
-    "navigationBarTextStyle": "black"
+    "navigationBarTextStyle": "black",
+    "enableShareAppMessage": true,
+    "enableShareTimeline": true
   },
   "tabBar": {
     "color": "#86909C",

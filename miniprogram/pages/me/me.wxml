@@ -15,30 +15,24 @@
       </view>
     </view>
     <button wx:if="{{!cloudLogin.loggedIn}}" class="login-btn btn-mint" bindtap="loginCloud">登录并同步云端</button>
-    <view class="stats-row">
-      <view class="stat-item">
-        <text class="stat-num module-amount">{{stats.savingDays}}</text>
-        <text class="stat-label helper-text">累计存钱天数</text>
-      </view>
-      <view class="stat-item">
-        <text class="stat-num module-amount mint">¥{{stats.savedTotal}}</text>
-        <text class="stat-label helper-text">已存总金额</text>
-      </view>
-      <view class="stat-item">
-        <text class="stat-num module-amount">{{stats.recordCount}}</text>
-        <text class="stat-label helper-text">存钱笔数</text>
-      </view>
-    </view>
   </view>
 
   <view class="card badge-card">
-    <view class="section-title section-title-text">储蓄勋章 <text class="star-deco">✦</text></view>
-    <scroll-view scroll-x class="badge-scroll" enable-flex>
+    <view class="badge-header">
+      <text class="section-title-text">我的徽章</text>
+      <text class="badge-all" bindtap="goBadges">全部 ></text>
+    </view>
+
+    <view wx:if="{{latestBadges.length === 0}}" class="badge-empty helper-text">
+      还没有获得徽章，快去完成攒钱任务解锁吧
+    </view>
+
+    <scroll-view wx:else scroll-x class="badge-scroll" enable-flex>
       <view class="badge-list">
-        <view class="badge-item {{item.unlocked ? 'unlocked badge-glow' : 'locked'}}" wx:for="{{badges}}" wx:key="id">
-          <text class="badge-icon">{{item.icon}}</text>
+        <view class="badge-item unlocked" wx:for="{{latestBadges}}" wx:key="id" data-id="{{item.id}}" bindtap="openBadgeDetail">
+          <image class="badge-image" src="{{item.displayImage}}" mode="aspectFill"></image>
           <text class="badge-name">{{item.name}}</text>
-          <text class="badge-desc helper-text" wx:if="{{!item.unlocked}}">{{item.desc}}</text>
+          <view wx:if="{{item.isViewed === false}}" class="badge-dot"></view>
         </view>
       </view>
     </scroll-view>
@@ -59,6 +53,31 @@
       <text class="menu-icon">📄</text>
       <text class="menu-text">用户协议 & 隐私政策</text>
       <text class="arrow">›</text>
+    </view>
+  </view>
+
+  <view wx:if="{{showUnlockPopup && activeUnlockBadge}}" class="mask">
+    <view class="modal">
+      <text class="modal-title">恭喜解锁全新徽章「{{activeUnlockBadge.name}}」</text>
+      <image class="modal-image" src="{{activeUnlockBadge.image}}" mode="aspectFill"></image>
+      <view class="modal-actions">
+        <button class="btn-sub" bindtap="closeUnlockPopup">知道了</button>
+        <button class="btn-mint" open-type="share" data-id="{{activeUnlockBadge.id}}" bindtap="startShareBadge">立即分享</button>
+      </view>
+    </view>
+  </view>
+
+  <view wx:if="{{showBadgeDetail && activeBadge}}" class="mask">
+    <view class="modal detail-modal">
+      <text class="modal-title">{{activeBadge.name}}</text>
+      <image class="modal-image" src="{{activeBadge.image}}" mode="aspectFill"></image>
+      <text class="modal-desc">{{activeBadge.desc}}</text>
+      <text class="modal-time helper-text">解锁时间：{{activeBadge.unlockTime ? activeBadge.unlockTime.replace('T', ' ').slice(0, 19) : '-'}}</text>
+      <view class="modal-actions modal-actions-3">
+        <button class="btn-sub" bindtap="saveBadgePoster">保存图片</button>
+        <button class="btn-mint" open-type="share" data-id="{{activeBadge.id}}" bindtap="startShareBadge">分享好友</button>
+        <button class="btn-sub" bindtap="closeBadgeDetail">关闭</button>
+      </view>
     </view>
   </view>
 </view>
