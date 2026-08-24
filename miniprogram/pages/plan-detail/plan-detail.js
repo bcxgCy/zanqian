@@ -349,4 +349,36 @@ Page({
       }, 1000);
     }
   },
+
+  /**
+   * 分享心愿详情给朋友
+   */
+  onShareAppMessage() {
+    const { plan, summary } = this.data;
+    if (!plan) return {};
+
+    const progress = summary.progress || 0;
+    const savedAmount = summary.savedAmount || 0;
+    const targetAmount = plan.targetAmount || 0;
+
+    return {
+      title: `【${plan.name}】已存入 ¥${savedAmount}，完成 ${progress}%`,
+      path: `/pages/plan-detail/plan-detail?id=${this.planId}`,
+      imageUrl: '',
+    };
+  },
+
+  /**
+   * 分享到朋友圈
+   */
+  onShareTimeline() {
+    const { plan, summary } = this.data;
+    if (!plan) return {};
+
+    return {
+      title: `我正在坚持存钱：${plan.name}，已完成 ${summary.progress || 0}%`,
+      query: `id=${this.planId}`,
+      imageUrl: '',
+    };
+  },
 });

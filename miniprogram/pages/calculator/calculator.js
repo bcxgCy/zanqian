@@ -149,4 +149,26 @@ Page({
       url: '/pages/calculator-result/calculator-result?key=' + resultKey,
     });
   },
+
+  /**
+   * 分享计算器给朋友
+   */
+  onShareAppMessage() {
+    return {
+      title: '存钱计算器 - 帮你制定专属存钱方案',
+      path: '/pages/calculator/calculator',
+      imageUrl: '',
+    };
+  },
+
+  /**
+   * 分享到朋友圈
+   */
+  onShareTimeline() {
+    return {
+      title: '用存钱计算器，轻松规划你的理财目标',
+      query: '',
+      imageUrl: '',
+    };
+  },
 });

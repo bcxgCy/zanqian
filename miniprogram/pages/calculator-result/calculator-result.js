@@ -49,4 +49,22 @@ Page({
   goBack() {
     wx.navigateBack();
   },
+
+  /**
+   * 分享计算结果给朋友
+   */
+  onShareAppMessage() {
+    const { result } = this.data;
+    if (!result) return {};
+
+    const name = result.name || '存钱计划';
+    const targetAmount = result.targetAmount || 0;
+    const periodCount = result.periodCount || 0;
+
+    return {
+      title: `【${name}】目标 ¥${targetAmount}，共 ${periodCount} 期`,
+      path: '/pages/calculator/calculator',
+      imageUrl: '',
+    };
+  },
 });

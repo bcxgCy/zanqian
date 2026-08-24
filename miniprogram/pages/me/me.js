@@ -77,4 +77,31 @@ Page({
   goPrivacy() {
     wx.navigateTo({ url: '/pages/privacy/privacy' });
   },
+
+  /**
+   * 分享个人主页给朋友
+   */
+  onShareAppMessage() {
+    const { stats, badges } = this.data;
+    const savingDays = stats.savingDays || 0;
+    const planCount = stats.planCount || 0;
+    const badgeCount = (badges || []).filter((b) => b.earned).length;
+
+    return {
+      title: `我已坚持存钱 ${savingDays} 天，获得 ${badgeCount} 个成就徽章`,
+      path: '/pages/index/index',
+      imageUrl: '',
+    };
+  },
+
+  /**
+   * 分享到朋友圈
+   */
+  onShareTimeline() {
+    return {
+      title: '每日存钱打卡，养成理财好习惯',
+      query: '',
+      imageUrl: '',
+    };
+  },
 });

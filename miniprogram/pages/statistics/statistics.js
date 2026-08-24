@@ -64,4 +64,30 @@ Page({
     const idx = Number(e.detail.value);
     this.setData({ keyIndex: idx, currentKey: this.data.keyOptions[idx] }, () => this.loadStats());
   },
+
+  /**
+   * 分享统计页给朋友
+   */
+  onShareAppMessage() {
+    const { summary, mode, ringTotal } = this.data;
+    const totalSaved = summary.totalSaved || ringTotal || 0;
+    const modeText = mode === 'month' ? '本月' : '今年';
+
+    return {
+      title: `${modeText}存入 ¥${totalSaved}，查看我的存钱统计`,
+      path: '/pages/statistics/statistics',
+      imageUrl: '',
+    };
+  },
+
+  /**
+   * 分享到朋友圈
+   */
+  onShareTimeline() {
+    return {
+      title: '坚持存钱打卡，查看我的存钱成果',
+      query: '',
+      imageUrl: '',
+    };
+  },
 });

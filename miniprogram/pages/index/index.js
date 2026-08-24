@@ -129,4 +129,30 @@ Page({
     }
     wx.navigateTo({ url: '/pages/plan-detail/plan-detail?id=' + id });
   },
+
+  /**
+   * 分享给朋友
+   */
+  onShareAppMessage() {
+    const { overview, plans } = this.data;
+    const planCount = plans.length;
+    const savedTotal = overview.savedTotal || 0;
+
+    return {
+      title: `我已存入 ¥${savedTotal}，一起养成存钱好习惯吧！`,
+      path: '/pages/index/index',
+      imageUrl: '', // 使用默认截图
+    };
+  },
+
+  /**
+   * 分享到朋友圈
+   */
+  onShareTimeline() {
+    return {
+      title: '每日存钱打卡，养成理财好习惯',
+      query: '',
+      imageUrl: '',
+    };
+  },
 });
