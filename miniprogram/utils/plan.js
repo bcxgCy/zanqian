@@ -3,6 +3,14 @@ const money = require('./money');
 
 const ICONS = ['💰', '🏠', '🚗', '✈️', '🎓', '💍', '📱', '🎁', '🏥', '🛒'];
 
+// 各预设方案的最小推荐目标金额（低于此值会有很多期数为0）
+const MIN_TARGET_AMOUNTS = {
+  '365': 334,      // 365法：保证每期至少 0.01 元
+  '52week': 7,     // 52周法：保证每周至少 0.01 元
+  '12month': 0.06, // 12月法：几乎无限制
+  'random365': 0.01, // 随机法：可以极小
+};
+
 const PRESETS = [
   {
     id: '365',
@@ -10,6 +18,7 @@ const PRESETS = [
     icon: '📅',
     description: '从第1天存1元开始，每天递增1元，第365天存365元，一年共存66795元。',
     totalAmount: 66795,
+    minRecommend: 334, // 最小推荐金额
   },
   {
     id: '52week',
@@ -17,6 +26,7 @@ const PRESETS = [
     icon: '📆',
     description: '从第1周存10元开始，每周递增10元，第52周存520元，一年共存13780元。',
     totalAmount: 13780,
+    minRecommend: 7, // 最小推荐金额
   },
   {
     id: '12month',
@@ -24,6 +34,7 @@ const PRESETS = [
     icon: '🗓️',
     description: '每月固定存入相同金额，12个月完成目标。适合按月发薪的用户。',
     totalAmount: 0,
+    minRecommend: 0.06,
   },
   {
     id: 'random365',
@@ -31,6 +42,7 @@ const PRESETS = [
     icon: '🎲',
     description: '365天内每天存入随机金额，总金额等于目标金额，增加存钱趣味性。',
     totalAmount: 0,
+    minRecommend: 0.01,
   },
 ];
 
@@ -38,12 +50,36 @@ function getPreset(id) {
   return PRESETS.find((p) => p.id === id);
 }
 
+/**
+ * 检查目标金额是否适合该预设方案
+ * @param {string} presetId 预设方案ID
+ * @param {number} targetAmount 目标金额
+ * @returns {object} { valid: boolean, message: string }
+ */
+function validateTargetAmount(presetId, targetAmount) {
+  const preset = getPreset(presetId);
+  if (!preset || !preset.minRecommend) return { valid: true, message: '' };
+
+  const amount = money.toMoney(targetAmount);
+  const minAmount = preset.minRecommend;
+
+  if (amount < minAmount) {
+    return {
+      valid: false,
+      message: `${preset.name}建议最低目标 ¥${minAmount}，当前金额过小会导致很多期数为0。`,
+    };
+  }
+
+  return { valid: true, message: '' };
+}
+
 function generate365Periods(startDate, targetAmount) {
   // 365 法默认合计 66795；用户输入自定义目标时按比例缩放每期金额。
   const total = money.toMoney(targetAmount);
   const presetTotal = 66795;
   const useCustom = total && total !== presetTotal;
-  const scale = useCustom ? money.div(total, presetTotal) : 1;
+  // 🆕 使用 divRaw 计算高精度缩放比例（避免小目标金额时 scale 被四舍五入为 0）
+  const scale = useCustom ? money.divRaw(total, presetTotal) : 1;
   const periods = [];
   for (let i = 0; i < 365; i++) {
     periods.push({
@@ -71,7 +107,8 @@ function generate52WeekPeriods(startDate, targetAmount) {
   const total = money.toMoney(targetAmount);
   const presetTotal = 13780;
   const useCustom = total && total !== presetTotal;
-  const scale = useCustom ? money.div(total, presetTotal) : 1;
+  // 🆕 使用 divRaw 计算高精度缩放比例（避免小目标金额时 scale 被四舍五入为 0）
+  const scale = useCustom ? money.divRaw(total, presetTotal) : 1;
   const periods = [];
   for (let i = 0; i < 52; i++) {
     periods.push({
@@ -298,7 +335,9 @@ function buildCalcTable(periods) {
 module.exports = {
   ICONS,
   PRESETS,
+  MIN_TARGET_AMOUNTS,
   getPreset,
+  validateTargetAmount, // 🆕 目标金额校验
   generatePeriods,
   calcSavedAmount,
   calcProgress,

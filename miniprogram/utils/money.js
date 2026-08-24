@@ -30,13 +30,29 @@ function sub(a, b) {
 function mul(a, b) {
   const num = Number(b);
   if (!Number.isFinite(num)) return 0;
-  return fromCents(Math.round(toCents(a) * num));
+  // 使用浮点运算后再四舍五入到分，避免 toCents(a)*b 导致精度丢失
+  const result = Number(a) * num;
+  return fromCents(Math.round(result * SCALE));
 }
 
 function div(a, b) {
   const num = Number(b);
   if (!num || !Number.isFinite(num)) return 0;
+  // 恢复原始实现：用于货币金额之间的除法（结果仍是金额）
   return fromCents(Math.round(toCents(a) / num));
+}
+
+/**
+ * 计算比例系数（不四舍五入到分）
+ * 用于需要高精度小数的场景（如缩放比例、百分比等）
+ * @param {number} a 被除数
+ * @param {number} b 除数
+ * @returns {number} 原始浮点数比值
+ */
+function divRaw(a, b) {
+  const num = Number(b);
+  if (!num || !Number.isFinite(num)) return 0;
+  return Number(a) / num;
 }
 
 function sum(values, getter) {
@@ -150,6 +166,7 @@ module.exports = {
   sub,
   mul,
   div,
+  divRaw,  // 🆕 高精度除法（不四舍五入到分）
   sum,
   gte,
   gt,
