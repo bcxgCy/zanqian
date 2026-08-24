@@ -138,56 +138,57 @@ function getButtonStatus(planId) {
 
 /**
  * 请求订阅消息授权（核心方法）
+ * ⚠️ 重要：此方法必须在用户 TAP 事件的同步调用栈中直接调用！
+ * 不能在 setTimeout、Promise.then、async/await 等异步上下文中调用。
+ *
  * @param {string} planId 心愿ID
- * @returns {Promise<boolean>} 用户是否同意授权
  */
 function requestSubscribe(planId) {
-  return new Promise((resolve) => {
-    // 前置校验：是否在冷却期
-    if (isInCooldown(planId)) {
-      wx.showToast({
-        title: '暂时无法开启，请稍后再试',
-        icon: 'none',
-      });
-      resolve(false);
-      return;
-    }
-
-    // 前置校验：已有有效额度
-    if (hasValidAuth(planId)) {
-      wx.showToast({
-        title: '提醒已生效，无需重复开启',
-        icon: 'none',
-      });
-      resolve(false);
-      return;
-    }
-
-    // 发起订阅请求
-    wx.requestSubscribeMessage({
-      tmplIds: [TEMPLATE_ID],
-      success: (res) => {
-        if (res[TEMPLATE_ID] === 'accept') {
-          // 用户同意：记录授权时间
-          recordAuth(planId);
-          wx.showToast({
-            title: '打卡提醒已开启',
-            icon: 'success',
-          });
-          resolve(true);
-        } else {
-          // 用户拒绝：记录拒绝时间（7天冷却）
-          recordReject(planId);
-          resolve(false);
-        }
-      },
-      fail: (err) => {
-        console.warn('订阅请求失败', err);
-        // 失败也视为拒绝，但不记录冷却期（可能是系统原因）
-        resolve(false);
-      },
+  // 前置校验：是否在冷却期
+  if (isInCooldown(planId)) {
+    wx.showToast({
+      title: '暂时无法开启，请稍后再试',
+      icon: 'none',
     });
+    return false;
+  }
+
+  // 前置校验：已有有效额度
+  if (hasValidAuth(planId)) {
+    wx.showToast({
+      title: '提醒已生效，无需重复开启',
+      icon: 'none',
+    });
+    return false;
+  }
+
+  // 直接发起订阅请求（必须在 TAP 同步调用栈中）
+  wx.requestSubscribeMessage({
+    tmplIds: [TEMPLATE_ID],
+    success: (res) => {
+      if (res[TEMPLATE_ID] === 'accept') {
+        // 用户同意：记录授权时间
+        recordAuth(planId);
+        wx.showToast({
+          title: '打卡提醒已开启',
+          icon: 'success',
+        });
+      } else {
+        // 用户拒绝：记录拒绝时间（7天冷却）
+        recordReject(planId);
+        wx.showToast({
+          title: '已取消',
+          icon: 'none',
+        });
+      }
+    },
+    fail: (err) => {
+      console.warn('订阅请求失败', err);
+      // 不显示错误提示，静默失败
+    },
   });
+
+  return true; // 表示已发起请求（不代表用户同意）
 }
 
 /**
@@ -311,36 +312,33 @@ function clearCloudRecords(planId) {
 // ==================== 场景触发器 ====================
 
 /**
- * 场景一：新建心愿成功后触发
- * 触发条件：用户完成心愿创建后自动调用
- * 不阻塞业务流程，静默尝试授权
+ * 场景一：新建心愿成功后（已移除自动引导）
+ * 由于微信限制 requestSubscribeMessage 必须在 TAP 手势同步调用栈中调用，
+ * 新建成功后不再弹出引导，用户可通过详情页名称右侧的手动按钮开启提醒。
  * @param {string} planId 新建的心愿ID
  */
 function triggerAfterCreate(planId) {
-  // 延迟一小段时间，等用户看到成功提示后再弹窗
-  setTimeout(() => {
-    requestSubscribe(planId);
-  }, 800);
+  console.log('【订阅】新建心愿成功', { planId });
+  // 不再自动弹窗引导，用户通过手动按钮触发授权
+   return requestSubscribe(planId);
 }
 
 /**
- * 场景二：每日打卡成功后触发
- * 触发条件：用户完成当日存钱打卡后自动调用
- * 业务目的：为下一次打卡预存7天提醒额度
+ * 场景二：打卡成功后（已移除自动引导）
+ * 由于微信限制 requestSubscribeMessage 必须在 TAP 手势同步调用栈中调用，
+ * 打卡成功后不再弹出引导，用户可通过详情页名称右侧的手动按钮开启提醒。
  * @param {string} planId 打卡的心愿ID
  */
 function triggerAfterCheckin(planId) {
-  // 延迟一小段时间，让用户先看到打卡成功的反馈
-  setTimeout(() => {
-    requestSubscribe(planId);
-  }, 600);
+  console.log('【订阅】打卡成功', { planId });
+  // 不再自动弹窗引导，用户通过手动按钮触发授权
+   return requestSubscribe(planId);
 }
 
 /**
  * 场景三：手动点击按钮触发
- * 直接调用 requestSubscribe 即可
+ * 直接调用 requestSubscribe 即可（同步调用，符合 TAP 手势要求）
  * @param {string} planId 心愿ID
- * @returns {Promise<boolean>}
  */
 function triggerManual(planId) {
   return requestSubscribe(planId);

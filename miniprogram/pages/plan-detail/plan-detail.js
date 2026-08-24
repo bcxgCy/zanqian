@@ -173,7 +173,25 @@ Page({
       });
       return;
     }
+
+    // 🆕 在 TAP 同步调用栈中检查并触发订阅授权
+    this.trySubscribeBeforeSave();
+
     this.saveDeposit(savedAmount, note, false);
+  },
+
+  /**
+   * 在保存前尝试触发订阅授权（必须在 TAP 同步调用栈中）
+   * 与保存请求并行，互不影响
+   */
+  trySubscribeBeforeSave() {
+    const btnStatus = subscribe.getButtonStatus(this.planId);
+
+    // 只有状态为 active 时才弹窗（无有效额度且不在冷却期）
+    if (btnStatus.status !== 'active') return;
+
+    // 直接在 TAP 同步调用栈中发起订阅请求
+    subscribe.triggerManual(this.planId);
   },
 
   saveDeposit(savedAmount, note, completePlan) {
@@ -188,10 +206,7 @@ Page({
       return this.loadPlan(false);
     }).then(() => {
       wx.showToast({ title: completePlan ? '计划已完成' : '存入成功', icon: 'success' });
-      // 场景二：打卡成功后触发订阅授权（为下一次打卡预存提醒额度）
-      if (!completePlan) {
-        subscribe.triggerAfterCheckin(this.planId);
-      }
+      // 订阅授权已在 onDepositConfirm 的 TAP 同步调用栈中触发，不再在此处异步调用
     }).catch((err) => {
       wx.showToast({ title: '存入失败', icon: 'none' });
       console.warn('存入失败', err);
@@ -323,11 +338,15 @@ Page({
       return;
     }
 
-    // 主动触发订阅授权
-    subscribe.triggerManual(this.planId).then((success) => {
-      if (success) {
+    // 直接触发订阅授权（同步调用，在 TAP 手势的调用栈中）
+    const requested = subscribe.triggerManual(this.planId);
+    if (requested) {
+      // 已发起请求，等用户操作后更新状态
+      // 注意：不能在这里立即更新，需要等用户在弹窗中操作后
+      // 可以通过延迟或让用户手动刷新来更新
+      setTimeout(() => {
         this.updateSubscribeButtonStatus();
-      }
-    });
+      }, 1000);
+    }
   },
 });
