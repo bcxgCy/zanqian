@@ -10,8 +10,45 @@ Page({
     cloudLogin: {},
   },
 
+  _lastRenderedVersion: -1, // ✅ 新增：页面级版本记录（用于智能刷新）
+
   onShow() {
-    this.loadData();
+    // ✅ 智能刷新：只有数据版本变化才重新请求
+    const app = getApp();
+    const currentVersion = app.globalData._dataVersion || 0;
+
+    if (currentVersion !== this._lastRenderedVersion) {
+      console.log(`[SmartRefresh] 我的页面数据版本变化 (${this._lastRenderedVersion} → ${currentVersion})，执行刷新`);
+      this.loadData();
+      this._lastRenderedVersion = currentVersion;
+    } else {
+      // 版本未变，尝试使用缓存快速渲染
+      console.log(`[SmartRefresh] 我的页面数据版本未变 (${currentVersion})，尝试缓存渲染`);
+      this.tryRenderFromCache();
+    }
+  },
+
+  /**
+   * ✅ 新增：从缓存快速渲染
+   */
+  tryRenderFromCache() {
+    const cachedState = storage.getCachedState && storage.getCachedState();
+    if (cachedState) {
+      const user = cachedState.user || {};
+      const plans = cachedState.plans || [];
+      const stats = statsUtil.getUserStats(plans);
+      stats.planCount = plans.length;
+      const badges = badgesUtil.getBadges(stats);
+
+      // 静默更新
+      this.setData({
+        user,
+        stats,
+        badges,
+        cloudLogin: storage.getLoginState(),
+      });
+      console.log(`[SmartRefresh] 我的页面已从缓存渲染`);
+    }
   },
 
   loadData() {
@@ -41,9 +78,21 @@ Page({
 
   loginCloud() {
     wx.showLoading({ title: '登录中' });
-    storage.getState()
-      .then(() => {
-        this.loadData();
+    // ✅ 优化：使用 forceRefresh 强制刷新缓存，但只请求1次（修复原来重复调用2次的bug）
+    storage.getState(true)
+      .then((state) => {
+        // ✅ 关键优化：直接使用返回的数据渲染，不再调用 loadData（避免第2次冗余请求）
+        const user = state.user;
+        const plans = state.plans;
+        const stats = statsUtil.getUserStats(plans);
+        stats.planCount = plans.length;
+        const badges = badgesUtil.getBadges(stats);
+        this.setData({
+          user,
+          stats,
+          badges,
+          cloudLogin: storage.getLoginState(),
+        });
         wx.showToast({ title: '登录成功', icon: 'success' });
       })
       .catch((err) => {

@@ -10,8 +10,61 @@ Page({
     plans: [],
   },
 
+  _lastRenderedVersion: -1, // ✅ 新增：页面级版本记录（用于智能刷新）
+
   onShow() {
-    this.loadData();
+    // ✅ 智能刷新：只有数据版本变化才重新请求（写操作后版本会递增）
+    const app = getApp();
+    const currentVersion = app.globalData._dataVersion || 0;
+
+    if (currentVersion !== this._lastRenderedVersion) {
+      console.log(`[SmartRefresh] 首页数据版本变化 (${this._lastRenderedVersion} → ${currentVersion})，执行刷新`);
+      this.loadData();
+      this._lastRenderedVersion = currentVersion;
+    } else {
+      // 版本未变，尝试使用缓存快速渲染
+      console.log(`[SmartRefresh] 首页数据版本未变 (${currentVersion})，尝试缓存渲染`);
+      this.tryRenderFromCache();
+    }
+  },
+
+  /**
+   * ✅ 新增：从缓存快速渲染（无网络请求）
+   */
+  tryRenderFromCache() {
+    const cachedPlans = storage.getCachedPlans && storage.getCachedPlans();
+    if (cachedPlans && cachedPlans.length) {
+      const overview = storage.getOverviewFromPlans(cachedPlans);
+      const today = dateUtil.today();
+      const plans = cachedPlans.map((plan) => {
+        const summary = planUtil.getPlanSummary(plan);
+        const isReadonlyPlan = plan.paused || plan.completed || summary.progress >= 100;
+        const actionPeriod = isReadonlyPlan ? null : this.getActionPeriod(plan, today);
+        return Object.assign({}, plan, summary, {
+          planTypeName: planUtil.getPlanTypeName(plan),
+          nextSaveDate: actionPeriod ? actionPeriod.date : '',
+          nextSaveText: plan.paused
+            ? '已暂停'
+            : plan.completed
+              ? '已完成'
+              : actionPeriod
+                ? '下次存钱 ' + actionPeriod.date
+                : '计划已完成',
+          nextPeriodIndex: actionPeriod ? actionPeriod.index : 0,
+          actionText: isReadonlyPlan ? '查看' : this.getPlanActionText(actionPeriod, today),
+          actionType: isReadonlyPlan ? 'view' : this.getPlanActionType(actionPeriod, today),
+          sortGroup: plan.paused ? 4 : this.getPlanSortGroup(actionPeriod, today),
+        });
+      }).sort((a, b) => {
+        if (a.sortGroup !== b.sortGroup) return a.sortGroup - b.sortGroup;
+        if (a.sortGroup === 1) return b.nextSaveDate.localeCompare(a.nextSaveDate);
+        return a.nextSaveDate.localeCompare(b.nextSaveDate);
+      });
+
+      // 静默更新，不显示 loading（用户体验更流畅）
+      this.setData({ overview, plans });
+      console.log(`[SmartRefresh] 首页已从缓存渲染 ${plans.length} 个计划`);
+    }
   },
 
   loadData() {

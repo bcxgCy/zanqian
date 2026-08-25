@@ -198,17 +198,35 @@ Page({
 
   saveDeposit(savedAmount, note, completePlan) {
     wx.showLoading({ title: '保存中' });
+    // ✅ 关键优化：直接使用 updatePeriod 返回值渲染，跳过 loadPlan（省掉第3次查询）
     storage.updatePeriod(this.planId, this.data.selectedPeriod.index, {
       savedAmount,
       date: this.data.selectedPeriod.date,
       note,
       completePlan,
-    }).then(() => {
+    }).then((updatedPlan) => {
       this.closeSheet();
-      return this.loadPlan(false);
-    }).then(() => {
+
+      // ✅ 核心优化：使用写操作返回的数据直接渲染，无需再次请求
+      if (updatedPlan) {
+        const today = dateUtil.today();
+        const summary = planUtil.getPlanSummary(updatedPlan);
+        const persistDays = dateUtil.diffDays(updatedPlan.startDate, today) + 1;
+        const viewPlan = Object.assign({}, updatedPlan, {
+          periods: (updatedPlan.periods || []).map((p) => this.formatPeriod(p, today)),
+        });
+
+        this.setData({
+          plan: viewPlan,
+          summary,
+          persistDays,
+          canPause: !updatedPlan.paused && !updatedPlan.completed && summary.progress < 100,
+        });
+
+        console.log(`[Optimization] 打卡成功，直接使用返回数据渲染（节省1次云函数调用）`);
+      }
+
       wx.showToast({ title: completePlan ? '计划已完成' : '存入成功', icon: 'success' });
-      // 订阅授权已在 onDepositConfirm 的 TAP 同步调用栈中触发，不再在此处异步调用
     }).catch((err) => {
       wx.showToast({ title: '存入失败', icon: 'none' });
       console.warn('存入失败', err);
@@ -291,9 +309,27 @@ Page({
       success: (res) => {
         if (!res.confirm) return;
         wx.showLoading({ title: '重启中' });
+
+        // ✅ 关键优化：直接使用返回值渲染，跳过 loadPlan（省掉第3次查询）
         storage.restartPlan(this.planId)
-          .then(() => this.loadPlan(false))
-          .then(() => {
+          .then((updatedPlan) => {
+            // ✅ 使用写操作返回的数据直接渲染
+            if (updatedPlan) {
+              const today = dateUtil.today();
+              const summary = planUtil.getPlanSummary(updatedPlan);
+              const viewPlan = Object.assign({}, updatedPlan, {
+                periods: (updatedPlan.periods || []).map((p) => this.formatPeriod(p, today)),
+              });
+
+              this.setData({
+                plan: viewPlan,
+                summary,
+                canPause: true,
+              });
+
+              console.log(`[Optimization] 重启成功，直接使用返回数据渲染（节省1次云函数调用）`);
+            }
+
             wx.showToast({ title: '已重启', icon: 'success' });
           })
           .catch((err) => {
