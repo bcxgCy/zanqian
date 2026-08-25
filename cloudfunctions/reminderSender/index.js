@@ -34,6 +34,31 @@ const PUSH_TYPES = {
   PLAN_COMPLETE: 'planComplete',    // 结项通知
 };
 
+// 推送限制常量
+const MAX_PLANS_PER_RUN = 100;       // 单次最多处理的计划数（防止超时）
+const PUSH_RETRY_COUNT = 1;          // 推送失败重试次数
+const PUSH_RETRY_DELAY = 1000;        // 重试间隔（毫秒）
+
+/**
+ * 判断是否为正式环境
+ * 正式环境返回 'formal'，开发/体验版返回 'developer' 或 'trial'
+ */
+function getMiniProgramState() {
+  try {
+    // 通过检查云环境名称判断（可根据实际情况调整）
+    const env = cloud.DYNAMIC_CURRENT_ENV;
+    console.log('当前环境：', env);
+    // ✅ 修复：确保 env 是字符串后再调用 includes
+    const envStr = typeof env === 'string' ? env : String(env || '');
+    if (envStr && (envStr.includes('prod') || envStr.includes('release') || envStr.includes('formal'))) {
+      return 'formal';
+    }
+  } catch (err) {
+    console.warn('获取环境信息失败，默认使用 developer', err);
+  }
+  return 'developer'; // 开发/测试环境用 developer，可正常接收消息
+}
+
 // ==================== 工具函数 ====================
 
 /**
@@ -72,6 +97,75 @@ function diffDays(dateStr1, dateStr2) {
 function truncate(str, maxLen = 20) {
   if (!str) return '';
   return str.length > maxLen ? str.substring(0, maxLen) : str;
+}
+
+/**
+ * 安全转换数据：将 BigInt 转为普通数字或字符串
+ * 解决 "Do not know how to serialize a BigInt" 错误
+ *
+ * @param {any} data 需要转换的数据
+ * @returns {any} 转换后的安全数据
+ */
+function safeSerialize(data) {
+  if (data === null || data === undefined) {
+    return data;
+  }
+
+  // 处理 BigInt
+  if (typeof data === 'bigint') {
+    return Number(data);  // 转为普通数字
+  }
+
+  // 处理对象（包括数组）
+  if (typeof data === 'object') {
+    // 处理数组
+    if (Array.isArray(data)) {
+      return data.map(item => safeSerialize(item));
+    }
+
+    // 处理普通对象
+    const result = {};
+    for (const key of Object.keys(data)) {
+      // 跳过数据库系统字段（_id 等）或特殊字段
+      if (key === '_id' || key.startsWith('_')) {
+        continue;
+      }
+      result[key] = safeSerialize(data[key]);
+    }
+    return result;
+  }
+
+  // 基本类型直接返回
+  return data;
+}
+
+/**
+ * 从计划对象中提取安全的推送所需字段
+ * 只提取必要字段，避免携带 BigInt 或其他不可序列化的数据
+ *
+ * @param {object} plan 数据库中的计划对象
+ * @returns {object} 安全的精简对象
+ */
+function extractSafePlanData(plan) {
+  if (!plan) return {};
+
+  return {
+    id: typeof plan.id === 'bigint' ? String(plan.id) : (plan.id || ''),
+    openid: plan.openid || '',
+    name: truncate(String(plan.name || ''), 20),
+    targetAmount: Number(plan.targetAmount) || 0,
+    startDate: plan.startDate || '',
+    endDate: plan.endDate || '',
+    paused: !!plan.paused,
+    completed: !!plan.completed,
+    periods: (plan.periods || []).map(p => ({
+      index: Number(p.index) || 0,
+      date: p.date || '',
+      expectedAmount: Number(p.expectedAmount) || 0,
+      savedAmount: Number(p.savedAmount) || 0,
+      completed: !!p.completed,
+    })),
+  };
 }
 
 // ==================== 数据库操作 ====================
@@ -172,17 +266,26 @@ async function clearSubscribeRecords(planId) {
 async function sendSubscribeMessage(params) {
   const { openid, planId, pushType, time1, thing6, thing3, page } = params;
 
+  // ✅ 校验必要参数
+  if (!openid) {
+    console.error('推送失败：缺少 openid', { planId, pushType });
+    return { success: false, error: 'MISSING_OPENID' };
+  }
+
   try {
+    // ✅ 动态判断环境状态
+    const miniProgramState = getMiniProgramState();
+
     const result = await cloud.openapi.subscribeMessage.send({
       touser: openid,
       templateId: TEMPLATE_ID,
       page: page || `/pages/plan-detail/plan-detail?id=${planId}`,
       data: {
         time1: { value: time1 || getToday() + ' ' + formatTime(new Date()) },
-        thing6: { value: truncate(thing6, '心愿存钱打卡') },
-        thing3: { value: truncate(thing3, 20) },
+        thing6: { value: truncate(thing6 || '心愿存钱打卡') },
+        thing3: { value: truncate(thing3 || '', 20) },
       },
-      miniprogramState: 'formal', // 正式版
+      miniprogramState: miniProgramState,
     });
 
     console.log(`推送成功 [${pushType}]`, { openid, planId, result });
@@ -205,6 +308,54 @@ async function sendSubscribeMessage(params) {
 
     return { success: false, error: errMsg };
   }
+}
+
+/**
+ * 带重试机制的发送订阅消息
+ * 对网络错误等临时性错误进行自动重试
+ *
+ * @param {object} params 同 sendSubscribeMessage 参数
+ * @param {number} retryCount 重试次数（默认 PUSH_RETRY_COUNT）
+ * @returns {Promise<object>} 推送结果
+ */
+async function sendSubscribeMessageWithRetry(params, retryCount = PUSH_RETRY_COUNT) {
+  let lastError = null;
+
+  for (let attempt = 0; attempt <= retryCount; attempt++) {
+    if (attempt > 0) {
+      // 等待后重试
+      await new Promise(resolve => setTimeout(resolve, PUSH_RETRY_DELAY));
+      console.log(`推送重试 [${params.pushType}] 第${attempt}次`, params.planId);
+    }
+
+    try {
+      const result = await sendSubscribeMessage(params);
+      if (result.success) {
+        return result; // 成功则直接返回
+      }
+      lastError = result.error;
+
+      // 判断是否为可重试的错误
+      const isRetryableError = !(
+        result.error?.includes('40003') ||   // openid 无效
+        result.error?.includes('43101') ||   // 用户拒绝
+        result.error?.includes('43102') ||   // 用户未授权
+        result.error?.includes('40037') ||   // 模板不存在
+        result.error?.includes('47003') ||   // 频率限制（不重试）
+        result.error?.includes('43098')      // 已达到日调上限
+      );
+
+      if (!isRetryableError) {
+        console.log(`推送失败且不可重试 [${params.pushType}]`, result.error);
+        return result;
+      }
+    } catch (err) {
+      lastError = err.errMsg || err.message || String(err);
+      console.warn(`推送异常 [${params.pushType}] 第${attempt + 1}次`, lastError);
+    }
+  }
+
+  return { success: false, error: lastError || '重试耗尽' };
 }
 
 /**
@@ -253,18 +404,57 @@ async function pushDailyCheckin() {
   let skipCount = 0;
 
   try {
+    // ✅ 修复查询条件：使用正确的逻辑运算符
     // 查询所有有效的心愿（未完成、未暂停）
     const plansRes = await db.collection(PLAN_COLLECTION)
-      .where({
-        completed: _.exists(false).or(_.eq(false)),
-        paused: _.exists(false).or(_.eq(false)),
-      })
+      .where(_.and([
+        _.or([
+          { completed: _.exists(false) },
+          { completed: false },
+        ]),
+        _.or([
+          { paused: _.exists(false) },
+          { paused: false },
+        ]),
+      ]))
+      .limit(MAX_PLANS_PER_RUN)
       .get();
 
     const plans = plansRes.data || [];
 
-    for (const plan of plans) {
+    // ✅ 性能优化：批量获取所有相关订阅记录，避免 N+1 查询
+    const planIds = plans.map(p => p.id).filter(Boolean);
+    let recordsMap = {};
+    if (planIds.length > 0) {
       try {
+        const recordsRes = await db.collection(SUBSCRIBE_COLLECTION)
+          .where({
+            planId: _.in(planIds),
+          })
+          .get();
+
+        // 构建 planId -> record 的映射
+        (recordsRes.data || []).forEach(record => {
+          recordsMap[record.planId] = record;
+        });
+      } catch (err) {
+        console.warn('批量获取订阅记录失败，回退到逐个查询', err);
+        // 回退：保持空映射，后续会逐个查询
+      }
+    }
+
+    for (const rawPlan of plans) {
+      try {
+        // ✅ 安全转换：提取必要字段，避免 BigInt 序列化错误
+        const plan = extractSafePlanData(rawPlan);
+
+        // ✅ 校验必要字段
+        if (!plan.openid) {
+          console.warn('跳过：计划缺少 openid', plan.id);
+          skipCount++;
+          continue;
+        }
+
         // 找到今天需要打卡的期数
         const todayPeriod = (plan.periods || []).find(
           (p) => p.date === today && !p.completed
@@ -275,15 +465,20 @@ async function pushDailyCheckin() {
           continue; // 今天不需要打卡
         }
 
-        // 检查订阅状态
-        const record = await getSubscribeRecord(plan.openid, plan.id);
+        // 检查订阅状态（优先使用批量查询结果）
+        let record = recordsMap[plan.id];
+        if (!record) {
+          // 回退：单独查询
+          record = await getSubscribeRecord(plan.openid, plan.id);
+        }
+
         if (!shouldPush(record)) {
           skipCount++;
           continue;
         }
 
-        // 发送推送
-        const result = await sendSubscribeMessage({
+        // 发送推送（带重试机制）
+        const result = await sendSubscribeMessageWithRetry({
           openid: plan.openid,
           planId: plan.id,
           pushType: PUSH_TYPES.DAILY_CHECKIN,
@@ -298,7 +493,7 @@ async function pushDailyCheckin() {
           failCount++;
         }
       } catch (err) {
-        console.error('处理计划推送失败', plan.id, err);
+        console.error('处理计划推送失败', rawPlan.id || rawPlan._id, err);
         failCount++;
       }
     }
@@ -327,19 +522,52 @@ async function pushExpireWarning() {
   let skipCount = 0;
 
   try {
-    // 查询所有有效的心愿
+    // ✅ 修复查询条件
     const plansRes = await db.collection(PLAN_COLLECTION)
-      .where({
-        completed: _.exists(false).or(_.eq(false)),
-        paused: _.exists(false).or(_.eq(false)),
-        endDate: _.exists(true).and(_.neq('')),
-      })
+      .where(_.and([
+        _.or([
+          { completed: _.exists(false) },
+          { completed: false },
+        ]),
+        _.or([
+          { paused: _.exists(false) },
+          { paused: false },
+        ]),
+        { endDate: _.exists(true) },
+        { endDate: _.neq('') },
+      ]))
+      .limit(MAX_PLANS_PER_RUN)
       .get();
 
     const plans = plansRes.data || [];
 
-    for (const plan of plans) {
+    // ✅ 批量获取订阅记录
+    const planIds = plans.map(p => p.id).filter(Boolean);
+    let recordsMap = {};
+    if (planIds.length > 0) {
       try {
+        const recordsRes = await db.collection(SUBSCRIBE_COLLECTION)
+          .where({ planId: _.in(planIds) })
+          .get();
+        (recordsRes.data || []).forEach(record => {
+          recordsMap[record.planId] = record;
+        });
+      } catch (err) {
+        console.warn('批量获取订阅记录失败', err);
+      }
+    }
+
+    for (const rawPlan of plans) {
+      try {
+        // ✅ 安全转换
+        const plan = extractSafePlanData(rawPlan);
+
+        // ✅ 校验 openid
+        if (!plan.openid) {
+          skipCount++;
+          continue;
+        }
+
         // 检查是否在到期前3天内
         const daysToExpire = diffDays(today, plan.endDate);
         if (daysToExpire > 3 || daysToExpire < 0) {
@@ -347,15 +575,19 @@ async function pushExpireWarning() {
           continue;
         }
 
-        // 检查订阅状态
-        const record = await getSubscribeRecord(plan.openid, plan.id);
+        // 检查订阅状态（优先批量结果）
+        let record = recordsMap[plan.id];
+        if (!record) {
+          record = await getSubscribeRecord(plan.openid, plan.id);
+        }
+
         if (!shouldPush(record)) {
           skipCount++;
           continue;
         }
 
-        // 发送推送
-        const result = await sendSubscribeMessage({
+        // 发送推送（带重试）
+        const result = await sendSubscribeMessageWithRetry({
           openid: plan.openid,
           planId: plan.id,
           pushType: PUSH_TYPES.EXPIRE_WARNING,
@@ -370,7 +602,7 @@ async function pushExpireWarning() {
           failCount++;
         }
       } catch (err) {
-        console.error('处理预警推送失败', plan.id, err);
+        console.error('处理预警推送失败', rawPlan.id || rawPlan._id, err);
         failCount++;
       }
     }
@@ -399,27 +631,60 @@ async function pushPlanComplete() {
   let skipCount = 0;
 
   try {
-    // 查询今日到期的心愿
+    // ✅ 修复查询条件
     const plansRes = await db.collection(PLAN_COLLECTION)
-      .where({
-        endDate: today,
-        completed: _.exists(false).or(_.eq(false)),
-      })
+      .where(_.and([
+        { endDate: today },
+        _.or([
+          { completed: _.exists(false) },
+          { completed: false },
+        ]),
+      ]))
+      .limit(MAX_PLANS_PER_RUN)
       .get();
 
     const plans = plansRes.data || [];
 
-    for (const plan of plans) {
+    // ✅ 批量获取订阅记录
+    const planIds = plans.map(p => p.id).filter(Boolean);
+    let recordsMap = {};
+    if (planIds.length > 0) {
       try {
-        // 检查订阅状态
-        const record = await getSubscribeRecord(plan.openid, plan.id);
+        const recordsRes = await db.collection(SUBSCRIBE_COLLECTION)
+          .where({ planId: _.in(planIds) })
+          .get();
+        (recordsRes.data || []).forEach(record => {
+          recordsMap[record.planId] = record;
+        });
+      } catch (err) {
+        console.warn('批量获取订阅记录失败', err);
+      }
+    }
+
+    for (const rawPlan of plans) {
+      try {
+        // ✅ 安全转换
+        const plan = extractSafePlanData(rawPlan);
+
+        // ✅ 校验 openid
+        if (!plan.openid) {
+          skipCount++;
+          continue;
+        }
+
+        // 检查订阅状态（优先批量结果）
+        let record = recordsMap[plan.id];
+        if (!record) {
+          record = await getSubscribeRecord(plan.openid, plan.id);
+        }
+
         if (!shouldPush(record)) {
           skipCount++;
           continue;
         }
 
-        // 发送推送
-        const result = await sendSubscribeMessage({
+        // 发送推送（带重试）
+        const result = await sendSubscribeMessageWithRetry({
           openid: plan.openid,
           planId: plan.id,
           pushType: PUSH_TYPES.PLAN_COMPLETE,
@@ -434,7 +699,7 @@ async function pushPlanComplete() {
           failCount++;
         }
       } catch (err) {
-        console.error('处理结项推送失败', plan.id, err);
+        console.error('处理结项推送失败', rawPlan.id || rawPlan._id, err);
         failCount++;
       }
     }
@@ -471,12 +736,42 @@ async function clearRecordsByPlanId(planId) {
 
 // ==================== 主入口 ====================
 
+/**
+ * 云函数主入口
+ *
+ * 调用场景：
+ * 1. 定时触发器调用（通过 context.TRIGGER_NAME 区分）
+ * 2. 前端手动调用（通过 event.type 区分）
+ */
 exports.main = async (event, context) => {
   const wxContext = cloud.getWXContext();
   const openid = wxContext.OPENID;
-  const type = event.type;
 
-  console.log('【reminderSender】收到请求', { type, openid, event });
+  // ✅ 优先判断是否为定时触发器调用
+  const triggerName = event.TriggerName;
+  let type = event.type;
+
+  // 如果是定时触发器，根据触发器名称确定任务类型
+  if (triggerName && !type) {
+    console.log('【reminderSender】定时触发器调用', { triggerName });
+
+    switch (triggerName) {
+      case 'dailyCheckinTrigger':
+        type = PUSH_TYPES.DAILY_CHECKIN;
+        break;
+      case 'expireWarningTrigger':
+        type = PUSH_TYPES.EXPIRE_WARNING;
+        break;
+      case 'planCompleteTrigger':
+        type = PUSH_TYPES.PLAN_COMPLETE;
+        break;
+      default:
+        console.warn('【reminderSender】未知触发器', triggerName);
+        return { error: 'Unknown trigger: ' + triggerName };
+    }
+  }
+
+  console.log('【reminderSender】收到请求', { type, openid, triggerName, isTimer: !!triggerName });
 
   switch (type) {
     // ========== 定时任务入口 ==========
@@ -510,6 +805,7 @@ exports.main = async (event, context) => {
       return {
         error: 'Unknown type: ' + type,
         availableTypes: Object.values(PUSH_TYPES).concat(['syncAuth', 'clearRecords', 'getStatus']),
+        triggerName,
       };
   }
 };

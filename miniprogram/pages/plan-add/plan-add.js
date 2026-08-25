@@ -24,6 +24,83 @@ Page({
     endDate: '',
     presetSheetShow: false,
     presetSheetContent: null,
+    // 模板回填标记
+    fromTemplate: false,
+  },
+
+  onLoad(options) {
+    // 检查是否有模板需要回填
+    if (options.templateKey) {
+      this.fillFromTemplate(options.templateKey);
+    }
+  },
+
+  /**
+   * 从分享模板回填表单
+   * @param {string} templateKey 本地缓存键名
+   */
+  fillFromTemplate(templateKey) {
+    try {
+      const template = wx.getStorageSync(templateKey);
+      if (!template) return;
+
+      // 清除缓存（一次性使用）
+      wx.removeStorageSync(templateKey);
+
+      console.log('【plan-add】从模板回填', template);
+
+      // 回填基础信息
+      const setData = {
+        fromTemplate: true,
+        name: (template.name || '') + ' (副本)',
+        icon: template.icon || '💰',
+        targetAmount: String(template.targetAmount || ''),
+        startDate: template.startDate || dateUtil.today(),
+        endDate: template.endDate || '',
+      };
+
+      // 回填计划类型
+      if (template.planType === 'preset' && template.presetId) {
+        setData.planMode = 'preset';
+        setData.selectedPreset = template.presetId;
+        setData.expandedPreset = template.presetId;
+      } else if (template.customConfig) {
+        setData.planMode = 'custom';
+        if (template.customConfig.amountPerPeriod) {
+          setData.customAmount = String(template.customConfig.amountPerPeriod);
+        }
+        if (template.customConfig.frequency) {
+          const freqMap = { day: 0, week: 1, month: 2 };
+          setData.frequencyIndex = freqMap[template.customConfig.frequency] || 0;
+          setData.customFrequency = template.customConfig.frequency || 'day';
+        }
+        if (template.customConfig.endDate) {
+          setData.endDate = template.customConfig.endDate;
+        }
+        // 判断是固定金额还是截止日期模式
+        if (template.planType === 'custom_deadline') {
+          // 需要结束日期才能用截止日期模式
+          if (template.endDate) {
+            setData.planMode = 'deadline';
+          }
+        } else {
+          setData.planMode = 'fixed';
+        }
+      }
+
+      this.setData(setData);
+
+      // 显示提示
+      setTimeout(() => {
+        wx.showToast({
+          title: '已从模板回填，可修改后提交',
+          icon: 'none',
+          duration: 2000,
+        });
+      }, 500);
+    } catch (err) {
+      console.warn('回填模板失败', err);
+    }
   },
 
   onInput(e) {

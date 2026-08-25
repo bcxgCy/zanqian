@@ -10,7 +10,8 @@
     "pages/profile-edit/profile-edit",
     "pages/settings/settings",
     "pages/help/help",
-    "pages/privacy/privacy"
+    "pages/privacy/privacy",
+    "pages/plan-copy-preview/plan-copy-preview"
   ],
   "window": {
     "backgroundColor": "#F7F8FA",

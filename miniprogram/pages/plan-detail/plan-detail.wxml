@@ -61,6 +61,12 @@
   </view>
 
   <view class="plan-action-wrap">
+    <!-- 分享此计划按钮（点击生成快照）- 放在第一位 -->
+    <button
+      class="share-plan-btn plan-state-btn btn-ghost"
+      bindtap="onSharePlanTap"
+    >分享此计划</button>
+
     <button
       wx:if="{{canPause}}"
       class="plan-state-btn pause-btn btn-ghost"
@@ -68,9 +74,10 @@
     >暂停计划</button>
     <button
       wx:if="{{plan.paused}}"
-      class="plan-state-btn restart-btn btn-mint"
+      class="plan-state-btn btn-ghost"
       bindtap="restartPlan"
     >重启计划</button>
+
     <button class="delete-btn btn-ghost" bindtap="deletePlan">删除计划</button>
   </view>
 
@@ -81,4 +88,47 @@
     bind:close="closeSheet"
     bind:confirm="onDepositConfirm"
   ></deposit-sheet>
+
+  <!-- 分享确认弹窗 -->
+  <view class="share-modal-mask {{showShareModal ? 'show' : ''}}" bindtap="closeShareModal" catchtouchmove="preventTouchMove">
+    <view class="share-modal-content {{showShareModal ? 'show' : ''}}" catchtap="preventTouchMove">
+      <!-- 标题栏 -->
+      <view class="share-modal-header">
+        <text class="share-modal-title">分享计划模板</text>
+        <view class="share-modal-close" bindtap="closeShareModal">
+          <text>✕</text>
+        </view>
+      </view>
+
+      <!-- 内容区 -->
+      <view class="share-modal-body">
+        <!-- 加载状态 -->
+        <view class="share-loading" wx:if="{{sharePreparing}}">
+          <view class="loading-spinner"></view>
+          <text class="loading-text">正在准备分享内容...</text>
+        </view>
+
+        <!-- 准备就绪 -->
+        <view class="share-ready" wx:if="{{!sharePreparing && shareSnapshotId}}">
+          <view class="ready-icon">✅</view>
+          <text class="ready-title">分享内容已准备好！</text>
+          <text class="ready-desc">好友可以复制这个计划模板，创建属于自己的存钱计划</text>
+
+          <!-- 真正的分享按钮 -->
+          <button
+            class="real-share-btn"
+            open-type="share"
+            data-share-type="template"
+          >发送给微信好友</button>
+        </view>
+
+        <!-- 失败状态 -->
+        <view class="share-error" wx:if="{{!sharePreparing && !shareSnapshotId}}">
+          <text class="error-icon">⚠️</text>
+          <text class="error-text">{{shareError || '准备失败，请重试'}}</text>
+          <button class="retry-btn" bindtap="onSharePlanTap" size="mini">重新尝试</button>
+        </view>
+      </view>
+    </view>
+  </view>
 </view>

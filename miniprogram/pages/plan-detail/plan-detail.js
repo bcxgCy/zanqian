@@ -3,6 +3,7 @@ const planUtil = require('../../utils/plan');
 const storage = require('../../utils/storage');
 const money = require('../../utils/money');
 const subscribe = require('../../utils/subscribe');
+const shareUtil = require('../../utils/share');
 
 Page({
   data: {
@@ -45,6 +46,7 @@ Page({
         const viewPlan = Object.assign({}, plan, {
           periods: (plan.periods || []).map((period) => this.formatPeriod(period, today)),
         });
+
         this.setData({
           plan: viewPlan,
           summary,
@@ -351,15 +353,100 @@ Page({
   },
 
   /**
-   * 分享心愿详情给朋友
+   * 点击【📤 分享此计划】按钮
+   *
+   * 流程：
+   * 1. 显示弹窗 + 开始加载状态
+   * 2. 调用云函数创建快照
+   * 3. 成功后显示"发送给微信好友"按钮（真正的 open-type="share" 按钮）
+   * 4. 用户点击该按钮 → 触发 onShareAppMessage → 返回模板分享路径
    */
-  onShareAppMessage() {
+  async onSharePlanTap() {
+    const { plan } = this.data;
+    if (!plan) {
+      wx.showToast({ title: '计划数据异常', icon: 'none' });
+      return;
+    }
+
+    // 显示弹窗，进入加载状态
+    this.setData({
+      showShareModal: true,
+      sharePreparing: true,
+      shareSnapshotId: null,
+      shareError: null,
+    });
+
+    try {
+      // 创建快照（只保存配置模板，不含个人数据）
+      const result = await shareUtil.triggerSharePlan(plan, 'card');
+
+      if (result.success) {
+        // ✅ 快照创建成功，显示分享按钮
+        console.log('【share】快照创建成功', result.snapshotId);
+
+        this.setData({
+          sharePreparing: false,
+          shareSnapshotId: result.snapshotId,
+          _pendingSnapshotId: result.snapshotId, // 缓存供 onShareAppMessage 使用
+        });
+      } else {
+        // ❌ 创建失败
+        this.setData({
+          sharePreparing: false,
+          shareError: result.error || '创建失败',
+        });
+      }
+    } catch (err) {
+      console.error('【share】创建快照失败', err);
+      this.setData({
+        sharePreparing: false,
+        shareError: err.message || '网络错误，请重试',
+      });
+    }
+  },
+
+  /**
+   * 关闭分享弹窗
+   */
+  closeShareModal() {
+    this.setData({ showShareModal: false });
+  },
+
+  /**
+   * 阻止事件冒泡（空函数）
+   */
+  preventTouchMove() {
+    // 空函数，用于阻止触摸事件冒泡
+  },
+
+  /**
+   * 分享给朋友（生命周期函数）
+   *
+   * 微信在用户点击 open-type="share" 按钮时自动调用
+   * 此时判断是否为弹窗内的真正分享按钮
+   */
+  onShareAppMessage(res) {
     const { plan, summary } = this.data;
     if (!plan) return {};
 
+    const from = res.from;
+    const target = res.target;
+    const isTemplateButton = target?.dataset?.shareType === 'template';
+
+    // 判断是否为弹窗内的「发送给微信好友」按钮
+    if (from === 'button' && isTemplateButton && this.data._pendingSnapshotId) {
+      console.log('【share】✅ 真正的模板分享', this.data._pendingSnapshotId);
+
+      return {
+        title: `🎯 ${plan.name} - 目标 ¥${plan.targetAmount}`,
+        path: `/pages/plan-copy-preview/plan-copy-preview?snapshotId=${this.data._pendingSnapshotId}`,
+        imageUrl: '',
+      };
+    }
+
+    // 🔄 默认：个人详情页（右上角菜单触发时使用）
     const progress = summary.progress || 0;
     const savedAmount = summary.savedAmount || 0;
-    const targetAmount = plan.targetAmount || 0;
 
     return {
       title: `【${plan.name}】已存入 ¥${savedAmount}，完成 ${progress}%`,

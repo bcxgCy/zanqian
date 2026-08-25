@@ -201,6 +201,10 @@
   padding: 0 12rpx;
   box-sizing: border-box;
 }
+.plan-state-btn {
+  color: rgba(102, 126, 234) !important;
+  border: 1rpx solid rgba(102, 126, 234, 0.35) !important;
+}
 
 .delete-btn {
   color: var(--color-danger) !important;
@@ -260,4 +264,199 @@
 
 .subscribe-btn-inline.btn-disabled[disabled] {
   opacity: 0.8;
+}
+
+/* 分享此计划按钮样式 - 紫色主题（突出显示） */
+.share-plan-btn {
+  flex: 1;
+  color: #667eea !important;
+  border: 1rpx solid #667eea !important;
+}
+
+/* 分享确认弹窗样式 */
+.share-modal-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s ease;
+  visibility: hidden;
+  opacity: 0;
+}
+
+.share-modal-mask.show {
+  background-color: rgba(0, 0, 0, 0.6);
+  visibility: visible;
+  opacity: 1;
+}
+
+.share-modal-content {
+  width: 85%;
+  max-width: 600rpx;
+  background-color: #fff;
+  border-radius: 24rpx;
+  overflow: hidden;
+  transform: scale(0.9);
+  transition: transform 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  visibility: hidden;
+  opacity: 0;
+}
+
+.share-modal-content.show {
+  transform: scale(1);
+  visibility: visible;
+  opacity: 1;
+}
+
+.share-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 28rpx 32rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.share-modal-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.share-modal-close {
+  width: 56rpx;
+  height: 56rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: #f5f5f5;
+  color: #666;
+  font-size: 28rpx;
+}
+
+.share-modal-close:active {
+  background-color: #eee;
+}
+
+.share-modal-body {
+  padding: 40rpx 32rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 300rpx;
+}
+
+/* 加载状态 */
+.share-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20rpx;
+}
+
+.loading-spinner {
+  width: 64rpx;
+  height: 64rpx;
+  border: 4rpx solid #f0f0f0;
+  border-top-color: #667eea;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-text {
+  font-size: 26rpx;
+  color: #666;
+}
+
+/* 准备就绪 */
+.share-ready {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.ready-icon {
+  width: 80rpx;
+  height: 80rpx;
+  line-height: 80rpx;
+  text-align: center;
+  font-size: 48rpx;
+  background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+  border-radius: 50%;
+  margin-bottom: 8rpx;
+}
+
+.ready-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.ready-desc {
+  font-size: 24rpx;
+  color: #999;
+  text-align: center;
+  line-height: 1.5;
+  margin-bottom: 24rpx;
+}
+
+.real-share-btn {
+  width: 100%;
+  height: 88rpx;
+  line-height: 88rpx;
+  text-align: center;
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #fff !important;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  border: none !important;
+  border-radius: 44rpx;
+  margin-top: 16rpx;
+  padding: 0;
+}
+
+.real-share-btn:active {
+  opacity: 0.9;
+}
+
+/* 失败状态 */
+.share-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.error-icon {
+  font-size: 56rpx;
+}
+
+.error-text {
+  font-size: 26rpx;
+  color: #999;
+  text-align: center;
+  line-height: 1.5;
+  margin-bottom: 20rpx;
+}
+
+.retry-btn {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff !important;
+  font-size: 26rpx;
+  border: none;
+  border-radius: 40rpx;
+  padding: 12rpx 40rpx;
 }

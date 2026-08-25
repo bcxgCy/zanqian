@@ -1,0 +1,97 @@
+<view class="page">
+  <!-- 加载中 -->
+  <view class="loading" wx:if="{{!loaded}}">
+    <text>加载中...</text>
+  </view>
+
+  <!-- 快照失效 -->
+  <view class="expired" wx:if="{{loaded && expired}}">
+    <view class="expired-icon">⚠️</view>
+    <view class="expired-title">该分享计划已失效</view>
+    <view class="expired-desc">分享链接已超过 90 天有效期</view>
+    <view class="expired-tip">可以请好友重新分享，或者创建自己的攒钱计划</view>
+    <button class="btn-primary" bindtap="goCreatePlan">创建我的存钱计划</button>
+  </view>
+
+  <!-- 正常预览 -->
+  <view class="preview" wx:if="{{loaded && !expired && snapshot}}">
+    <!-- 顶部提示 -->
+    <view class="header-tip">
+      <text class="tip-icon">📋</text>
+      <text class="tip-text">来自好友分享的攒钱计划模板</text>
+    </view>
+
+    <!-- 计划卡片 -->
+    <view class="card snapshot-card">
+      <view class="snapshot-header">
+        <view class="snapshot-icon">{{snapshot.icon}}</view>
+        <view class="snapshot-info">
+          <text class="snapshot-name">{{snapshot.name}}</text>
+          <text class="snapshot-type">{{snapshot.planTypeName}}</text>
+        </view>
+      </view>
+
+      <view class="snapshot-amount">
+        <text class="amount-label">目标金额</text>
+        <text class="amount-value">¥{{snapshot.targetAmount}}</text>
+      </view>
+
+      <view class="snapshot-meta">
+        <text v-if="snapshot.totalPeriods">共 {{snapshot.totalPeriods}} 期</text>
+        <text v-if="snapshot.startDate">起始日 {{snapshot.startDate}}</text>
+      </view>
+
+      <view class="snapshot-rule" wx:if="{{snapshot.presetId === '365'}}">
+        <text class="rule-title">存钱规则：365 存钱法</text>
+        <text class="rule-desc">从第 1 天存 1 元开始，每天递增 1 元，第 365 天存 365 元</text>
+      </view>
+
+      <view class="snapshot-rule" wx:if="{{snapshot.presetId === '52week'}}">
+        <text class="rule-title">存钱规则：52 周存钱法</text>
+        <text class="rule-desc">从第 1 周存 10 元开始，每周递增 10 元，第 52 周存 520 元</text>
+      </view>
+
+      <view class="snapshot-rule" wx:if="{{snapshot.presetId === '12month'}}">
+        <text class="rule-title">存钱规则：12 月存钱法</text>
+        <text class="rule-desc">每月固定存入相同金额，12 个月完成目标</text>
+      </view>
+
+      <view class="snapshot-rule" wx:if="{{snapshot.presetId === 'random365'}}">
+        <text class="rule-title">存钱规则：365 随机存钱法</text>
+        <text class="rule-desc">每天随机存入金额，总金额等于目标金额</text>
+      </view>
+
+      <view class="snapshot-rule" wx:if="{{!snapshot.presetId && snapshot.planType !== 'preset'}}">
+        <text class="rule-title">自定义存钱方案</text>
+        <text class="rule-desc">根据设定的参数自动生成存钱计划</text>
+      </view>
+    </view>
+
+    <!-- 复制说明 -->
+    <view class="copy-notice">
+      <view class="notice-title">📝 复制说明</view>
+      <view class="notice-content">
+        <text>这是一份计划模板，复制后生成属于你独立的攒钱目标。</text>
+        <text>不会获取分享人的存款、进度、历史记录。</text>
+      </view>
+    </view>
+
+    <!-- 操作按钮 -->
+    <view class="action-buttons">
+      <button
+        class="action-btn primary-btn"
+        bindtap="onCopyDirectly"
+      >直接使用</button>
+
+      <button
+        class="action-btn secondary-btn"
+        bindtap="onCopyAndModify"
+      >修改后再用</button>
+    </view>
+
+    <!-- 底部提示 -->
+    <view class="footer-tip">
+      <text>复制后的计划完全独立，可自由修改或删除</text>
+    </view>
+  </view>
+</view>
