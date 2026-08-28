@@ -8,6 +8,10 @@
       <text>测试打卡提醒推送</text>
       <text class="arrow">></text>
     </view>
+    <view class="menu-item warning" bindtap="goDbInit">
+      <text>🗄️ 数据库初始化（房间功能）</text>
+      <text class="arrow">></text>
+    </view>
     <view class="menu-item danger" bindtap="clearData">
       <text>清除所有存钱数据</text>
       <text class="arrow">></text>

@@ -1,0 +1,214 @@
+<view class="page" wx:if="{{room}}">
+  <!-- 顶部房间信息 -->
+  <view class="room-header">
+    <view class="header-top">
+      <text class="room-name">{{room.roomName}}</text>
+      <view class="code-box" bindtap="copyRoomCode">
+        <text class="code-text">{{room.roomCode}}</text>
+        <text class="copy-icon">📋</text>
+      </view>
+    </view>
+
+    <view class="room-desc" wx:if="{{room.roomDesc}}">
+      <text>{{room.roomDesc}}</text>
+    </view>
+
+    <view class="room-notice" wx:if="{{room.roomNotice}}">
+      <text class="notice-label">📢 公告</text>
+      <text>{{room.roomNotice}}</text>
+    </view>
+
+    <!-- 数据概览 -->
+    <view class="stats-row">
+      <view class="stat-item">
+        <text class="stat-num">{{stats.memberCount || 0}}</text>
+        <text class="stat-label">总人数</text>
+      </view>
+      <view class="stat-divider"></view>
+      <view class="stat-item">
+        <text class="stat-num">{{stats.todayCheckinCount || 0}}</text>
+        <text class="stat-label">今日打卡</text>
+      </view>
+      <view class="stat-divider"></view>
+      <view class="stat-item">
+        <text class="stat-num">{{stats.weekCheckinCount || 0}}</text>
+        <text class="stat-label">本周打卡</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 个人状态卡 -->
+  <view class="my-card" wx:if="{{myInfo}}">
+    <view class="my-info">
+      <view class="avatar-placeholder">
+        <text>{{myInfo.roomNickname[0]}}</text>
+      </view>
+      <view class="info-content">
+        <view class="nickname-row">
+          <text class="nickname">{{myInfo.roomNickname}}</text>
+          <button class="edit-nickname-btn" bindtap="showEditNickname">修改昵称</button>
+        </view>
+        <view class="status-row">
+          <text class="continue-day">连续 {{myInfo.continueDay || 0}} 天</text>
+          <text class="divider">·</text>
+          <text class="checkin-status {{myInfo.isCheckedInToday ? 'checked' : 'unchecked'}}">
+            今日{{myInfo.isCheckedInToday ? '已✅' : '未❌'}}打卡
+          </text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 打卡按钮区域 -->
+    <view class="checkin-area">
+      <!-- 外部打卡按钮 -->
+      <button
+        class="checkin-btn {{myInfo.isCheckedInToday ? 'disabled' : ''}}"
+        disabled="{{myInfo.isCheckedInToday || !canOuterCheckin}}"
+        bindtap="doOuterCheckin"
+      >
+        {{myInfo.isCheckedInToday ? '今日已打卡' : '外部签到打卡'}}
+      </button>
+
+      <text class="checkin-tip" wx:if="{{!canOuterCheckin}}">
+        该房间仅允许小程序存钱同步打卡
+      </text>
+
+      <!-- 🆕 订阅提醒按钮 -->
+      <button
+        class="subscribe-reminder-btn {{subscribeStatus.subscribed ? 'subscribed' : ''}}"
+        bindtap="toggleSubscribe"
+      >
+        {{subscribeStatus.subscribed ? '已开启每日提醒 ✅' : '🔔 开启每日打卡提醒'}}
+      </button>
+    </view>
+  </view>
+
+  <!-- 非成员提示 -->
+  <view class="join-tip" wx:if="{{!myInfo && !isOwner}}">
+    <text>加入房间后可参与打卡和榜单统计</text>
+    <button class="join-btn" bindtap="goJoinRoom">加入房间</button>
+  </view>
+
+  <!-- 双榜单 Tab -->
+  <view class="ranking-section">
+    <view class="tab-header">
+      <view
+        class="tab-item {{currentTab === 'continue' ? 'active' : ''}}"
+        bindtap="switchTab"
+        data-tab="continue"
+      >
+        <text>🔥 总连续榜</text>
+      </view>
+      <view
+        class="tab-item {{currentTab === 'total' ? 'active' : ''}}"
+        bindtap="switchTab"
+        data-tab="total"
+      >
+        <text>📊 累计打卡榜</text>
+      </view>
+    </view>
+
+    <!-- 榜单内容 -->
+    <view class="ranking-list" wx:if="{{!permissionDenied}}">
+      <view
+        class="rank-item {{item.isMe ? 'is-me' : ''}}"
+        wx:for="{{rankingList}}"
+        wx:key="nickname"
+      >
+        <view class="rank-badge {{index < 3 ? 'top-' + (index + 1) : 'normal'}}">
+          <text>{{item.rank}}</text>
+        </view>
+        <view class="user-info">
+          <text class="user-nickname">{{item.nickname}}</text>
+        </view>
+        <view class="score-info">
+          <text class="main-score" wx:if="{{currentTab === 'continue'}}">
+            {{item.continueDay}}天
+          </text>
+          <text class="main-score" wx:else>
+            {{item.totalCheckinCount}}次
+          </text>
+          <text class="sub-score" wx:if="{{currentTab === 'continue'}}">
+            累计{{item.totalCheckinCount}}次
+          </text>
+          <text class="sub-score" wx:else>
+            连续{{item.continueDay}}天
+          </text>
+        </view>
+      </view>
+
+      <!-- 空状态 -->
+      <view class="empty-ranking" wx:if="{{rankingList.length === 0}}">
+        <text>暂无数据，快来打卡吧！</text>
+      </view>
+    </view>
+
+    <!-- 权限不足提示 -->
+    <view class="permission-denied" wx:if="{{permissionDenied}}">
+      <text>本房间榜单仅房主可见</text>
+    </view>
+  </view>
+
+  <!-- 动态流 -->
+  <view class="dynamics-section">
+    <view class="section-title">
+      <text>📝 最近动态</text>
+    </view>
+
+    <view class="dynamics-list" wx:if="{{dynamics.length > 0}}">
+      <view class="dynamic-item" wx:for="{{dynamics}}" wx:key="id">
+        <view class="dynamic-avatar">
+          <text>{{item.nickname[0]}}</text>
+        </view>
+        <view class="dynamic-content">
+          <text class="dynamic-text">
+            <text class="dynamic-nickname">{{item.nickname}}</text>
+            <text>{{item.typeText}}✅</text>
+          </text>
+          <text class="dynamic-time">{{item.timeStr}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="empty-dynamics" wx:else>
+      <text>暂无动态</text>
+    </view>
+  </view>
+
+  <!-- 底部操作栏（房主） -->
+  <view class="owner-actions" wx:if="{{isOwner}}">
+    <button class="owner-btn" bindtap="goRoomSettings">⚙️ 房间设置</button>
+    <button class="owner-btn danger" bindtap="confirmDissolve">解散房间</button>
+  </view>
+
+  <!-- 修改昵称弹窗 -->
+  <view class="modal-mask {{showNicknameModal ? 'show' : ''}}" bindtap="closeNicknameModal">
+    <view class="modal-content" catchtap="">
+      <view class="modal-header">
+        <text class="modal-title">修改房间昵称</text>
+        <text class="modal-close" bindtap="closeNicknameModal">✕</text>
+      </view>
+      <view class="modal-body">
+        <input
+          class="nickname-input"
+          type="text"
+          placeholder="请输入新昵称（2-12位）"
+          maxlength="12"
+          value="{{newNickname}}"
+          bindinput="onNicknameInput"
+        />
+        <text class="input-hint">仅支持中文、字母、数字</text>
+      </view>
+      <view class="modal-footer">
+        <button class="btn-cancel" bindtap="closeNicknameModal">取消</button>
+        <button class="btn-confirm" bindtap="confirmEditNickname">确认</button>
+      </view>
+    </view>
+  </view>
+</view>
+
+<!-- 加载状态 -->
+<view class="loading-state" wx:if="{{loading && !room}}">
+  <view class="loading-spinner"></view>
+  <text>加载中...</text>
+</view>

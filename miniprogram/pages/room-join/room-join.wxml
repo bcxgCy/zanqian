@@ -1,0 +1,142 @@
+<view class="page">
+  <!-- 加入方式 Tab -->
+  <view class="tab-header">
+    <view
+      class="tab-item {{joinMode === 'code' ? 'active' : ''}}"
+      bindtap="switchJoinMode"
+      data-mode="code"
+    >
+      <text>房间码加入</text>
+    </view>
+    <view
+      class="tab-item {{joinMode === 'invite' ? 'active' : ''}}"
+      bindtap="switchJoinMode"
+      data-mode="invite"
+    >
+      <text>邀请凭证加入</text>
+    </view>
+  </view>
+
+  <!-- 房间码加入 -->
+  <view class="form-card" wx:if="{{joinMode === 'code'}}">
+    <!-- 输入房间码 -->
+    <view class="form-item">
+      <text class="form-label">请输入6位房间码</text>
+      <view class="code-input-row">
+        <input
+          class="code-input"
+          type="number"
+          placeholder="000000"
+          maxlength="6"
+          value="{{roomCode}}"
+          bindinput="onInputRoomCode"
+        />
+        <button
+          class="paste-btn"
+          bindtap="pasteFromClipboard"
+        >粘贴</button>
+      </view>
+      <text class="input-hint">纯数字，可在房间详情页复制</text>
+    </view>
+
+    <!-- 搜索结果 -->
+    <view class="search-result" wx:if="{{searchedRoom && !joined}}">
+      <view class="room-preview">
+        <text class="preview-name">{{searchedRoom.roomName}}</text>
+        <text class="preview-desc" wx:if="{{searchedRoom.roomDesc}}">{{searchedRoom.roomDesc}}</text>
+        <view class="preview-meta">
+          <text>成员: {{searchedRoom.memberCount || 0}}/{{searchedRoom.maxMember || 100}}</text>
+          <text>房主: {{searchedRoom.ownerOpenid ? '***' + searchedRoom.ownerOpenid.slice(-4) : ''}}</text>
+        </view>
+        <text class="preview-notice" wx:if="{{!searchedRoom.allowFreeJoin}}">
+          ⚠️ 该房间已关闭自由加入，需要邀请凭证
+        </text>
+      </view>
+    </view>
+
+    <!-- 已是成员提示 -->
+    <view class="already-member" wx:if="{{joined}}">
+      <text class="member-icon">✅</text>
+      <text class="member-text">您已是该房间成员</text>
+      <button class="go-detail-btn" bindtap="goRoomDetail">进入房间</button>
+    </view>
+  </view>
+
+  <!-- 邀请凭证加入 -->
+  <view class="form-card" wx:if="{{joinMode === 'invite'}}">
+    <view class="form-item">
+      <text class="form-label">请输入8位邀请凭证</text>
+      <view class="code-input-row">
+        <input
+          class="code-input"
+          type="text"
+          placeholder="XXXXXXXX"
+          maxlength="8"
+          value="{{inviteToken}}"
+          bindinput="onInputInviteToken"
+        />
+        <button
+          class="paste-btn"
+          bindtap="pasteFromClipboard"
+        >粘贴</button>
+      </view>
+      <text class="input-hint">一次性使用，24小时内有效</text>
+    </view>
+
+    <!-- 凭证搜索结果 -->
+    <view class="search-result" wx:if="{{inviteRoomInfo && !joined}}">
+      <view class="room-preview">
+        <text class="preview-name">{{inviteRoomInfo.roomName}}</text>
+        <text class="preview-desc" wx:if="{{inviteRoomInfo.roomDesc}}">{{inviteRoomInfo.roomDesc}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 强制昵称设置（所有入房路径统一） -->
+  <view class="nickname-card" wx:if="{{(searchedRoom || inviteRoomInfo) && !joined && !showNicknameStep}}">
+    <button class="next-step-btn" bindtap="showNicknameInput">下一步：设置昵称</button>
+  </view>
+
+  <!-- 昵称输入步骤 -->
+  <view class="nickname-card show" wx:if="{{showNicknameStep}}">
+    <view class="form-item">
+      <text class="form-label">设置您的房间昵称 <text class="required">*</text></text>
+      <input
+        class="form-input nickname-input"
+        type="text"
+        placeholder="2-12位，支持中文、字母、数字"
+        maxlength="12"
+        value="{{nickname}}"
+        bindinput="onInputNickname"
+      />
+      <text class="input-error" wx:if="{{nicknameError}}">{{nicknameError}}</text>
+      <text class="input-hint" wx:else>仅支持中文、字母、数字，允许重名</text>
+    </view>
+
+    <button
+      class="submit-btn {{canJoin ? '' : 'disabled'}}"
+      disabled="{{!canJoin || joining}}"
+      bindtap="confirmJoin"
+    >
+      {{joining ? '加入中...' : '确认加入'}}
+    </button>
+  </view>
+
+  <!-- 操作按钮 -->
+  <view class="action-buttons" wx:if="{{!showNicknameStep}}">
+    <button
+      class="search-btn"
+      bindtap="searchRoom"
+      wx:if="{{joinMode === 'code' && !searchedRoom}}"
+    >
+      搜索房间
+    </button>
+    <button
+      class="search-btn"
+      bindtap="validateToken"
+      wx:if="{{joinMode === 'invite' && !inviteRoomInfo}}"
+    >
+      验证凭证
+    </button>
+  </view>
+</view>

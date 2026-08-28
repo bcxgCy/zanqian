@@ -57,6 +57,15 @@ Page({
   },
 
   /**
+   * 🆕 跳转到数据库初始化页面
+   */
+  goDbInit() {
+    wx.navigateTo({
+      url: '/pages/db-init/db-init',
+    });
+  },
+
+  /**
    * 测试打卡提醒推送
    * 调用 reminderSender 云函数的 dailyCheckin 接口进行测试
    */

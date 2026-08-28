@@ -1,0 +1,95 @@
+<view class="page">
+  <view class="form-card">
+    <!-- 房间名称 -->
+    <view class="form-item">
+      <text class="form-label">房间名称 <text class="required">*</text></text>
+      <input
+        class="form-input"
+        type="text"
+        placeholder="给房间起个名字吧（如：30天存钱挑战）"
+        maxlength="20"
+        value="{{formData.roomName}}"
+        bindinput="onInputRoomName"
+      />
+    </view>
+
+    <!-- 房间简介 -->
+    <view class="form-item">
+      <text class="form-label">房间简介</text>
+      <textarea
+        class="form-textarea"
+        placeholder="简单介绍一下这个房间（选填）"
+        maxlength="100"
+        value="{{formData.roomDesc}}"
+        bindinput="onInputRoomDesc"
+        auto-height
+      />
+      <text class="char-count">{{roomDescLength}}/100</text>
+    </view>
+
+    <!-- 最大人数 -->
+    <view class="form-item">
+      <text class="form-label">最大人数</text>
+      <view class="picker-row" bindtap="showMaxMemberPicker">
+        <text class="picker-value">{{maxMemberOptions[formData.maxMemberIndex]}}人</text>
+        <text class="picker-arrow">▸</text>
+      </view>
+    </view>
+
+    <!-- 开关设置 -->
+    <view class="switch-list">
+      <view class="switch-item">
+        <view class="switch-info">
+          <text class="switch-title">允许自由加入</text>
+          <text class="switch-desc">开启后可通过房间码自助加入</text>
+        </view>
+        <switch
+          checked="{{formData.allowFreeJoin}}"
+          bindchange="onSwitchFreeJoin"
+          color="#165DFF"
+        />
+      </view>
+
+      <view class="switch-item">
+        <view class="switch-info">
+          <text class="switch-title">允许外部打卡</text>
+          <text class="switch-desc">允许使用备忘录等外部工具打卡</text>
+        </view>
+        <switch
+          checked="{{formData.allowOuterCheckIn}}"
+          bindchange="onSwitchOuterCheckin"
+          color="#165DFF"
+        />
+      </view>
+
+      <view class="switch-item">
+        <view class="switch-info">
+          <text class="switch-title">榜单对成员可见</text>
+          <text class="switch-desc">关闭后仅房主可查看榜单</text>
+        </view>
+        <switch
+          checked="{{formData.openRank}}"
+          bindchange="onSwitchOpenRank"
+          color="#165DFF"
+        />
+      </view>
+    </view>
+  </view>
+
+  <!-- 创建按钮 -->
+  <button
+    class="submit-btn {{canSubmit ? '' : 'disabled'}}"
+    disabled="{{!canSubmit || submitting}}"
+    bindtap="createRoom"
+  >
+    {{submitting ? '创建中...' : '创建房间'}}
+  </button>
+
+  <!-- 提示信息 -->
+  <view class="tips">
+    <text class="tips-title">💡 温馨提示</text>
+    <text class="tips-text">· 创建后你将成为房主，拥有全部管理权限</text>
+    <text class="tips-text">· 房间码将自动生成，可分享给好友加入</text>
+    <text class="tips-text">· 可随时在房间设置中修改以上配置</text>
+  </view>
+</view>

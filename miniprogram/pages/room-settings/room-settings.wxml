@@ -1,0 +1,208 @@
+<view class="page" wx:if="{{room}}">
+  <!-- 基本信息 -->
+  <view class="section">
+    <view class="section-title">基本信息</view>
+
+    <view class="form-item">
+      <text class="form-label">房间名称</text>
+      <input
+        class="form-input"
+        type="text"
+        value="{{settings.roomName}}"
+        bindinput="onInputRoomName"
+        maxlength="20"
+      />
+    </view>
+
+    <view class="form-item">
+      <text class="form-label">房间简介</text>
+      <textarea
+        class="form-textarea"
+        value="{{settings.roomDesc}}"
+        bindinput="onInputRoomDesc"
+        maxlength="100"
+        auto-height
+      />
+    </view>
+
+    <view class="form-item">
+      <text class="form-label">房间公告</text>
+      <textarea
+        class="form-textarea"
+        placeholder="设置房间公告（选填）"
+        value="{{settings.roomNotice}}"
+        bindinput="onInputRoomNotice"
+        maxlength="200"
+        auto-height
+      />
+    </view>
+  </view>
+
+  <!-- 权限开关 -->
+  <view class="section">
+    <view class="section-title">权限设置</view>
+
+    <view class="switch-item">
+      <view class="switch-info">
+        <text class="switch-title">允许自由加入</text>
+        <text class="switch-desc">关闭后仅可通过邀请凭证加入</text>
+      </view>
+      <switch
+        checked="{{settings.allowFreeJoin}}"
+        bindchange="onSwitchChange"
+        data-key="allowFreeJoin"
+        color="#165DFF"
+      />
+    </view>
+
+    <view class="switch-item">
+      <view class="switch-info">
+        <text class="switch-title">允许外部打卡</text>
+        <text class="switch-desc">关闭后仅允许小程序存钱同步打卡</text>
+      </view>
+      <switch
+        checked="{{settings.allowOuterCheckIn}}"
+        bindchange="onSwitchChange"
+        data-key="allowOuterCheckIn"
+        color="#165DFF"
+      />
+    </view>
+
+    <view class="switch-item">
+      <view class="switch-info">
+        <text class="switch-title">榜单对成员可见</text>
+        <text class="switch-desc">关闭后仅房主可查看榜单</text>
+      </view>
+      <switch
+        checked="{{settings.openRank}}"
+        bindchange="onSwitchChange"
+        data-key="openRank"
+        color="#165DFF"
+      />
+    </view>
+
+    <view class="switch-item">
+      <view class="switch-info">
+        <text class="switch-title">自动生成周报</text>
+        <text class="switch-desc">每周一10:00自动生成上周打卡统计报告</text>
+      </view>
+      <switch
+        checked="{{settings.autoReport}}"
+        bindchange="onSwitchChange"
+        data-key="autoReport"
+        color="#165DFF"
+      />
+    </view>
+
+    <view class="switch-item">
+      <view class="switch-info">
+        <text class="switch-title">周报推送通知</text>
+        <text class="switch-desc">周报生成后通过订阅消息通知成员（需成员已开启提醒）</text>
+      </view>
+      <switch
+        checked="{{settings.reportPush}}"
+        bindchange="onSwitchChange"
+        data-key="reportPush"
+        color="#165DFF"
+        disabled="{{!settings.autoReport}}"
+      />
+    </view>
+  </view>
+
+  <!-- 人数管理 -->
+  <view class="section">
+    <view class="section-title">人数管理</view>
+
+    <view class="picker-item" bindtap="showMaxMemberPicker">
+      <view class="picker-info">
+        <text class="picker-label">最大人数上限</text>
+        <text class="picker-desc">当前成员: {{stats.memberCount || 0}}人</text>
+      </view>
+      <view class="picker-right">
+        <text class="picker-value">{{maxMemberOptions[settings.maxMemberIndex]}}人</text>
+        <text class="picker-arrow">▸</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 邀请凭证 -->
+  <view class="section">
+    <view class="section-title">邀请凭证</view>
+
+    <view class="invite-section">
+      <text class="invite-desc">生成一次性邀请凭证，适合私密拉人（24小时有效）</text>
+
+      <button class="generate-btn" bindtap="generateToken" disabled="{{generating}}">
+        {{generating ? '生成中...' : '＋ 生成邀请凭证'}}
+      </button>
+
+      <!-- 已生成的凭证列表 -->
+      <view class="token-list" wx:if="{{tokens.length > 0}}">
+        <view class="token-item" wx:for="{{tokens}}" wx:key="token">
+          <view class="token-info">
+            <text class="token-code">{{item.token}}</text>
+            <text class="token-status {{item.used ? 'used' : 'active'}}">
+              {{item.used ? '已使用' : '未使用'}}
+            </text>
+            <text class="token-time">{{item.expireTimeStr}}</text>
+          </view>
+          <button
+            class="copy-token-btn"
+            wx:if="{{!item.used}}"
+            bindtap="copyToken"
+            data-token="{{item.token}}"
+          >复制</button>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 成员管理入口 -->
+  <view class="section">
+    <view class="section-title">成员管理</view>
+
+    <view class="menu-list">
+      <view class="menu-item" bindtap="goMemberList">
+        <text class="menu-text">查看成员列表</text>
+        <text class="menu-arrow">▸</text>
+      </view>
+      <view class="menu-item danger" bindtap="confirmResetStats">
+        <text class="menu-text">重置房间打卡统计</text>
+        <text class="menu-arrow">▸</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 危险操作 -->
+  <view class="section danger-zone">
+    <view class="section-title">危险操作</view>
+
+    <view class="menu-list">
+      <view class="menu-item danger" bindtap="confirmTransferOwnership">
+        <text class="menu-text">移交房主身份</text>
+        <text class="menu-arrow">▸</text>
+      </view>
+      <view class="menu-item danger" bindtap="confirmDissolveRoom">
+        <text class="menu-text">解散房间</text>
+        <text class="menu-arrow">▸</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 保存按钮 -->
+  <view class="bottom-bar">
+    <button
+      class="save-btn"
+      bindtap="saveSettings"
+      disabled="{{saving}}"
+    >
+      {{saving ? '保存中...' : '保存设置'}}
+    </button>
+  </view>
+</view>
+
+<!-- 加载状态 -->
+<view class="loading-state" wx:if="{{loading && !room}}">
+  <view class="loading-spinner"></view>
+  <text>加载中...</text>
+</view>

@@ -2,16 +2,22 @@
   "pages": [
     "pages/index/index",
     "pages/calculator/calculator",
+    "pages/room/room",
     "pages/me/me",
     "pages/statistics/statistics",
     "pages/plan-add/plan-add",
     "pages/plan-detail/plan-detail",
+    "pages/room-detail/room-detail",
+    "pages/room-create/room-create",
+    "pages/room-join/room-join",
+    "pages/room-settings/room-settings",
     "pages/calculator-result/calculator-result",
     "pages/profile-edit/profile-edit",
     "pages/settings/settings",
     "pages/help/help",
     "pages/privacy/privacy",
-    "pages/plan-copy-preview/plan-copy-preview"
+    "pages/plan-copy-preview/plan-copy-preview",
+    "pages/db-init/db-init"
   ],
   "window": {
     "backgroundColor": "#F7F8FA",
@@ -37,6 +43,12 @@
         "text": "存款计算器",
         "iconPath": "images/tab/calc.png",
         "selectedIconPath": "images/tab/calc-active.png"
+      },
+      {
+        "pagePath": "pages/room/room",
+        "text": "打卡房间",
+        "iconPath": "images/tab/room.png",
+        "selectedIconPath": "images/tab/room-active.png"
       },
       {
         "pagePath": "pages/me/me",
