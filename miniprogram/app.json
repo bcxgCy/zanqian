@@ -11,7 +11,8 @@
     "pages/settings/settings",
     "pages/help/help",
     "pages/privacy/privacy",
-    "pages/plan-copy-preview/plan-copy-preview"
+    "pages/plan-copy-preview/plan-copy-preview",
+    "pages/achievement/achievement"
   ],
   "window": {
     "backgroundColor": "#F7F8FA",
@@ -48,5 +49,10 @@
   },
   "sitemapLocation": "sitemap.json",
   "style": "v2",
-  "lazyCodeLoading": "requiredComponents"
+  "lazyCodeLoading": "requiredComponents",
+  "permission": {
+    "scope.writePhotosAlbum": {
+      "desc": "用于保存打卡成就海报到您的相册"
+    }
+  }
 }

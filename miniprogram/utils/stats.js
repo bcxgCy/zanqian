@@ -83,6 +83,59 @@ function getUserStats(plans) {
   };
 }
 
+/**
+ * 计算单个计划的连续打卡天数
+ * 规则：
+ * - 从今天往前倒推，遇到第一个未完成的期数就中断
+ * - 允许"补打卡"（过去日期的 completed=true 也算连续）
+ * - 今天未打卡时，从最近一次打卡日期往前推
+ *
+ * @param {object} plan 计划对象
+ * @returns {number} 连续打卡天数
+ */
+function getConsecutiveDays(plan) {
+  if (!plan || !plan.periods || !plan.periods.length) return 0;
+
+  const today = dateUtil.today(); // 'YYYY-MM-DD'
+  const periods = plan.periods
+    .filter((p) => p.completed && p.savedAmount > 0)
+    .sort((a, b) => b.date.localeCompare(a.date)); // 按日期降序
+
+  if (!periods.length) return 0;
+
+  let consecutive = 0;
+  let expectedDate = today;
+
+  // 从今天开始往前检查
+  for (const period of periods) {
+    if (period.date === expectedDate) {
+      consecutive++;
+      // 往前一天
+      const d = new Date(expectedDate);
+      d.setDate(d.getDate() - 1);
+      expectedDate = _formatDate(d);
+    } else if (period.date < expectedDate) {
+      // 日期断层，中断连续性
+      break;
+    }
+    // 如果 period.date > expectedDate（未来日期），跳过
+  }
+
+  return consecutive;
+}
+
+/**
+ * Date 对象转 YYYY-MM-DD 格式
+ * @param {Date} d
+ * @returns {string}
+ */
+function _formatDate(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
 function getStatsSummary(plans, mode, key) {
   // 统计页按当前筛选范围算存入，但目标剩余仍基于全量计划和全量已存。
   const allRecords = getAllRecords(plans);
@@ -110,6 +163,7 @@ module.exports = {
   getDailyAverage,
   getRingData,
   getUserStats,
+  getConsecutiveDays, // 🆕 连续打卡天数
   getStatsSummary,
   RING_COLORS,
 };

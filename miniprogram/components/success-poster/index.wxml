@@ -1,0 +1,59 @@
+<!-- 打卡成功弹窗 - 含海报分享 -->
+<view wx:if="{{show}}" class="success-mask {{show && !_forceHide ? 'show' : ''}}" bindtap="onMaskTap" catchtouchmove="preventTouchMove">
+  <view class="success-content {{show && !_forceHide ? 'show' : ''}}" catchtap="preventTouchMove">
+    <!-- 关闭按钮 -->
+    <view class="close-btn" bindtap="onClose">
+      <text class="close-icon">✕</text>
+    </view>
+
+    <!-- 海报预览区域 -->
+    <view class="poster-container">
+      <!-- 绘制中状态 -->
+      <view wx:if="{{isDrawing}}" class="drawing-state">
+        <view class="spinner"></view>
+        <text class="drawing-text">正在生成成就海报...</text>
+      </view>
+
+      <!-- 绘制失败 -->
+      <view wx:elif="{{drawError}}" class="error-state">
+        <text class="error-icon">⚠️</text>
+        <text class="error-text">{{drawError}}</text>
+        <button class="retry-btn" bindtap="drawPoster">重新生成</button>
+      </view>
+
+      <!-- 海报预览 -->
+      <block wx:else>
+        <image
+          wx:if="{{posterUrl}}"
+          src="{{posterUrl}}"
+          mode="widthFix"
+          class="poster-image"
+        />
+        <!-- 海报为空时的占位 -->
+        <view wx:if="{{!posterUrl}}" class="empty-poster">
+          <text class="empty-text">海报生成中...</text>
+        </view>
+      </block>
+
+      <!-- Canvas（用于绘制，初始不可见）- 紧凑版 -->
+      <canvas type="2d" id="posterCanvas" style="width: 480px; height: 560px; position: absolute; left: -9999px; top: 0;" />
+    </view>
+
+    <!-- 成功信息 -->
+    <view class="success-info">
+      <text class="success-title">🎉 打卡成功！</text>
+      <text class="success-sub" wx:if="{{consecutiveDays > 0}}">已连续打卡 {{consecutiveDays}} 天</text>
+      <text class="success-sub" wx:else>开启你的攒钱之旅</text>
+    </view>
+
+    <!-- 操作按钮区 -->
+    <view class="action-buttons">
+      <button class="share-btn btn-primary" open-type="share">
+        分享好友
+      </button>
+      <!-- <button class="save-btn btn-ghost" bindtap="saveToAlbum">
+        保存图片
+      </button> -->
+    </view>
+  </view>
+</view>

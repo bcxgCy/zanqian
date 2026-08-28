@@ -89,6 +89,16 @@
     bind:confirm="onDepositConfirm"
   ></deposit-sheet>
 
+  <!-- 🆕 打卡成功弹窗（含海报分享） -->
+  <success-poster
+    id="successPoster"
+    show="{{showSuccessModal}}"
+    plan="{{plan}}"
+    savedAmount="{{successSavedAmount}}"
+    consecutiveDays="{{successConsecutiveDays}}"
+    bind:close="closeSuccessPoster"
+  ></success-poster>
+
   <!-- 分享确认弹窗 -->
   <view class="share-modal-mask {{showShareModal ? 'show' : ''}}" bindtap="closeShareModal" catchtouchmove="preventTouchMove">
     <view class="share-modal-content {{showShareModal ? 'show' : ''}}" catchtap="preventTouchMove">

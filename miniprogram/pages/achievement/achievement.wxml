@@ -1,0 +1,93 @@
+<!-- 打卡成就展示页 - 好友点击海报后看到的页面 -->
+<view class="page">
+  <!-- 加载状态 -->
+  <view wx:if="{{!loaded}}" class="loading-container">
+    <view class="spinner"></view>
+    <text class="loading-text">加载成就数据...</text>
+  </view>
+
+  <!-- 成就内容 -->
+  <view wx:else class="achievement-page">
+    <!-- 顶部背景区域 -->
+    <view class="header-bg">
+      <view class="header-content">
+        <!-- 用户信息（脱敏） -->
+        <view class="user-section">
+          <view class="avatar-wrapper">
+            <text class="avatar-icon">{{planIcon || '🎯'}}</text>
+          </view>
+          <view class="user-info">
+            <text class="nickname">{{nickname || '存钱达人'}}</text>
+            <text class="subtitle">正在坚持攒钱计划</text>
+          </view>
+        </view>
+
+        <!-- 核心成就数据 -->
+        <view class="achievement-highlight">
+          <text class="achievement-label">已连续坚持</text>
+          <view class="days-row">
+            <text class="days-number">{{consecutiveDays}}</text>
+            <text class="days-unit">天</text>
+          </view>
+          <text class="achievement-desc">{{_milestoneText}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 计划详情卡片 -->
+    <view class="detail-card">
+      <!-- 计划名称和目标 -->
+      <view class="plan-header">
+        <text class="plan-name">{{planName || '我的存钱计划'}}</text>
+        <text class="plan-target">目标 ¥{{targetAmount}}</text>
+      </view>
+
+      <!-- 进度展示 -->
+      <view class="progress-section">
+        <view class="progress-bar-wrapper">
+          <view class="progress-bar-fill" style="width: {{progress}}%"></view>
+        </view>
+        <view class="progress-info">
+          <text class="progress-text">已完成 {{progress}}%</text>
+          <text class="progress-amount">已存 ¥{{savedAmount}}</text>
+        </view>
+      </view>
+
+      <!-- 本次打卡信息 -->
+      <view class="checkin-info">
+        <view class="checkin-item">
+          <text class="checkin-label">本次存入</text>
+          <text class="checkin-value highlight">¥{{savedAmountThisTime}}</text>
+        </view>
+        <view class="checkin-divider"></view>
+        <view class="checkin-item">
+          <text class="checkin-label">打卡日期</text>
+          <text class="checkin-value">{{checkinDate}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 鼓励文案 -->
+    <view class="encouragement">
+      <text class="encourage-text">{{_encourageText}}</text>
+    </view>
+
+    <!-- 行动按钮区 -->
+    <view class="action-section">
+      <!-- 主按钮：我也要参与 -->
+      <button class="join-btn btn-primary" bindtap="onJoinTap">
+        🚀 我也要参与
+      </button>
+
+      <!-- 次要按钮：为TA点赞 -->
+      <button class="like-btn btn-ghost" bindtap="onLikeTap">
+        {{liked ? '❤️ 已点赞' : '🤍 为TA点赞'}} · {{likeCount}}
+      </button>
+    </view>
+
+    <!-- 底部提示 -->
+    <view class="footer-tip">
+      <text class="tip-text">长按识别小程序码，立即开始你的攒钱之旅</text>
+    </view>
+  </view>
+</view>

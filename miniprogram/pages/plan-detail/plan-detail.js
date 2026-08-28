@@ -19,6 +19,10 @@ Page({
     // 订阅消息按钮状态
     subscribeBtnStatus: 'active', // active | disabled | cooldown
     subscribeBtnText: '开启打卡消息提醒',
+    // 🆕 打卡成功弹窗状态
+    showSuccessModal: false,
+    successSavedAmount: 0,
+    successConsecutiveDays: 0,
   },
 
   onLoad(options) {
@@ -207,7 +211,20 @@ Page({
       this.closeSheet();
       return this.loadPlan(false);
     }).then(() => {
-      wx.showToast({ title: completePlan ? '计划已完成' : '存入成功', icon: 'success' });
+      // 🆕 替换原有 toast，改为显示带分享引导的成功弹窗
+      if (completePlan) {
+        // 计划完成：仍使用 toast（或后续可扩展为完成庆典弹窗）
+        wx.showToast({ title: '计划已完成', icon: 'success' });
+      } else {
+        // 普通存入：显示打卡成功弹窗（含海报和分享引导）
+        // 用 try-catch 包裹，避免影响主流程（存入已成功）
+        try {
+          this.showSuccessPoster(savedAmount);
+        } catch (posterErr) {
+          console.error('[success-poster] 弹窗显示失败，回退到 toast', posterErr);
+          wx.showToast({ title: '存入成功', icon: 'success' });
+        }
+      }
       // 订阅授权已在 onDepositConfirm 的 TAP 同步调用栈中触发，不再在此处异步调用
     }).catch((err) => {
       wx.showToast({ title: '存入失败', icon: 'none' });
@@ -423,7 +440,10 @@ Page({
    * 分享给朋友（生命周期函数）
    *
    * 微信在用户点击 open-type="share" 按钮时自动调用
-   * 此时判断是否为弹窗内的真正分享按钮
+   * 支持三种场景：
+   * 1. 模板分享（分享此计划弹窗内的按钮）
+   * 2. 打卡成功海报分享（成功弹窗内的按钮）🆕
+   * 3. 默认详情页分享（右上角菜单触发）
    */
   onShareAppMessage(res) {
     const { plan, summary } = this.data;
@@ -433,7 +453,7 @@ Page({
     const target = res.target;
     const isTemplateButton = target?.dataset?.shareType === 'template';
 
-    // 判断是否为弹窗内的「发送给微信好友」按钮
+    // 场景1：模板分享（分享此计划弹窗内）
     if (from === 'button' && isTemplateButton && this.data._pendingSnapshotId) {
       console.log('【share】✅ 真正的模板分享', this.data._pendingSnapshotId);
 
@@ -444,7 +464,38 @@ Page({
       };
     }
 
-    // 🔄 默认：个人详情页（右上角菜单触发时使用）
+    // 🆕 场景2：打卡成功海报分享（成功弹窗内触发）
+    if (from === 'button' && this.data.showSuccessModal) {
+      // 获取海报组件生成的图片 URL
+      const posterUrl = this.selectComponent('#successPoster')?.data?.posterUrl || '';
+
+      // 构建成就页参数（URL 编码）
+      const achievementParams = [
+        `nickname=${encodeURIComponent('存钱达人')}`,
+        `planIcon=${encodeURIComponent(plan.icon || '🎯')}`,
+        `planName=${encodeURIComponent(plan.name)}`,
+        `targetAmount=${plan.targetAmount}`,
+        `savedAmount=${summary.savedAmount || 0}`,
+        `savedAmountThisTime=${this.data.successSavedAmount}`,
+        `progress=${summary.progress || 0}`,
+        `consecutiveDays=${this.data.successConsecutiveDays}`,
+        `checkinDate=${dateUtil.today()}`,
+      ].join('&');
+
+      console.log('【share】🎉 打卡成功海报分享', {
+        consecutiveDays: this.data.successConsecutiveDays,
+        hasPoster: !!posterUrl,
+        targetPage: '/pages/achievement/achievement',
+      });
+
+      return {
+        title: `🎉 我今日打卡成功！「${plan.name}」坚持 ${this.data.successConsecutiveDays} 天`,
+        path: `/pages/achievement/achievement?${achievementParams}`, // 🆕 跳转到成就展示页
+        imageUrl: posterUrl, // 使用生成的海报作为封面图
+      };
+    }
+
+    // 场景3：默认 - 个人详情页（右上角菜单触发时使用）
     const progress = summary.progress || 0;
     const savedAmount = summary.savedAmount || 0;
 
@@ -467,5 +518,47 @@ Page({
       query: `id=${this.planId}`,
       imageUrl: '',
     };
+  },
+
+  // ==================== 🆕 打卡成功弹窗相关方法 ====================
+
+  /**
+   * 显示打卡成功弹窗（含海报和分享引导）
+   * @param {number} savedAmount 本次存入金额
+   */
+  showSuccessPoster(savedAmount) {
+    let consecutiveDays = 0;
+
+    // 安全获取连续打卡天数（容错处理）
+    try {
+      const statsUtil = require('../../utils/stats');
+      if (statsUtil && typeof statsUtil.getConsecutiveDays === 'function') {
+        consecutiveDays = statsUtil.getConsecutiveDays(this.data.plan);
+      } else {
+        console.warn('[success-poster] getConsecutiveDays 方法不存在');
+      }
+    } catch (err) {
+      console.error('[success-poster] 计算连续天数失败', err);
+      // 使用默认值 0
+    }
+
+    console.log('[success-poster] 显示成功弹窗', {
+      savedAmount,
+      consecutiveDays,
+      planName: this.data.plan?.name || '未知',
+    });
+
+    this.setData({
+      showSuccessModal: true,
+      successSavedAmount: savedAmount,
+      successConsecutiveDays: consecutiveDays,
+    });
+  },
+
+  /**
+   * 关闭打卡成功弹窗
+   */
+  closeSuccessPoster() {
+    this.setData({ showSuccessModal: false });
   },
 });

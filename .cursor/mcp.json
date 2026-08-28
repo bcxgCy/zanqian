@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "http-file-generator": {
+      "url": "http://localhost:3010/mcp",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "random": 1787722805428,
+      "timeout": 30000
+    }
+  }
+}

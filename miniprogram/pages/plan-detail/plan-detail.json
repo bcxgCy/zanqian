@@ -1,6 +1,1 @@
-{
-  "navigationBarTitleText": "计划详情",
-  "usingComponents": {
-    "deposit-sheet": "/components/deposit-sheet/index"
-  }
-}
+{"navigationBarTitleText": "计划详情", "usingComponents": {"deposit-sheet": "/components/deposit-sheet/index", "success-poster": "/components/success-poster/index"}}
