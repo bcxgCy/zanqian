@@ -217,24 +217,20 @@
   font-size: 28rpx;
 }
 
-.gallery-scroll {
-  white-space: nowrap;
+.gallery-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
   margin-top: 16rpx;
 }
 
-.gallery-list {
-  display: flex;
-  gap: 16rpx;
-  padding-bottom: 16rpx;
-}
-
 .gallery-item {
-  width: 160rpx;
+  width: calc((100% - 32rpx) / 3);
   padding: 20rpx 12rpx;
   background: var(--color-card);
   border-radius: var(--radius-item);
   text-align: center;
-  flex-shrink: 0;
+  box-sizing: border-box;
 }
 
 .g-icon {

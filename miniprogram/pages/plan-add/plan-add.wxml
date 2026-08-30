@@ -57,6 +57,10 @@
         <view class="preset-desc helper-text" wx:if="{{expandedPreset === item.id}}">
           <text>{{item.description}}</text>
         </view>
+        <view class="preset-mode" wx:if="{{expandedPreset === item.id && item.id === '30day'}}">
+          <text class="preset-mode-label helper-text">反向模式：第1天30元，第30天1元</text>
+          <switch checked="{{presetReverse30Day}}" bindchange="onPresetReverse30DayChange" color="#9ADFD6" />
+        </view>
       </view>
     </block>
   </view>

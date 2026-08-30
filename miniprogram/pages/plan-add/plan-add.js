@@ -18,6 +18,7 @@ Page({
     selectedPreset: '',
     customAmount: '',
     customFrequency: 'day',
+    presetReverse30Day: false,
     frequencyOptions: ['每天', '每周', '每月'],
     frequencyIndex: 0,
     startDate: dateUtil.today(),
@@ -64,6 +65,9 @@ Page({
         setData.planMode = 'preset';
         setData.selectedPreset = template.presetId;
         setData.expandedPreset = template.presetId;
+        if (template.presetId === '30day') {
+          setData.presetReverse30Day = !!(template.customConfig && template.customConfig.reverse);
+        }
       } else if (template.customConfig) {
         setData.planMode = 'custom';
         if (template.customConfig.amountPerPeriod) {
@@ -153,6 +157,10 @@ Page({
     });
   },
 
+  onPresetReverse30DayChange(e) {
+    this.setData({ presetReverse30Day: !!e.detail.value });
+  },
+
   onFrequencyChange(e) {
     const map = ['day', 'week', 'month'];
     this.setData({ frequencyIndex: Number(e.detail.value), customFrequency: map[e.detail.value] });
@@ -177,7 +185,19 @@ Page({
   },
 
   submit() {
-    const { name, icon, avatarUrl, targetAmount, planMode, selectedPreset, customAmount, customFrequency, startDate, endDate } = this.data;
+    const {
+      name,
+      icon,
+      avatarUrl,
+      targetAmount,
+      planMode,
+      selectedPreset,
+      presetReverse30Day,
+      customAmount,
+      customFrequency,
+      startDate,
+      endDate,
+    } = this.data;
     if (!name.trim()) {
       wx.showToast({ title: '请输入存钱目的', icon: 'none' });
       return;
@@ -198,6 +218,9 @@ Page({
       }
       planData.planType = 'preset';
       planData.presetId = selectedPreset;
+      if (selectedPreset === '30day') {
+        planData.customConfig = { reverse: !!presetReverse30Day };
+      }
     } else {
       if (!customAmount) {
         wx.showToast({ title: '请输入每期金额', icon: 'none' });

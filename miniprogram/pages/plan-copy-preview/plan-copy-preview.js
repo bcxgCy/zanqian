@@ -93,8 +93,11 @@ Page({
       let planTypeName = '自定义方案';
       try {
         if (result.snapshot.presetId) {
-          const preset = planUtil.getPreset(result.snapshot.presetId);
-          planTypeName = preset ? preset.name : '自定义方案';
+          planTypeName = planUtil.getPlanTypeName({
+            planType: 'preset',
+            presetId: result.snapshot.presetId,
+            customConfig: result.snapshot.customConfig || {},
+          });
         } else if (result.snapshot.planType === 'custom_fixed') {
           const freqMap = { day: '每天', week: '每周', month: '每月' };
           const freq = result.snapshot.customConfig?.frequency || 'day';

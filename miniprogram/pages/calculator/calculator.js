@@ -11,6 +11,7 @@ Page({
     targetAmount: '',
     calcMode: 'fixed',
     expandedPreset: '',
+    presetReverse30Day: false,
     customAmount: '',
     customFrequency: 'day',
     frequencyOptions: ['每天', '每周', '每月'],
@@ -80,9 +81,14 @@ Page({
       presetSheetContent: preset,
       expandedPreset: id,
       expandedPresetName: preset.name,
+      presetReverse30Day: id === '30day' ? this.data.presetReverse30Day : false,
       calcMode: 'preset',
       galleryShow: false,
     });
+  },
+
+  onPresetReverse30DayChange(e) {
+    this.setData({ presetReverse30Day: !!e.detail.value });
   },
 
   closePresetSheet() {
@@ -90,7 +96,19 @@ Page({
   },
 
   calculate() {
-    const { name, icon, targetAmount, calcMode, expandedPreset, customAmount, customFrequency, startDate, endDate, randomAmount } = this.data;
+    const {
+      name,
+      icon,
+      targetAmount,
+      calcMode,
+      expandedPreset,
+      presetReverse30Day,
+      customAmount,
+      customFrequency,
+      startDate,
+      endDate,
+      randomAmount,
+    } = this.data;
     const target = money.toMoney(targetAmount);
     if (!money.isPositive(target)) {
       wx.showToast({ title: '请输入目标金额', icon: 'none' });
@@ -109,7 +127,10 @@ Page({
       }
       planType = 'preset';
       presetId = expandedPreset;
-      const periods = planUtil.generatePeriods({ planType, presetId, targetAmount: target, startDate, customConfig: {} });
+      if (presetId === '30day') {
+        customConfig = { reverse: !!presetReverse30Day };
+      }
+      const periods = planUtil.generatePeriods({ planType, presetId, targetAmount: target, startDate, customConfig });
       result = { periods, endDate: periods[periods.length - 1].date, periodCount: periods.length };
     } else if (calcMode === 'fixed') {
       const amount = money.toMoney(customAmount);

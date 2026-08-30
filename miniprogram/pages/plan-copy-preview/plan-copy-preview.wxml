@@ -56,9 +56,34 @@
         <text class="rule-desc">每月固定存入相同金额，12 个月完成目标</text>
       </view>
 
+      <view class="snapshot-rule" wx:if="{{snapshot.presetId === '30day' && (!snapshot.customConfig || !snapshot.customConfig.reverse)}}">
+        <text class="rule-title">存钱规则：30 天递增存钱</text>
+        <text class="rule-desc">第 1 天存 1 元，第 30 天存 30 元，30 天共 465 元</text>
+      </view>
+
+      <view class="snapshot-rule" wx:if="{{snapshot.presetId === '30day' && snapshot.customConfig && snapshot.customConfig.reverse}}">
+        <text class="rule-title">存钱规则：30 天递增存钱（反向）</text>
+        <text class="rule-desc">第 1 天存 30 元，第 30 天存 1 元，30 天共 465 元</text>
+      </view>
+
+      <view class="snapshot-rule" wx:if="{{snapshot.presetId === '7day'}}">
+        <text class="rule-title">存钱规则：7 天递增存钱</text>
+        <text class="rule-desc">第 1 天存 1 元，第 7 天存 7 元，7 天共 28 元</text>
+      </view>
+
       <view class="snapshot-rule" wx:if="{{snapshot.presetId === 'random365'}}">
         <text class="rule-title">存钱规则：365 随机存钱法</text>
         <text class="rule-desc">每天随机存入金额，总金额等于目标金额</text>
+      </view>
+
+      <view class="snapshot-rule" wx:if="{{snapshot.presetId === 'random7day'}}">
+        <text class="rule-title">存钱规则：7 天随机存钱法</text>
+        <text class="rule-desc">7 天内每天随机存入金额，总金额等于目标金额</text>
+      </view>
+
+      <view class="snapshot-rule" wx:if="{{snapshot.presetId === 'random30day'}}">
+        <text class="rule-title">存钱规则：30 天随机存钱法</text>
+        <text class="rule-desc">30 天内每天随机存入金额，总金额等于目标金额</text>
       </view>
 
       <view class="snapshot-rule" wx:if="{{!snapshot.presetId && snapshot.planType !== 'preset'}}">
