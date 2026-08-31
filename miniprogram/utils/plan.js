@@ -3,12 +3,17 @@ const money = require('./money');
 
 const ICONS = ['💰', '🏠', '🚗', '✈️', '🎓', '💍', '📱', '🎁', '🏥', '🛒'];
 
+const FIXED_PRESET_TARGETS = {
+  '100day': 5050,
+};
+
 // 各预设方案的最小推荐目标金额（低于此值会有很多期数为0）
 const MIN_TARGET_AMOUNTS = {
   '365': 334,      // 365法：保证每期至少 0.01 元
   '52week': 7,     // 52周法：保证每周至少 0.01 元
   '12month': 0.06, // 12月法：几乎无限制
   '30day': 2.33,   // 30天递增：金额太小时多数天数会被压到 0
+  '100day': FIXED_PRESET_TARGETS['100day'],  // 100天挑战：目标固定 5050
   '7day': 0.28,    // 7天递增：保证每期至少 0.01 元
   'random7day': 0.01, // 7天随机：可以极小
   'random30day': 0.01, // 30天随机：可以极小
@@ -16,6 +21,14 @@ const MIN_TARGET_AMOUNTS = {
 };
 
 const PRESETS = [
+  {
+    id: '100day',
+    name: '100天存钱挑战',
+    icon: '💯',
+    description: '网红100信封挑战！100天每日打卡，从1-100随机抽取且不重复，完成后合计5050元。未打卡金额保持神秘。',
+    totalAmount: FIXED_PRESET_TARGETS['100day'],
+    minRecommend: FIXED_PRESET_TARGETS['100day'],
+  },
   {
     id: '7day',
     name: '7天递增存钱',
@@ -86,6 +99,10 @@ function getPreset(id) {
   return PRESETS.find((p) => p.id === id);
 }
 
+function getFixedPresetTarget(presetId) {
+  return FIXED_PRESET_TARGETS[presetId] || 0;
+}
+
 /**
  * 检查目标金额是否适合该预设方案
  * @param {string} presetId 预设方案ID
@@ -97,6 +114,13 @@ function validateTargetAmount(presetId, targetAmount) {
   if (!preset || !preset.minRecommend) return { valid: true, message: '' };
 
   const amount = money.toMoney(targetAmount);
+  const fixedTarget = getFixedPresetTarget(presetId);
+  if (fixedTarget && amount !== fixedTarget) {
+    return {
+      valid: false,
+      message: `${preset.name}目标金额固定为 ¥${fixedTarget}，不可修改。`,
+    };
+  }
   const minAmount = preset.minRecommend;
 
   if (amount < minAmount) {
@@ -184,6 +208,35 @@ function generateRandom365Periods(startDate, targetAmount) {
   return amounts.map((amount, i) => ({
     index: i + 1,
     expectedAmount: amount,
+    savedAmount: 0,
+    date: dateUtil.getPeriodDate(startDate, 'day', i),
+    completed: false,
+    note: '',
+  }));
+}
+
+function shuffleArray(values) {
+  const list = values.slice();
+  for (let i = list.length - 1; i > 0; i--) {
+    const randomIndex = Math.floor(Math.random() * (i + 1));
+    const temp = list[i];
+    list[i] = list[randomIndex];
+    list[randomIndex] = temp;
+  }
+  return list;
+}
+
+function generate100DayChallengePeriods(startDate) {
+  // 预先生成 1~100 不重复随机序列，打卡前不展示金额，保证全程可复现（同一计划内固定）。
+  const numbers = [];
+  for (let i = 1; i <= 100; i++) {
+    numbers.push(i);
+  }
+  const shuffled = shuffleArray(numbers);
+
+  return shuffled.map((amount, i) => ({
+    index: i + 1,
+    expectedAmount: money.toMoney(amount),
     savedAmount: 0,
     date: dateUtil.getPeriodDate(startDate, 'day', i),
     completed: false,
@@ -331,6 +384,7 @@ function generatePeriods(plan) {
     if (presetId === '52week') return generate52WeekPeriods(startDate, targetAmount);
     if (presetId === '12month') return generate12MonthPeriods(startDate, targetAmount);
     if (presetId === '30day') return generate30DayPeriods(startDate, targetAmount, customConfig);
+    if (presetId === '100day') return generate100DayChallengePeriods(startDate);
     if (presetId === '7day') return generate7DayPeriods(startDate, targetAmount);
     if (presetId === 'random30day') return generateRandom30DayPeriods(startDate, targetAmount);
     if (presetId === 'random7day') return generateRandom7DayPeriods(startDate, targetAmount);
@@ -413,7 +467,8 @@ function buildPlanFromCalc(data) {
   let periods = [];
   const planType = data.planType;
   const customConfig = data.customConfig || {};
-  const targetAmount = money.toMoney(data.targetAmount);
+  const fixedTarget = data.planType === 'preset' ? getFixedPresetTarget(data.presetId) : 0;
+  const targetAmount = fixedTarget || money.toMoney(data.targetAmount);
 
   if (data.periods && data.periods.length) {
     // 计算器已经算好 periods 时直接复用，但重置为未打卡状态。
@@ -468,11 +523,17 @@ function buildCalcTable(periods) {
   });
 }
 
+function isMysteryPreset(planOrResult) {
+  return !!(planOrResult && planOrResult.planType === 'preset' && planOrResult.presetId === '100day');
+}
+
 module.exports = {
   ICONS,
   PRESETS,
   MIN_TARGET_AMOUNTS,
+  FIXED_PRESET_TARGETS,
   getPreset,
+  getFixedPresetTarget,
   validateTargetAmount, // 🆕 目标金额校验
   generatePeriods,
   calcSavedAmount,
@@ -483,4 +544,5 @@ module.exports = {
   calculateDeadlineResult,
   buildPlanFromCalc,
   buildCalcTable,
+  isMysteryPreset,
 };

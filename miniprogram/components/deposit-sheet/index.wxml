@@ -10,7 +10,8 @@
     </view>
     <view class="field">
       <text class="label helper-text">存入金额</text>
-      <input class="input {{readonly ? 'input-readonly' : 'input-editable'}}" type="digit" value="{{amount}}" data-field="amount" bindinput="onInput" placeholder="请输入金额" disabled="{{readonly}}" />
+      <view wx:if="{{secretAmount && period && !period.completed}}" class="input input-readonly">{{readonly ? '🎁 神秘金额（打卡后揭晓）' : '🎁 神秘金额（确认后自动记账）'}}</view>
+      <input wx:else class="input {{readonly ? 'input-readonly' : 'input-editable'}}" type="digit" value="{{amount}}" data-field="amount" bindinput="onInput" placeholder="请输入金额" disabled="{{readonly}}" />
     </view>
     <view class="field">
       <text class="label helper-text">备注（选填）</text>

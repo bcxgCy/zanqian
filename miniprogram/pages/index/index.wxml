@@ -47,7 +47,10 @@
         </view>
         <view class="plan-body">
           <view class="plan-head">
-            <text class="plan-name">{{item.name}}</text>
+            <view class="plan-name-wrap">
+              <text wx:if="{{item.presetId === '100day'}}" class="plan-name-tag">【100天挑战】</text>
+              <text class="plan-name">{{item.name}}</text>
+            </view>
             <text class="plan-percent">{{item.progress}}%</text>
           </view>
           <text class="plan-type helper-text">{{item.planTypeName}}</text>

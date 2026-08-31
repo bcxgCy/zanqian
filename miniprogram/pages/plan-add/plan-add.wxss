@@ -56,6 +56,11 @@
   opacity: 0.6;
 }
 
+.target-fixed-tip {
+  display: block;
+  margin-top: 10rpx;
+}
+
 .media-field {
   display: flex;
   align-items: flex-start;

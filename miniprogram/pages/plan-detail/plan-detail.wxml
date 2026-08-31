@@ -54,7 +54,8 @@
         <text class="period-date helper-text">{{item.date}}</text>
       </view>
       <view class="period-right">
-        <text class="period-amount">¥{{item.displayAmount}}</text>
+        <text wx:if="{{item.hideExpectedAmount}}" class="period-amount period-amount-secret">🎁 待揭晓</text>
+        <text wx:else class="period-amount">¥{{item.displayAmount}}</text>
         <text class="period-status helper-text">{{item.dateStatus}}</text>
       </view>
     </view>
@@ -84,10 +85,47 @@
   <deposit-sheet
     show="{{showSheet}}"
     period="{{selectedPeriod}}"
+    secretAmount="{{plan && plan.presetId === '100day' && selectedPeriod && !selectedPeriod.completed}}"
     readonly="{{sheetReadonly}}"
     bind:close="closeSheet"
     bind:confirm="onDepositConfirm"
   ></deposit-sheet>
+
+  <view
+    wx:if="{{showRevealModal}}"
+    class="reveal-modal-mask {{showRevealModal ? 'show' : ''}}"
+    bindtap="onRevealCancel"
+    catchtouchmove="preventTouchMove"
+  >
+    <view class="reveal-modal {{showRevealModal ? 'show' : ''}}" catchtap="preventTouchMove">
+      <text class="reveal-title">🎁 今日神秘金额揭晓</text>
+      <text class="reveal-subtitle">第{{selectedPeriod.index}}天 · 请存入</text>
+
+      <view class="reveal-amount-wrap">
+        <text class="reveal-currency">¥</text>
+        <view class="reveal-reels">
+          <block wx:for="{{revealDigitSlots}}" wx:key="key">
+            <view wx:if="{{item.type === 'digit'}}" class="reel-slot">
+              <view
+                class="reel-track"
+                style="transform: translateY(-{{item.offsetPercent}}%); transition: {{item.transition}};"
+              >
+                <text class="reel-cell" wx:for="{{item.sequence}}" wx:key="index">{{item}}</text>
+              </view>
+            </view>
+            <text wx:else class="reel-symbol">{{item.char}}</text>
+          </block>
+        </view>
+      </view>
+
+      <text class="reveal-tip helper-text">确认后将按该金额完成今日打卡</text>
+
+      <view class="reveal-actions">
+        <button class="reveal-btn btn-ghost" bindtap="onRevealCancel">取消</button>
+        <button class="reveal-btn btn-mint" bindtap="onRevealConfirm">确认存入</button>
+      </view>
+    </view>
+  </view>
 
   <!-- 🆕 打卡成功弹窗（含海报分享） -->
   <success-poster

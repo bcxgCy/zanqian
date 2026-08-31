@@ -15,18 +15,28 @@
   </view>
 
   <view class="card table-card">
-    <view class="table-head">
+    <view class="table-head" wx:if="{{!isMysteryPreset}}">
       <text class="col">期数</text>
       <text class="col">当期存入</text>
       <text class="col">累计存入</text>
       <text class="col">剩余待存</text>
     </view>
-    <scroll-view scroll-y class="table-body">
+    <view class="table-head mystery" wx:if="{{isMysteryPreset}}">
+      <text class="col">挑战日</text>
+      <text class="col">神秘金额</text>
+      <text class="col">进度</text>
+      <text class="col">状态</text>
+    </view>
+    <scroll-view scroll-y class="table-body {{isMysteryPreset ? 'table-body-mystery' : ''}}">
       <view class="table-row {{index % 2 === 1 ? 'alt' : ''}}" wx:for="{{table}}" wx:key="index">
-        <text class="col">第{{item.index}}期</text>
-        <text class="col">¥{{item.expectedAmount}}</text>
-        <text class="col">¥{{item.cumulative}}</text>
-        <text class="col">¥{{item.remaining}}</text>
+        <text class="col" wx:if="{{!isMysteryPreset}}">第{{item.index}}期</text>
+        <text class="col" wx:if="{{isMysteryPreset}}">第{{item.index}}天</text>
+        <text class="col" wx:if="{{!isMysteryPreset}}">¥{{item.expectedAmount}}</text>
+        <text class="col" wx:if="{{!isMysteryPreset}}">¥{{item.cumulative}}</text>
+        <text class="col" wx:if="{{!isMysteryPreset}}">¥{{item.remaining}}</text>
+        <text class="col mystery-col" wx:if="{{isMysteryPreset}}">{{item.expectedText}}</text>
+        <text class="col" wx:if="{{isMysteryPreset}}">{{item.progressText}}</text>
+        <text class="col" wx:if="{{isMysteryPreset}}">{{item.unlockText}}</text>
       </view>
     </scroll-view>
   </view>

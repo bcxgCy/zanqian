@@ -57,6 +57,10 @@
   padding-right: var(--spacing);
 }
 
+.table-head.mystery {
+  background: rgba(102, 126, 234, 0.16);
+}
+
 .table-row {
   display: flex;
   font-size: 24rpx;
@@ -77,6 +81,14 @@
 .table-body {
   max-height: 560rpx;
   margin-top: 8rpx;
+}
+
+.table-body-mystery {
+  max-height: 620rpx;
+}
+
+.mystery-col {
+  color: var(--color-primary);
 }
 
 .bottom-actions {

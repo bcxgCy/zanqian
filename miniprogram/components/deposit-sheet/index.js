@@ -5,6 +5,7 @@ Component({
     show: { type: Boolean, value: false },
     period: { type: Object, value: null },
     readonly: { type: Boolean, value: false },
+    secretAmount: { type: Boolean, value: false },
   },
   data: {
     amount: '',
@@ -12,9 +13,13 @@ Component({
     note: '',
   },
   observers: {
-    period(p) {
+    'period, secretAmount': function (p, secretAmount) {
       if (p) {
-        const amount = p.completed && p.savedAmount !== undefined ? p.savedAmount : p.expectedAmount;
+        const amount = p.completed && p.savedAmount !== undefined
+          ? p.savedAmount
+          : secretAmount
+            ? ''
+            : p.expectedAmount;
         this.setData({
           amount: String(amount),
           date: p.date || '',
@@ -38,9 +43,13 @@ Component({
     },
     onConfirm() {
       if (this.properties.readonly) return;
-      const amount = money.toMoney(this.data.amount);
+      const period = this.properties.period || {};
+      const useSecretPresetAmount = !!(this.properties.secretAmount && !period.completed);
+      const amount = useSecretPresetAmount
+        ? money.toMoney(period.expectedAmount)
+        : money.toMoney(this.data.amount);
       if (!money.isPositive(amount)) {
-        wx.showToast({ title: '请输入有效金额', icon: 'none' });
+        wx.showToast({ title: useSecretPresetAmount ? '本期金额异常' : '请输入有效金额', icon: 'none' });
         return;
       }
       this.triggerEvent('confirm', {

@@ -66,6 +66,11 @@
         <text class="rule-desc">第 1 天存 30 元，第 30 天存 1 元，30 天共 465 元</text>
       </view>
 
+      <view class="snapshot-rule" wx:if="{{snapshot.presetId === '100day'}}">
+        <text class="rule-title">存钱规则：100 天存钱挑战</text>
+        <text class="rule-desc">从 1-100 随机抽取且不重复，100 天合计 5050 元；未打卡前金额不展示</text>
+      </view>
+
       <view class="snapshot-rule" wx:if="{{snapshot.presetId === '7day'}}">
         <text class="rule-title">存钱规则：7 天递增存钱</text>
         <text class="rule-desc">第 1 天存 1 元，第 7 天存 7 元，7 天共 28 元</text>

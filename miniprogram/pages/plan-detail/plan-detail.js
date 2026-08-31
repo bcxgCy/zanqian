@@ -5,6 +5,13 @@ const money = require('../../utils/money');
 const subscribe = require('../../utils/subscribe');
 const shareUtil = require('../../utils/share');
 
+const MYSTERY_REVEAL_PRESET_ID = '100day';
+const REVEAL_SLOT_BASE_ROUNDS = 5;
+const REVEAL_SLOT_DURATION_BASE = 920;
+const REVEAL_SLOT_DURATION_STEP = 180;
+const REVEAL_START_DELAY = 30;
+const REVEAL_FINISH_BUFFER = 120;
+
 Page({
   data: {
     plan: null,
@@ -23,16 +30,37 @@ Page({
     showSuccessModal: false,
     successSavedAmount: 0,
     successConsecutiveDays: 0,
+    // 100天挑战：金额揭晓弹窗状态
+    showRevealModal: false,
+    revealAmountDisplay: 0,
+    revealRolling: false,
+    revealDigitSlots: [],
   },
 
   onLoad(options) {
     this.planId = options.id;
     this.autoCheckin = options.checkin === '1';
     this.autoPeriodIndex = Number(options.periodIndex || 0);
+    this.revealStartTimer = null;
+    this.revealFinishTimer = null;
+    this.pendingRevealDeposit = null;
   },
 
   onShow() {
     this.loadPlan();
+  },
+
+  onHide() {
+    this.clearRevealAnimationTimers();
+    this.pendingRevealDeposit = null;
+    if (this.data.showRevealModal) {
+      this.setData({ showRevealModal: false, revealRolling: false, revealAmountDisplay: 0, revealDigitSlots: [] });
+    }
+  },
+
+  onUnload() {
+    this.clearRevealAnimationTimers();
+    this.pendingRevealDeposit = null;
   },
 
   loadPlan(showLoading = true) {
@@ -48,7 +76,7 @@ Page({
         const summary = planUtil.getPlanSummary(plan);
         const persistDays = dateUtil.diffDays(plan.startDate, today) + 1;
         const viewPlan = Object.assign({}, plan, {
-          periods: (plan.periods || []).map((period) => this.formatPeriod(period, today)),
+          periods: (plan.periods || []).map((period) => this.formatPeriod(period, today, plan)),
         });
 
         this.setData({
@@ -76,11 +104,16 @@ Page({
       });
   },
 
-  formatPeriod(period, today) {
+  isMysteryPreset(plan) {
+    return planUtil.isMysteryPreset(plan);
+  },
+
+  formatPeriod(period, today, plan) {
     // 期数状态只影响展示和交互提示，真实完成状态仍以 completed 为准。
     const isToday = period.date === today;
     const isOverdue = !period.completed && period.date < today;
     const isEarly = !period.completed && period.date > today;
+    const hideExpectedAmount = this.isMysteryPreset(plan) && !period.completed;
     const dateClass = period.completed ? 'is-completed' : isToday ? 'is-today' : isOverdue ? 'is-overdue' : 'is-early';
     const dateStatus = period.completed
       ? '已打卡'
@@ -89,11 +122,12 @@ Page({
         : isOverdue
           ? '已过期'
           : '未到时间';
-    const displayAmount = period.completed ? period.savedAmount : period.expectedAmount;
+    const displayAmount = hideExpectedAmount ? '' : (period.completed ? period.savedAmount : period.expectedAmount);
     return Object.assign({}, period, {
       isToday,
       isOverdue,
       isEarly,
+      hideExpectedAmount,
       dateClass,
       dateStatus,
       displayAmount,
@@ -156,17 +190,147 @@ Page({
   },
 
   closeSheet() {
+    this.closeRevealModal();
     this.setData({ showSheet: false, sheetReadonly: false, selectedPeriod: null });
   },
 
-  onDepositConfirm(e) {
-    // 防止进入只读前已打开的弹层在状态变化后仍提交打卡。
-    if (this.isPlanReadonly()) {
-      wx.showToast({ title: this.data.plan.completed ? '计划已完成' : '计划已暂停', icon: 'none' });
-      this.closeSheet();
+  shouldRevealMysteryAmount() {
+    const { plan, selectedPeriod } = this.data;
+    return !!(
+      plan &&
+      plan.planType === 'preset' &&
+      plan.presetId === MYSTERY_REVEAL_PRESET_ID &&
+      selectedPeriod &&
+      !selectedPeriod.completed
+    );
+  },
+
+  openRevealModal(savedAmount, note) {
+    const finalAmount = money.toMoney(savedAmount);
+    this.pendingRevealDeposit = { savedAmount: finalAmount, note: note || '' };
+    this.setData({
+      showRevealModal: true,
+      revealAmountDisplay: 0,
+      revealRolling: true,
+    }, () => {
+      this.startRevealAmountAnimation(finalAmount);
+    });
+  },
+
+  closeRevealModal() {
+    this.clearRevealAnimationTimers();
+    this.pendingRevealDeposit = null;
+    if (!this.data.showRevealModal && !this.data.revealRolling && !(this.data.revealDigitSlots || []).length) {
       return;
     }
-    const { savedAmount, note } = e.detail;
+    this.setData({
+      showRevealModal: false,
+      revealRolling: false,
+      revealAmountDisplay: 0,
+      revealDigitSlots: [],
+    });
+  },
+
+  clearRevealAnimationTimers() {
+    if (this.revealStartTimer) {
+      clearTimeout(this.revealStartTimer);
+      this.revealStartTimer = null;
+    }
+    if (this.revealFinishTimer) {
+      clearTimeout(this.revealFinishTimer);
+      this.revealFinishTimer = null;
+    }
+  },
+
+  buildRevealDigitSlots(amount) {
+    const text = String(money.toMoney(amount));
+    let digitOrder = 0;
+    return text.split('').map((char, charIndex) => {
+      if (!/[0-9]/.test(char)) {
+        return {
+          key: `symbol-${charIndex}`,
+          type: 'symbol',
+          char,
+        };
+      }
+
+      const rounds = REVEAL_SLOT_BASE_ROUNDS + digitOrder;
+      const sequence = [];
+      for (let round = 0; round <= rounds; round++) {
+        for (let digit = 0; digit <= 9; digit++) {
+          sequence.push(String(digit));
+        }
+      }
+
+      const finalDigit = Number(char);
+      const duration = REVEAL_SLOT_DURATION_BASE + digitOrder * REVEAL_SLOT_DURATION_STEP;
+      digitOrder += 1;
+
+      return {
+        key: `digit-${charIndex}`,
+        type: 'digit',
+        sequence,
+        stopIndex: rounds * 10 + finalDigit,
+        offsetPercent: 0,
+        transition: 'none',
+        duration,
+      };
+    });
+  },
+
+  startRevealAmountAnimation(finalAmount) {
+    if (!this.data.showRevealModal) return;
+    this.clearRevealAnimationTimers();
+
+    const normalizedAmount = money.toMoney(finalAmount);
+    const slots = this.buildRevealDigitSlots(normalizedAmount);
+    this.setData({
+      revealAmountDisplay: normalizedAmount,
+      revealDigitSlots: slots,
+      revealRolling: true,
+    }, () => {
+      this.revealStartTimer = setTimeout(() => {
+        if (!this.data.showRevealModal) return;
+
+        let maxDuration = 0;
+        const animatedSlots = slots.map((slot) => {
+          if (slot.type !== 'digit') return slot;
+
+          const totalCount = (slot.sequence || []).length || 1;
+          const offsetPercent = (slot.stopIndex / totalCount) * 100;
+          maxDuration = Math.max(maxDuration, slot.duration || 0);
+
+          return Object.assign({}, slot, {
+            offsetPercent,
+            transition: `transform ${slot.duration}ms cubic-bezier(0.1, 0.9, 0.18, 1)`,
+          });
+        });
+
+        this.setData({ revealDigitSlots: animatedSlots });
+
+        this.revealFinishTimer = setTimeout(() => {
+          if (!this.data.showRevealModal) return;
+          this.setData({ revealRolling: false });
+        }, maxDuration + REVEAL_FINISH_BUFFER);
+      }, REVEAL_START_DELAY);
+    });
+  },
+
+  onRevealConfirm() {
+    if (!this.pendingRevealDeposit) {
+      this.closeRevealModal();
+      return;
+    }
+    const pending = Object.assign({}, this.pendingRevealDeposit);
+    this.closeRevealModal();
+    this.commitDeposit(pending.savedAmount, pending.note);
+  },
+
+  onRevealCancel() {
+    this.closeRevealModal();
+  },
+
+  commitDeposit(savedAmount, note) {
     if (this.shouldConfirmCompletion(savedAmount)) {
       wx.showModal({
         title: '确认完成计划',
@@ -182,8 +346,22 @@ Page({
 
     // 🆕 在 TAP 同步调用栈中检查并触发订阅授权
     this.trySubscribeBeforeSave();
-
     this.saveDeposit(savedAmount, note, false);
+  },
+
+  onDepositConfirm(e) {
+    // 防止进入只读前已打开的弹层在状态变化后仍提交打卡。
+    if (this.isPlanReadonly()) {
+      wx.showToast({ title: this.data.plan.completed ? '计划已完成' : '计划已暂停', icon: 'none' });
+      this.closeSheet();
+      return;
+    }
+    const { savedAmount, note } = e.detail;
+    if (this.shouldRevealMysteryAmount()) {
+      this.openRevealModal(savedAmount, note);
+      return;
+    }
+    this.commitDeposit(savedAmount, note);
   },
 
   /**

@@ -174,6 +174,11 @@
   color: var(--color-text);
 }
 
+.period-amount-secret {
+  font-size: 24rpx;
+  color: var(--color-primary);
+}
+
 .period-status {
   display: block;
   text-align: right;
@@ -271,6 +276,124 @@
   flex: 1;
   color: #667eea !important;
   border: 1rpx solid #667eea !important;
+}
+
+/* 100天挑战金额揭晓弹窗 */
+.reveal-modal-mask {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 3000;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.reveal-modal-mask.show {
+  opacity: 1;
+}
+
+.reveal-modal {
+  width: 84%;
+  max-width: 620rpx;
+  background: #fff;
+  border-radius: 28rpx;
+  padding: 40rpx 32rpx 32rpx;
+  box-sizing: border-box;
+  text-align: center;
+  transform: scale(0.92);
+  transition: transform 0.2s ease;
+}
+
+.reveal-modal.show {
+  transform: scale(1);
+}
+
+.reveal-title {
+  display: block;
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #2f2f2f;
+}
+
+.reveal-subtitle {
+  display: block;
+  margin-top: 14rpx;
+  color: #7f8795;
+  font-size: 24rpx;
+}
+
+.reveal-amount-wrap {
+  margin: 34rpx 0 22rpx;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 10rpx;
+}
+
+.reveal-currency {
+  font-size: 42rpx;
+  color: #3b4f7b;
+  font-weight: 600;
+}
+
+.reveal-reels {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.reel-slot {
+  width: 86rpx;
+  height: 110rpx;
+  border-radius: 16rpx;
+  overflow: hidden;
+  background: linear-gradient(180deg, #f8fbff, #eef4ff);
+  border: 2rpx solid #d9e5ff;
+  box-shadow: inset 0 -8rpx 16rpx rgba(143, 169, 236, 0.25);
+}
+
+.reel-track {
+  display: flex;
+  flex-direction: column;
+  will-change: transform;
+}
+
+.reel-cell {
+  height: 110rpx;
+  line-height: 110rpx;
+  text-align: center;
+  font-size: 84rpx;
+  font-weight: 700;
+  color: #1f3f8f;
+  font-variant-numeric: tabular-nums;
+}
+
+.reel-symbol {
+  font-size: 88rpx;
+  line-height: 1;
+  color: #1f3f8f;
+  font-weight: 700;
+}
+
+.reveal-tip {
+  display: block;
+  margin-bottom: 24rpx;
+}
+
+.reveal-actions {
+  display: flex;
+  gap: 16rpx;
+}
+
+.reveal-btn {
+  flex: 1;
+  height: 84rpx;
+  line-height: 84rpx;
+  font-size: 28rpx;
+  padding: 0;
 }
 
 /* 分享确认弹窗样式 */

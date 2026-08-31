@@ -5,6 +5,10 @@ const money = require('../../utils/money');
 const cloudFile = require('../../utils/cloudFile');
 const subscribe = require('../../utils/subscribe');
 
+const HUNDRED_DAY_PRESET_ID = '100day';
+const HUNDRED_DAY_FIXED_TARGET = planUtil.getFixedPresetTarget(HUNDRED_DAY_PRESET_ID) || 5050;
+const HUNDRED_DAY_DEFAULT_NAME = '100天存钱挑战';
+
 Page({
   data: {
     icons: planUtil.ICONS,
@@ -68,6 +72,10 @@ Page({
         if (template.presetId === '30day') {
           setData.presetReverse30Day = !!(template.customConfig && template.customConfig.reverse);
         }
+        if (template.presetId === HUNDRED_DAY_PRESET_ID) {
+          setData.targetAmount = String(HUNDRED_DAY_FIXED_TARGET);
+          if (!(setData.name || '').trim()) setData.name = HUNDRED_DAY_DEFAULT_NAME;
+        }
       } else if (template.customConfig) {
         setData.planMode = 'custom';
         if (template.customConfig.amountPerPeriod) {
@@ -108,7 +116,18 @@ Page({
   },
 
   onInput(e) {
-    this.setData({ [e.currentTarget.dataset.field]: e.detail.value });
+    const field = e.currentTarget.dataset.field;
+    if (field === 'targetAmount' && this.data.planMode === 'preset' && this.data.selectedPreset === HUNDRED_DAY_PRESET_ID) {
+      this.setData({ targetAmount: String(HUNDRED_DAY_FIXED_TARGET) });
+      return;
+    }
+    this.setData({ [field]: e.detail.value });
+  },
+
+  onTargetAmountTap() {
+    if (this.data.planMode === 'preset' && this.data.selectedPreset === HUNDRED_DAY_PRESET_ID) {
+      wx.showToast({ title: '该方案为挑战类型，不可修改金额', icon: 'none' });
+    }
   },
 
   selectIcon(e) {
@@ -151,10 +170,19 @@ Page({
   togglePreset(e) {
     const id = e.currentTarget.dataset.id;
     const expanded = this.data.expandedPreset === id ? '' : id;
-    this.setData({
+    const nextData = {
       expandedPreset: expanded,
       selectedPreset: id,
-    });
+    };
+
+    if (id === HUNDRED_DAY_PRESET_ID) {
+      nextData.targetAmount = String(HUNDRED_DAY_FIXED_TARGET);
+      if (!this.data.name.trim()) {
+        nextData.name = HUNDRED_DAY_DEFAULT_NAME;
+      }
+    }
+
+    this.setData(nextData);
   },
 
   onPresetReverse30DayChange(e) {
@@ -198,17 +226,21 @@ Page({
       startDate,
       endDate,
     } = this.data;
-    if (!name.trim()) {
+    const isHundredDayPreset = planMode === 'preset' && selectedPreset === HUNDRED_DAY_PRESET_ID;
+    const finalName = name.trim() || (isHundredDayPreset ? HUNDRED_DAY_DEFAULT_NAME : '');
+    if (!finalName) {
       wx.showToast({ title: '请输入存钱目的', icon: 'none' });
       return;
     }
-    const target = money.toMoney(targetAmount);
+    const target = isHundredDayPreset
+      ? money.toMoney(HUNDRED_DAY_FIXED_TARGET)
+      : money.toMoney(targetAmount);
     if (!money.isPositive(target)) {
       wx.showToast({ title: '请输入有效目标金额', icon: 'none' });
       return;
     }
 
-    let planData = { name, icon, avatarUrl, targetAmount: target, startDate };
+    let planData = { name: finalName, icon, avatarUrl, targetAmount: target, startDate };
 
     if (planMode === 'preset') {
       // 预设计划只需要目标金额和方案 id，具体期数由 planUtil 统一生成。
@@ -220,6 +252,9 @@ Page({
       planData.presetId = selectedPreset;
       if (selectedPreset === '30day') {
         planData.customConfig = { reverse: !!presetReverse30Day };
+      }
+      if (selectedPreset === HUNDRED_DAY_PRESET_ID) {
+        planData.targetAmount = money.toMoney(HUNDRED_DAY_FIXED_TARGET);
       }
     } else {
       if (!customAmount) {

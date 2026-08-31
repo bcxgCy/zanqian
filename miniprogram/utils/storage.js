@@ -153,6 +153,17 @@ function rebalancePeriods(plan, updatedPeriod) {
   return completedPeriods.concat(rebalancedPending).sort((a, b) => a.index - b.index);
 }
 
+function shouldKeepOriginalPeriodAmounts(plan) {
+  // 100天挑战使用预生成随机序列，打卡后不重摊金额，保持“抽取不重复”的体验。
+  return !!(plan && plan.planType === 'preset' && plan.presetId === '100day');
+}
+
+function applyPeriodUpdateWithoutRebalance(plan, updatedPeriod) {
+  return (plan.periods || [])
+    .map((period) => (period.index === updatedPeriod.index ? updatedPeriod : period))
+    .sort((a, b) => a.index - b.index);
+}
+
 function updatePeriod(planId, periodIndex, data) {
   // 单期打卡是唯一会改变 periods 金额分配的入口。
   return getPlan(planId).then((plan) => {
@@ -162,14 +173,18 @@ function updatePeriod(planId, periodIndex, data) {
     const periodData = Object.assign({}, data);
     const completePlan = !!periodData.completePlan;
     delete periodData.completePlan;
-    const savedAmount = money.toMoney(
+    const lockPresetAmount = shouldKeepOriginalPeriodAmounts(plan);
+    const inputSavedAmount = money.toMoney(
       periodData.savedAmount !== undefined ? periodData.savedAmount : period.savedAmount
     );
+    const savedAmount = lockPresetAmount ? money.toMoney(period.expectedAmount) : inputSavedAmount;
     const updatedPeriod = Object.assign({}, period, periodData, {
       savedAmount,
       completed: money.isPositive(savedAmount),
     });
-    const periods = rebalancePeriods(plan, updatedPeriod);
+    const periods = lockPresetAmount
+      ? applyPeriodUpdateWithoutRebalance(plan, updatedPeriod)
+      : rebalancePeriods(plan, updatedPeriod);
     const updates = { periods };
     if (completePlan) {
       updates.completed = true;

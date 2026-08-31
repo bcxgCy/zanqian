@@ -5,6 +5,17 @@ Page({
   data: {
     result: null,
     table: [],
+    isMysteryPreset: false,
+  },
+
+  buildMysteryTable(periods) {
+    const total = (periods || []).length;
+    return (periods || []).map((period, idx) => ({
+      index: period.index,
+      expectedText: '🎁 待揭晓',
+      progressText: `${idx + 1}/${total}`,
+      unlockText: idx === 0 ? '今日可解锁' : '打卡后解锁',
+    }));
   },
 
   onLoad(options) {
@@ -21,8 +32,11 @@ Page({
       wx.showToast({ title: '测算结果已失效', icon: 'none' });
       return;
     }
-    const table = planUtil.buildCalcTable(result.periods);
-    this.setData({ result, table });
+    const isMysteryPreset = planUtil.isMysteryPreset(result);
+    const table = isMysteryPreset
+      ? this.buildMysteryTable(result.periods)
+      : planUtil.buildCalcTable(result.periods);
+    this.setData({ result, table, isMysteryPreset });
   },
 
   applyPlan() {

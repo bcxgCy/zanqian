@@ -16,10 +16,19 @@
     </view>
     <view class="field">
       <text class="label helper-text">存钱目标金额</text>
-      <view class="input-row">
-        <input class="input flex-input" type="digit" value="{{targetAmount}}" data-field="targetAmount" bindinput="onInput" placeholder="请输入" />
+      <view class="input-row" bindtap="onTargetAmountTap">
+        <input
+          class="input flex-input"
+          type="digit"
+          value="{{targetAmount}}"
+          data-field="targetAmount"
+          bindinput="onInput"
+          placeholder="请输入"
+          disabled="{{calcMode === 'preset' && expandedPreset === '100day'}}"
+        />
         <text class="input-icon">🪙</text>
       </view>
+      <text class="helper-text" wx:if="{{calcMode === 'preset' && expandedPreset === '100day'}}">100天挑战目标固定为 ¥5050</text>
     </view>
   </view>
 
