@@ -6,6 +6,8 @@ const subscribe = require('../../utils/subscribe');
 const shareUtil = require('../../utils/share');
 
 const MYSTERY_REVEAL_PRESET_ID = '100day';
+const TEMPLATE_SHARE_COVER = 'cloud://cloud1-d1g1g2urwd9ff5a66.636c-cloud1-d1g1g2urwd9ff5a66-1462912205/other/share.jpg';
+const TEMPLATE_SHARE_COVER_100DAY = 'cloud://cloud1-d1g1g2urwd9ff5a66.636c-cloud1-d1g1g2urwd9ff5a66-1462912205/other/share-100.jpg';
 const REVEAL_SLOT_BASE_ROUNDS = 5;
 const REVEAL_SLOT_DURATION_BASE = 920;
 const REVEAL_SLOT_DURATION_STEP = 180;
@@ -614,6 +616,13 @@ Page({
     // 空函数，用于阻止触摸事件冒泡
   },
 
+  getTemplateShareCover(plan) {
+    if (plan && plan.planType === 'preset' && plan.presetId === MYSTERY_REVEAL_PRESET_ID) {
+      return TEMPLATE_SHARE_COVER_100DAY;
+    }
+    return TEMPLATE_SHARE_COVER;
+  },
+
   /**
    * 分享给朋友（生命周期函数）
    *
@@ -638,7 +647,7 @@ Page({
       return {
         title: `🎯 ${plan.name} - 目标 ¥${plan.targetAmount}`,
         path: `/pages/plan-copy-preview/plan-copy-preview?snapshotId=${this.data._pendingSnapshotId}`,
-        imageUrl: '',
+        imageUrl: this.getTemplateShareCover(plan),
       };
     }
 
