@@ -86,6 +86,7 @@
     show="{{showSheet}}"
     period="{{selectedPeriod}}"
     secretAmount="{{plan && plan.presetId === '100day' && selectedPeriod && !selectedPeriod.completed}}"
+    amountLocked="{{plan && plan.planType === 'preset' && plan.presetId === '100day'}}"
     readonly="{{sheetReadonly}}"
     bind:close="closeSheet"
     bind:confirm="onDepositConfirm"
