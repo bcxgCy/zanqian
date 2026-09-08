@@ -37,6 +37,17 @@ Page({
     revealAmountDisplay: 0,
     revealRolling: false,
     revealDigitSlots: [],
+    periodViewMode: 'list', // list | calendar
+    calendarMonths: [],
+    currentCalendarMonthIndex: 0,
+    currentCalendarMonth: null,
+    canPrevMonth: false,
+    canNextMonth: false,
+    calendarOffsetX: 0,
+    calendarOpacity: 1,
+    calendarTransitionEnabled: true,
+    isCalendarAnimating: false,
+    weekDays: ['一', '二', '三', '四', '五', '六', '日'],
   },
 
   onLoad(options) {
@@ -63,6 +74,9 @@ Page({
   onUnload() {
     this.clearRevealAnimationTimers();
     this.pendingRevealDeposit = null;
+    clearTimeout(this.calendarAnimTimer1);
+    clearTimeout(this.calendarAnimTimer2);
+    clearTimeout(this.calendarAnimTimer3);
   },
 
   loadPlan(showLoading = true) {
@@ -80,6 +94,9 @@ Page({
         const viewPlan = Object.assign({}, plan, {
           periods: (plan.periods || []).map((period) => this.formatPeriod(period, today, plan)),
         });
+        const periodViewMode = this.getDefaultPeriodViewMode(viewPlan.periods);
+        const calendarMonths = this.buildCalendarMonths(viewPlan.periods);
+        const currentCalendarMonthIndex = this.getDefaultCalendarMonthIndex(calendarMonths, today);
 
         this.setData({
           plan: viewPlan,
@@ -88,7 +105,11 @@ Page({
           persistDays,
           today,
           canPause: !plan.paused && !plan.completed && summary.progress < 100,
+          periodViewMode,
+          calendarMonths,
+          currentCalendarMonthIndex,
         }, () => {
+          this.syncCurrentCalendarMonth();
           // 更新订阅按钮状态
           this.updateSubscribeButtonStatus();
           // 首页快捷打卡参数只消费一次；只读计划不会自动弹出打卡面板。
@@ -108,6 +129,214 @@ Page({
 
   isMysteryPreset(plan) {
     return planUtil.isMysteryPreset(plan);
+  },
+
+  getDefaultPeriodViewMode(periods) {
+    const total = (periods || []).length;
+    return total > 7 ? 'calendar' : 'list';
+  },
+
+  togglePeriodView(e) {
+    const mode = e.currentTarget.dataset.mode;
+    if (mode !== 'list' && mode !== 'calendar') return;
+    if (this.data.periodViewMode === mode) return;
+    this.setData({ periodViewMode: mode }, () => {
+      if (mode === 'calendar') this.syncCurrentCalendarMonth();
+    });
+  },
+
+  getDefaultCalendarMonthIndex(months, today) {
+    if (!months || !months.length) return 0;
+    const todayMonthKey = today ? today.slice(0, 7) : '';
+    const todayIndex = months.findIndex((month) => month.key === todayMonthKey);
+    if (todayIndex >= 0) return todayIndex;
+    return 0;
+  },
+
+  syncCurrentCalendarMonth() {
+    const { calendarMonths } = this.data;
+    if (!calendarMonths.length) {
+      this.setData({
+        currentCalendarMonth: null,
+        canPrevMonth: false,
+        canNextMonth: false,
+      });
+      return;
+    }
+
+    let index = this.data.currentCalendarMonthIndex;
+    if (index < 0) index = 0;
+    if (index > calendarMonths.length - 1) index = calendarMonths.length - 1;
+
+    this.setData({
+      currentCalendarMonthIndex: index,
+      currentCalendarMonth: calendarMonths[index],
+      canPrevMonth: index > 0,
+      canNextMonth: index < calendarMonths.length - 1,
+    });
+  },
+
+  switchCalendarMonth(e) {
+    const direction = e.currentTarget.dataset.direction;
+    const delta = direction === 'prev' ? -1 : direction === 'next' ? 1 : 0;
+    if (!delta) return;
+    this.switchCalendarMonthByDelta(delta);
+  },
+
+  switchCalendarMonthByDelta(delta) {
+    const { currentCalendarMonthIndex, calendarMonths, isCalendarAnimating } = this.data;
+    if (!calendarMonths.length || isCalendarAnimating) return;
+
+    const nextIndex = currentCalendarMonthIndex + delta;
+    if (nextIndex < 0 || nextIndex >= calendarMonths.length) return;
+
+    const exitOffset = delta > 0 ? -48 : 48;
+    const enterOffset = -exitOffset;
+
+    this.setData({
+      isCalendarAnimating: true,
+      calendarTransitionEnabled: true,
+      calendarOffsetX: exitOffset,
+      calendarOpacity: 0,
+    });
+
+    clearTimeout(this.calendarAnimTimer1);
+    clearTimeout(this.calendarAnimTimer2);
+    clearTimeout(this.calendarAnimTimer3);
+
+    this.calendarAnimTimer1 = setTimeout(() => {
+      this.setData({
+        currentCalendarMonthIndex: nextIndex,
+      }, () => {
+        this.syncCurrentCalendarMonth();
+        this.setData({
+          calendarTransitionEnabled: false,
+          calendarOffsetX: enterOffset,
+          calendarOpacity: 0,
+        });
+
+        this.calendarAnimTimer2 = setTimeout(() => {
+          this.setData({
+            calendarTransitionEnabled: true,
+            calendarOffsetX: 0,
+            calendarOpacity: 1,
+          });
+
+          this.calendarAnimTimer3 = setTimeout(() => {
+            this.setData({ isCalendarAnimating: false });
+          }, 220);
+        }, 24);
+      });
+    }, 180);
+  },
+
+  onCalendarTouchStart(e) {
+    const touch = e.touches && e.touches[0];
+    if (!touch) return;
+    this.touchStartX = touch.clientX;
+    this.touchStartY = touch.clientY;
+    this.touchStartTime = Date.now();
+  },
+
+  onCalendarTouchEnd(e) {
+    const touch = e.changedTouches && e.changedTouches[0];
+    if (!touch) return;
+
+    const deltaX = touch.clientX - (this.touchStartX || 0);
+    const deltaY = touch.clientY - (this.touchStartY || 0);
+    const duration = Date.now() - (this.touchStartTime || 0);
+    const absX = Math.abs(deltaX);
+    const absY = Math.abs(deltaY);
+    const isHorizontalSwipe = absX > 50 && absX > absY * 1.2 && duration < 600;
+    if (!isHorizontalSwipe) return;
+
+    if (deltaX < 0) {
+      this.switchCalendarMonthByDelta(1);
+      return;
+    }
+
+    this.switchCalendarMonthByDelta(-1);
+  },
+
+  buildCalendarMonths(periods) {
+    if (!periods || !periods.length) return [];
+    const periodMap = {};
+    periods.forEach((period) => {
+      periodMap[period.date] = period;
+    });
+
+    const firstPeriodDate = dateUtil.parseDate(periods[0].date);
+    const lastPeriodDate = dateUtil.parseDate(periods[periods.length - 1].date);
+    const firstMonth = new Date(firstPeriodDate.getFullYear(), firstPeriodDate.getMonth(), 1);
+    const lastMonth = new Date(lastPeriodDate.getFullYear(), lastPeriodDate.getMonth(), 1);
+    const months = [];
+
+    for (let cursor = new Date(firstMonth); cursor <= lastMonth; cursor = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1)) {
+      const year = cursor.getFullYear();
+      const month = cursor.getMonth() + 1;
+      const monthTitle = `${year}年${dateUtil.pad(month)}月`;
+      const daysInMonth = new Date(year, month, 0).getDate();
+      const firstWeekday = ((new Date(year, month - 1, 1).getDay() + 6) % 7); // 周一为第一列
+      const cells = [];
+
+      for (let i = 0; i < firstWeekday; i++) {
+        cells.push({ key: `${year}-${month}-empty-${i}`, empty: true });
+      }
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        const date = `${year}-${dateUtil.pad(month)}-${dateUtil.pad(day)}`;
+        const period = periodMap[date] || null;
+        const cellClass = this.getCalendarCellClass(period);
+        cells.push({
+          key: date,
+          empty: false,
+          day,
+          date,
+          hasPeriod: !!period,
+          periodIndex: period ? period.index : 0,
+          hideExpectedAmount: period ? period.hideExpectedAmount : false,
+          amountText: period
+            ? (period.hideExpectedAmount ? '🎁' : `¥${period.displayAmount}`)
+            : '',
+          statusText: period ? period.dateStatus : '',
+          cellClass,
+        });
+      }
+
+      while (cells.length % 7 !== 0) {
+        cells.push({ key: `${year}-${month}-tail-${cells.length}`, empty: true });
+      }
+
+      const weeks = [];
+      for (let start = 0; start < cells.length; start += 7) {
+        weeks.push(cells.slice(start, start + 7));
+      }
+
+      months.push({
+        key: `${year}-${dateUtil.pad(month)}`,
+        monthTitle,
+        weeks,
+      });
+    }
+
+    return months;
+  },
+
+  getCalendarCellClass(period) {
+    if (!period) return 'calendar-cell-empty';
+    const classes = ['calendar-cell-active'];
+    if (period.completed) classes.push('is-completed');
+    if (period.isToday) classes.push('is-today');
+    if (period.isOverdue) classes.push('is-overdue');
+    if (period.isEarly) classes.push('is-early');
+    return classes.join(' ');
+  },
+
+  onCalendarCellTap(e) {
+    const index = Number(e.currentTarget.dataset.index);
+    if (!index) return;
+    const period = (this.data.plan && this.data.plan.periods || []).find((item) => item.index === index);
+    this.handlePeriodTap(period);
   },
 
   formatPeriod(period, today, plan) {

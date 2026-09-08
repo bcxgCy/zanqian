@@ -94,6 +94,19 @@
   margin-top: 6rpx;
 }
 
+.quiz-banner-wrap {
+  margin-bottom: var(--spacing);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+}
+
+.quiz-banner-image {
+  width: 100%;
+  height: 240rpx;
+  display: block;
+}
+
 .section-title {
   margin-bottom: 16rpx;
 }

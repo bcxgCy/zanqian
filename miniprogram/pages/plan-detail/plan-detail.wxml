@@ -40,8 +40,23 @@
     </view>
   </view>
 
-  <view class="section-title section-title-text">存钱明细</view>
-  <view class="period-list">
+  <view class="period-header">
+    <view class="section-title section-title-text">存钱明细</view>
+    <view class="period-view-toggle">
+      <view
+        class="toggle-item {{periodViewMode === 'list' ? 'active' : ''}}"
+        data-mode="list"
+        bindtap="togglePeriodView"
+      >平铺</view>
+      <view
+        class="toggle-item {{periodViewMode === 'calendar' ? 'active' : ''}}"
+        data-mode="calendar"
+        bindtap="togglePeriodView"
+      >日历</view>
+    </view>
+  </view>
+
+  <view class="period-list" wx:if="{{periodViewMode === 'list'}}">
     <view
       class="period-item {{item.completed ? 'done period-done-animate' : 'todo'}} {{item.dateClass}}"
       wx:for="{{plan.periods}}"
@@ -57,6 +72,49 @@
         <text wx:if="{{item.hideExpectedAmount}}" class="period-amount period-amount-secret">🎁 待揭晓</text>
         <text wx:else class="period-amount">¥{{item.displayAmount}}</text>
         <text class="period-status helper-text">{{item.dateStatus}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="calendar-list" wx:if="{{periodViewMode === 'calendar' && currentCalendarMonth}}">
+    <view
+      class="calendar-month calendar-month-animated"
+      bindtouchstart="onCalendarTouchStart"
+      bindtouchmove="onCalendarTouchMove"
+      bindtouchend="onCalendarTouchEnd"
+      style="transform: translateX({{calendarOffsetX}}px); opacity: {{calendarOpacity}}; transition: {{calendarTransitionEnabled ? 'transform 220ms ease, opacity 220ms ease' : 'none'}};"
+    >
+      <view class="calendar-month-bar">
+        <view
+          class="calendar-month-switch {{canPrevMonth ? '' : 'disabled'}}"
+          data-direction="prev"
+          bindtap="switchCalendarMonth"
+        >‹</view>
+        <view class="calendar-month-title">{{currentCalendarMonth.monthTitle}}</view>
+        <view
+          class="calendar-month-switch {{canNextMonth ? '' : 'disabled'}}"
+          data-direction="next"
+          bindtap="switchCalendarMonth"
+        >›</view>
+      </view>
+
+      <view class="calendar-week-row calendar-week-header">
+        <view class="calendar-week-cell" wx:for="{{weekDays}}" wx:key="index">{{item}}</view>
+      </view>
+
+      <view class="calendar-week-row" wx:for="{{currentCalendarMonth.weeks}}" wx:for-item="week" wx:key="index">
+        <view
+          class="calendar-cell {{dayItem.cellClass}}"
+          wx:for="{{week}}"
+          wx:for-item="dayItem"
+          wx:key="key"
+          data-index="{{dayItem.periodIndex}}"
+          bindtap="onCalendarCellTap"
+        >
+          <text wx:if="{{!dayItem.empty}}" class="calendar-day">{{dayItem.day}}</text>
+          <text wx:if="{{dayItem.hasPeriod}}" class="calendar-amount">{{dayItem.amountText}}</text>
+          <text wx:if="{{dayItem.hasPeriod}}" class="calendar-status">{{dayItem.statusText}}</text>
+        </view>
       </view>
     </view>
   </view>

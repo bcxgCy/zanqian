@@ -84,4 +84,13 @@
     <text class="fab-icon">+</text>
     <text class="fab-label">新建计划</text>
   </view>
+
+  <view wx:if="{{showQuizPopup}}" class="quiz-popup-mask" catchtouchmove="preventTouchMove" bindtap="closeQuizPopup">
+    <view class="quiz-popup" catchtap="preventTouchMove">
+      <image class="quiz-popup-image" src="{{quizPopupImage}}" mode="aspectFill" bindtap="openSavingQuiz"></image>
+      <view class="quiz-popup-close-wrap">
+        <view class="quiz-popup-close-btn" bindtap="closeQuizPopup">×</view>
+      </view>
+    </view>
+  </view>
 </view>

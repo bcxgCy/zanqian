@@ -1,17 +1,24 @@
 const storage = require('../../utils/storage');
 const planUtil = require('../../utils/plan');
 const dateUtil = require('../../utils/date');
+const quizUtil = require('../../utils/savingPersonaQuiz');
 
 let guideShown = false;
+const QUIZ_POPUP_FREQ_KEY = 'saving_quiz_popup_freq_v1';
+const QUIZ_DONE_KEY = 'saving_quiz_done_v1';
+const QUIZ_POPUP_ENABLED = true;
 
 Page({
   data: {
     overview: { targetTotal: 0, savedTotal: 0, remaining: 0 },
     plans: [],
+    showQuizPopup: false,
+    quizPopupImage: quizUtil.QUIZ_POPUP_IMAGE,
   },
 
   onShow() {
     this.loadData();
+    this.tryShowQuizPopup();
   },
 
   loadData() {
@@ -101,6 +108,31 @@ Page({
       });
     }, 500);
   },
+
+  tryShowQuizPopup() {
+    if (!QUIZ_POPUP_ENABLED) return;
+    const lastShowAt = Number(wx.getStorageSync(QUIZ_POPUP_FREQ_KEY) || 0);
+    const hasCompletedQuiz = !!wx.getStorageSync(QUIZ_DONE_KEY);
+    const intervalDays = hasCompletedQuiz ? 15 : 1;
+    const intervalMs = intervalDays * 24 * 60 * 60 * 1000;
+    if (lastShowAt && Date.now() - lastShowAt < intervalMs) return;
+
+    setTimeout(() => {
+      this.setData({ showQuizPopup: true });
+      wx.setStorageSync(QUIZ_POPUP_FREQ_KEY, Date.now());
+    }, 350);
+  },
+
+  closeQuizPopup() {
+    this.setData({ showQuizPopup: false });
+  },
+
+  openSavingQuiz() {
+    this.setData({ showQuizPopup: false });
+    wx.navigateTo({ url: '/pages/saving-quiz/saving-quiz' });
+  },
+
+  preventTouchMove() {},
 
   goStatistics() {
     wx.navigateTo({ url: '/pages/statistics/statistics' });

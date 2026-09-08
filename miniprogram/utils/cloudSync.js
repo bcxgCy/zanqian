@@ -81,6 +81,20 @@ function clearPlans() {
   });
 }
 
+function saveQuizResult(quizResult) {
+  return callDataService({ action: 'saveQuizResult', quizResult }).then((result) => {
+    cacheLogin(result);
+    return result;
+  });
+}
+
+function getQuizResult() {
+  return callDataService({ action: 'getQuizResult' }).then((result) => {
+    cacheLogin(result);
+    return result;
+  });
+}
+
 module.exports = {
   getLoginState,
   login,
@@ -90,4 +104,6 @@ module.exports = {
   updatePlan,
   deletePlan,
   clearPlans,
+  saveQuizResult,
+  getQuizResult,
 };

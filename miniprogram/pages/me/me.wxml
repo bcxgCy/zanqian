@@ -31,6 +31,14 @@
     </view>
   </view>
 
+  <view class="quiz-banner-wrap" bindtap="goSavingQuiz">
+    <image
+      class="quiz-banner-image"
+      mode="aspectFill"
+      src="cloud://cloud1-d1g1g2urwd9ff5a66.636c-cloud1-d1g1g2urwd9ff5a66-1462912205/other/ceshi-banner.jpg"
+    ></image>
+  </view>
+
   <view class="card badge-card">
     <view class="section-title section-title-text">储蓄勋章 <text class="star-deco">✦</text></view>
     <scroll-view scroll-x class="badge-scroll" enable-flex>

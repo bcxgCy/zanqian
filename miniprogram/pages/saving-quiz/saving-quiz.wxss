@@ -1,0 +1,255 @@
+.page {
+  padding: var(--spacing);
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+.card {
+  background: #fff;
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  padding: 28rpx;
+}
+
+.title {
+  display: block;
+  font-size: 34rpx;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.desc {
+  display: block;
+  margin-top: 16rpx;
+  line-height: 1.7;
+}
+
+.start-btn {
+  margin-top: 32rpx;
+}
+
+.intro-image {
+  width: 100%;
+  height: 280rpx;
+  border-radius: 20rpx;
+  margin-top: 20rpx;
+}
+
+.progress-row {
+  display: flex;
+  justify-content: space-between;
+}
+
+.progress-track {
+  margin-top: 10rpx;
+  height: 12rpx;
+  border-radius: 999rpx;
+  background: #eef2f7;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #44a08d, #4ecdc4);
+  transition: width 0.35s ease;
+}
+
+.question-title {
+  display: block;
+  margin-top: 24rpx;
+  font-size: 30rpx;
+  font-weight: 500;
+  line-height: 1.6;
+}
+
+.option-list {
+  margin-top: 22rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.option-item {
+  border: 1rpx solid #e6eaf2;
+  border-radius: 20rpx;
+  padding: 20rpx;
+  min-height: 104rpx;
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+}
+
+.option-item.selected {
+  border-color: #44a08d;
+  background: rgba(68, 160, 141, 0.08);
+}
+
+.option-item.selected .option-key {
+  background: #44a08d;
+  color: #fff;
+}
+
+.option-item:active {
+  transform: scale(0.99);
+  opacity: 0.9;
+}
+
+.option-key {
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: 50%;
+  background: #eef2f7;
+  color: #4a5568;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22rpx;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.option-text {
+  flex: 1;
+  font-size: 26rpx;
+  color: var(--color-text);
+  line-height: 1.6;
+}
+
+.result-tag {
+  display: inline-flex;
+  padding: 10rpx 20rpx;
+  border-radius: 999rpx;
+  background: #f3f8ff;
+  color: #4c64e8;
+  font-size: 24rpx;
+  font-weight: 600;
+}
+
+.result-title {
+  display: block;
+  margin-top: 14rpx;
+  font-size: 34rpx;
+  font-weight: 600;
+}
+
+.result-desc {
+  display: block;
+  margin-top: 14rpx;
+  line-height: 1.7;
+}
+
+.result-reco {
+  display: block;
+  margin-top: 14rpx;
+  font-size: 26rpx;
+  color: #1f7a65;
+}
+
+.reco-list {
+  margin-top: 24rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.reco-item {
+  border: 1rpx solid #dfe7f0;
+  border-radius: 22rpx;
+  padding: 18rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+  background: linear-gradient(180deg, #ffffff, #f8fbff);
+}
+
+.reco-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.reco-head {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  margin-bottom: 8rpx;
+}
+
+.reco-rank {
+  font-size: 20rpx;
+  color: #6b7280;
+}
+
+.reco-type-chip {
+  font-size: 20rpx;
+  color: #4c64e8;
+  background: #eef2ff;
+  padding: 4rpx 10rpx;
+  border-radius: 999rpx;
+}
+
+.reco-name {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #243042;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.reco-btn {
+  flex-shrink: 0;
+  height: 62rpx;
+  line-height: 62rpx;
+  font-size: 24rpx;
+  padding: 0 22rpx;
+  border-radius: 999rpx;
+  background: linear-gradient(135deg, #44a08d, #4ecdc4);
+  color: #fff;
+  border: none;
+}
+
+.result-action-row {
+  display: flex;
+  gap: 16rpx;
+  margin-top: 28rpx;
+}
+
+.result-plan-btn,
+.result-home-btn,
+.result-share-btn {
+  flex: 1;
+  min-width: 0;
+  height: 88rpx;
+  line-height: 1;
+  font-size: 26rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 12rpx;
+  box-sizing: border-box;
+}
+
+.result-plan-btn {
+  color: rgba(102, 126, 234, 1) !important;
+  border: 1rpx solid rgba(102, 126, 234, 0.35) !important;
+}
+
+.result-home-btn {
+  color: rgba(255, 125, 0, 1) !important;
+  border: 1rpx solid rgba(255, 125, 0, 0.35) !important;
+}
+
+.result-share-btn {
+  background: linear-gradient(135deg, #4ecdc4, #44a08d);
+  color: #fff !important;
+  border: none !important;
+  font-weight: 500;
+}
+
+.share-full-btn {
+  margin-top: 16rpx;
+  width: 100%;
+  display: flex;
+}

@@ -1,0 +1,61 @@
+<view class="page">
+  <view class="card intro-card" wx:if="{{stage === 'intro'}}">
+    <text class="title">🧠 存钱选手趣味小测试</text>
+    <text class="desc helper-text">10 道单选题，1 分钟测出你的存钱人格，并推荐最适合你的打卡计划。</text>
+    <image class="intro-image" mode="aspectFill" src="cloud://cloud1-d1g1g2urwd9ff5a66.636c-cloud1-d1g1g2urwd9ff5a66-1462912205/other/ceshi-banner.jpg"></image>
+    <button class="btn-mint start-btn" bindtap="startQuiz">开始测试</button>
+  </view>
+
+  <view class="card question-card" wx:if="{{stage === 'answering' && currentQuestion}}">
+    <view class="progress-row">
+      <text class="helper-text">第 {{questionIndex + 1}} / {{questions.length}} 题</text>
+      <text class="helper-text">{{progressPercent}}%</text>
+    </view>
+    <view class="progress-track">
+      <view class="progress-fill" style="width: {{progressPercent}}%"></view>
+    </view>
+
+    <text class="question-title">{{currentQuestion.id}}. {{currentQuestion.title}}</text>
+
+    <view class="option-list">
+      <view class="option-item {{selectedOption === 'A' ? 'selected' : ''}}" data-option="A" bindtap="chooseOption">
+        <text class="option-key">A</text>
+        <text class="option-text">{{currentQuestion.options.A}}</text>
+      </view>
+      <view class="option-item {{selectedOption === 'B' ? 'selected' : ''}}" data-option="B" bindtap="chooseOption">
+        <text class="option-key">B</text>
+        <text class="option-text">{{currentQuestion.options.B}}</text>
+      </view>
+      <view class="option-item {{selectedOption === 'C' ? 'selected' : ''}}" data-option="C" bindtap="chooseOption">
+        <text class="option-key">C</text>
+        <text class="option-text">{{currentQuestion.options.C}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="card result-card" wx:if="{{stage === 'result' && result}}">
+    <text class="result-tag">{{result.persona.tag}}</text>
+    <text class="result-title">{{result.persona.title}}</text>
+    <text class="result-desc helper-text">{{result.persona.description}}</text>
+    <text class="result-reco">✅ {{result.persona.recommendationText}}</text>
+
+    <view class="reco-list">
+      <view class="reco-item" wx:for="{{result.recommendations}}" wx:key="id">
+        <view class="reco-main">
+          <view class="reco-head">
+            <text class="reco-rank">推荐{{index + 1}}</text>
+            <text class="reco-type-chip">{{item.type === 'preset' ? '预设方案' : '自定义方案'}}</text>
+          </view>
+          <text class="reco-name">{{item.name}}</text>
+        </view>
+        <button class="reco-btn" data-index="{{index}}" bindtap="openRecommendedPlan">立即开启</button>
+      </view>
+    </view>
+
+    <view class="result-action-row">
+      <button class="result-plan-btn btn-ghost" bindtap="restartQuiz">重新测试</button>
+      <button class="result-home-btn btn-ghost" bindtap="backHome">返回首页</button>
+    </view>
+    <button class="result-share-btn share-full-btn btn-mint" open-type="share">分享结果</button>
+  </view>
+</view>

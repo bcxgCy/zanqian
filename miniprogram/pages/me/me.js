@@ -66,6 +66,10 @@ Page({
     wx.navigateTo({ url: '/pages/profile-edit/profile-edit' });
   },
 
+  goSavingQuiz() {
+    wx.navigateTo({ url: '/pages/saving-quiz/saving-quiz' });
+  },
+
   goSettings() {
     wx.navigateTo({ url: '/pages/settings/settings' });
   },

@@ -12,7 +12,8 @@
     "pages/help/help",
     "pages/privacy/privacy",
     "pages/plan-copy-preview/plan-copy-preview",
-    "pages/achievement/achievement"
+    "pages/achievement/achievement",
+    "pages/saving-quiz/saving-quiz"
   ],
   "window": {
     "backgroundColor": "#F7F8FA",

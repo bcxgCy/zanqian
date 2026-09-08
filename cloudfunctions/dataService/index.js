@@ -197,6 +197,29 @@ async function deletePlan(openid, planId) {
   return getFullState(openid);
 }
 
+async function saveQuizResult(openid, quizResult) {
+  const state = await getUserState(openid);
+  const nextQuizResult = quizResult ? Object.assign({}, quizResult, { updatedAt: Date.now() }) : null;
+  await updateUserState(openid, {
+    quizResult: nextQuizResult,
+  });
+  return {
+    openid,
+    quizResult: nextQuizResult,
+    hasQuizResult: !!nextQuizResult,
+    user: state.user || getDefaultUser(),
+  };
+}
+
+async function getQuizResult(openid) {
+  const state = await getUserState(openid);
+  return {
+    openid,
+    quizResult: state.quizResult || null,
+    hasQuizResult: !!state.quizResult,
+  };
+}
+
 exports.main = async (event) => {
   const wxContext = cloud.getWXContext();
   const openid = wxContext.OPENID;
@@ -231,6 +254,14 @@ exports.main = async (event) => {
 
   if (action === 'clear') {
     return replacePlans(openid, []);
+  }
+
+  if (action === 'saveQuizResult') {
+    return saveQuizResult(openid, event.quizResult || null);
+  }
+
+  if (action === 'getQuizResult') {
+    return getQuizResult(openid);
   }
 
   return {
