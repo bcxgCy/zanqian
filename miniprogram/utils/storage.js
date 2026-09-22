@@ -36,7 +36,86 @@ function getPlan(id) {
 }
 
 function addPlan(plan) {
-  return cloudSync.addPlan(plan).then((result) => result.plan || plan);
+  return cloudSync.addPlan(plan).then((result) => {
+    if (result && result.error) {
+      const err = new Error(result.error);
+      err.code = result.error;
+      err.result = result;
+      throw err;
+    }
+    return result.plan || plan;
+  });
+}
+
+function getPlanAddAccess() {
+  return cloudSync.getPlanAddAccess().then((result) => {
+    if (result && result.error) {
+      const err = new Error(result.error);
+      err.code = result.error;
+      err.result = result;
+      throw err;
+    }
+    const state = normalizeState(result);
+    const planLimit = result && result.planLimit ? result.planLimit : {};
+    return {
+      user: state.user,
+      plans: state.plans,
+      freePlanLimit: Number(planLimit.freePlanLimit || state.user.free_plan_limit || 3),
+      usedPlanCount: Number(planLimit.usedPlanCount || state.plans.length || 0),
+      extraPlanQuota: Number(planLimit.extraPlanQuota || state.user.extra_plan_quota || 0),
+      needAd: !!planLimit.needAd,
+    };
+  });
+}
+
+function grantPlanAddQuotaByAd(adUnitId, rewardToken) {
+  return cloudSync.grantPlanAddQuotaByAd(adUnitId, rewardToken).then((result) => {
+    if (result && result.error) {
+      const err = new Error(result.error);
+      err.code = result.error;
+      err.result = result;
+      throw err;
+    }
+    const state = normalizeState(result);
+    return {
+      user: state.user,
+      plans: state.plans,
+      rewarded: !!result.rewarded,
+      duplicated: !!result.duplicated,
+      planLimit: result.planLimit || null,
+    };
+  });
+}
+
+function consumePlanAddQuota() {
+  return cloudSync.consumePlanAddQuota().then((result) => {
+    if (result && result.error) {
+      if (result.error === 'PLAN_ADD_NEED_AD') {
+        const planLimit = result && result.planLimit ? result.planLimit : {};
+        return {
+          allowed: false,
+          consumed: false,
+          freePlanLimit: Number(planLimit.freePlanLimit || 3),
+          usedPlanCount: Number(planLimit.usedPlanCount || 0),
+          extraPlanQuota: Number(planLimit.extraPlanQuota || 0),
+          needAd: true,
+        };
+      }
+      const err = new Error(result.error);
+      err.code = result.error;
+      err.result = result;
+      throw err;
+    }
+    const planLimit = result && result.planLimit ? result.planLimit : {};
+    return {
+      allowed: !!result.allowed,
+      consumed: !!result.consumed,
+      freePlanLimit: Number(planLimit.freePlanLimit || 3),
+      usedPlanCount: Number(planLimit.usedPlanCount || 0),
+      extraPlanQuota: Number(planLimit.extraPlanQuota || 0),
+      needAd: !!planLimit.needAd,
+    };
+  });
 }
 
 function updatePlan(id, updates) {
@@ -259,6 +338,9 @@ module.exports = {
   savePlans,
   getPlan,
   addPlan,
+  getPlanAddAccess,
+  grantPlanAddQuotaByAd,
+  consumePlanAddQuota,
   updatePlan,
   deletePlan,
   updatePeriod,

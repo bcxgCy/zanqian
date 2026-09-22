@@ -3,7 +3,7 @@ const planUtil = require('../../utils/plan');
 const storage = require('../../utils/storage');
 const money = require('../../utils/money');
 const cloudFile = require('../../utils/cloudFile');
-const subscribe = require('../../utils/subscribe');
+const planAddAccess = require('../../utils/planAddAccess');
 
 const HUNDRED_DAY_PRESET_ID = '100day';
 const HUNDRED_DAY_FIXED_TARGET = planUtil.getFixedPresetTarget(HUNDRED_DAY_PRESET_ID) || 5050;
@@ -51,8 +51,6 @@ Page({
 
       // 清除缓存（一次性使用）
       wx.removeStorageSync(templateKey);
-
-      console.log('【plan-add】从模板回填', template);
 
       // 回填基础信息
       const setData = {
@@ -279,21 +277,31 @@ Page({
     }
 
     const plan = planUtil.buildPlanFromCalc(planData);
-    // 保存时只提交单个计划，云端按计划文档增量写入。
-    wx.showLoading({ title: '保存中' });
-    storage.addPlan(plan)
-      .then((savedPlan) => {
-        wx.showToast({ title: '添加成功', icon: 'success' });
-        // 场景一：新建心愿成功后触发订阅授权
-        subscribe.triggerAfterCreate(savedPlan._id || plan.id);
-        setTimeout(() => wx.navigateBack(), 500);
+    planAddAccess.ensurePlanAddQuota()
+      .then((unlocked) => {
+        if (!unlocked) return;
+        wx.showLoading({ title: '保存中' });
+        return storage.addPlan(plan)
+          .then((savedPlan) => {
+            wx.showToast({ title: '添加成功', icon: 'success' });
+            setTimeout(() => wx.navigateBack(), 500);
+          })
+          .catch((err) => {
+            wx.showToast({ title: '添加失败', icon: 'none' });
+            console.warn('添加计划失败', err);
+          })
+          .finally(() => {
+            wx.hideLoading();
+          });
       })
-      .catch((err) => {
-        wx.showToast({ title: '添加失败', icon: 'none' });
-        console.warn('添加计划失败', err);
-      })
-      .finally(() => {
-        wx.hideLoading();
+      .catch((adErr) => {
+        if (adErr && adErr.message === 'UNSUPPORTED_REWARDED_AD') {
+          wx.showToast({ title: '当前版本不支持激励广告', icon: 'none' });
+          return;
+        }
+        
+        wx.showToast({ title: '暂无广告资源，请稍后再试', icon: 'none' });
+        console.warn('新增计划广告解锁失败', adErr);
       });
   },
 });

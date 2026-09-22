@@ -15,6 +15,16 @@ function callDataService(data) {
   }).then((res) => res.result || {});
 }
 
+function callAdService(data) {
+  if (!isReady()) {
+    return Promise.reject(new Error('当前基础库不支持云能力'));
+  }
+  return wx.cloud.callFunction({
+    name: 'adService',
+    data,
+  }).then((res) => res.result || {});
+}
+
 function cacheLogin(result) {
   lastLogin = {
     openid: result.openid,
@@ -81,6 +91,27 @@ function clearPlans() {
   });
 }
 
+function getPlanAddAccess() {
+  return callAdService({ action: 'getPlanAddAccess' }).then((result) => {
+    cacheLogin(result);
+    return result;
+  });
+}
+
+function grantPlanAddQuotaByAd(adUnitId, rewardToken) {
+  return callAdService({ action: 'grantPlanAddQuotaByAd', adUnitId, rewardToken }).then((result) => {
+    cacheLogin(result);
+    return result;
+  });
+}
+
+function consumePlanAddQuota() {
+  return callAdService({ action: 'consumePlanAddQuota' }).then((result) => {
+    cacheLogin(result);
+    return result;
+  });
+}
+
 function saveQuizResult(quizResult) {
   return callDataService({ action: 'saveQuizResult', quizResult }).then((result) => {
     cacheLogin(result);
@@ -104,6 +135,9 @@ module.exports = {
   updatePlan,
   deletePlan,
   clearPlans,
+  getPlanAddAccess,
+  grantPlanAddQuotaByAd,
+  consumePlanAddQuota,
   saveQuizResult,
   getQuizResult,
 };

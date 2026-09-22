@@ -318,9 +318,8 @@ function clearCloudRecords(planId) {
  * @param {string} planId 新建的心愿ID
  */
 function triggerAfterCreate(planId) {
-  console.log('【订阅】新建心愿成功', { planId });
-  // 不再自动弹窗引导，用户通过手动按钮触发授权
-   return requestSubscribe(planId);
+  // 不再自动触发授权请求，避免触发 "can only be invoked by user TAP gesture"。
+  return false;
 }
 
 /**
@@ -330,9 +329,8 @@ function triggerAfterCreate(planId) {
  * @param {string} planId 打卡的心愿ID
  */
 function triggerAfterCheckin(planId) {
-  console.log('【订阅】打卡成功', { planId });
-  // 不再自动弹窗引导，用户通过手动按钮触发授权
-   return requestSubscribe(planId);
+  // 不再自动触发授权请求，避免触发 "can only be invoked by user TAP gesture"。
+  return false;
 }
 
 /**
