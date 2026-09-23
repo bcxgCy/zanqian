@@ -13,6 +13,8 @@ const REVEAL_SLOT_DURATION_BASE = 920;
 const REVEAL_SLOT_DURATION_STEP = 180;
 const REVEAL_START_DELAY = 30;
 const REVEAL_FINISH_BUFFER = 120;
+const ABNORMAL_CHECKIN_AD_UNIT_ID = 'adunit-dbf4e1811b2aa151';
+const ABNORMAL_CHECKIN_AD_PASS_PREFIX = 'abnormal_checkin_ad_pass_';
 
 Page({
   data: {
@@ -57,6 +59,34 @@ Page({
     this.revealStartTimer = null;
     this.revealFinishTimer = null;
     this.pendingRevealDeposit = null;
+  },
+
+  getAbnormalCheckinAdPassKey() {
+    return ABNORMAL_CHECKIN_AD_PASS_PREFIX + this.planId;
+  },
+
+  hasAbnormalCheckinAdPass() {
+    try {
+      return !!wx.getStorageSync(this.getAbnormalCheckinAdPassKey());
+    } catch (err) {
+      return false;
+    }
+  },
+
+  setAbnormalCheckinAdPass() {
+    try {
+      wx.setStorageSync(this.getAbnormalCheckinAdPassKey(), Date.now());
+    } catch (err) {
+      console.warn('写入补打卡广告通行证失败', err);
+    }
+  },
+
+  clearAbnormalCheckinAdPass() {
+    try {
+      wx.removeStorageSync(this.getAbnormalCheckinAdPassKey());
+    } catch (err) {
+      console.warn('清理补打卡广告通行证失败', err);
+    }
   },
 
   onShow() {
@@ -392,6 +422,11 @@ Page({
     }
 
     const isOverdue = period.date < this.data.today;
+    if (this.hasAbnormalCheckinAdPass()) {
+      this.showDepositSheet(period, false);
+      return;
+    }
+
     wx.showModal({
       title: isOverdue ? '确认补打卡' : '确认提前打卡',
       content: isOverdue ? '该计划日期已过期，是否继续补打卡？' : '该计划还没到时间，是否继续提前打卡？',
@@ -399,10 +434,60 @@ Page({
       cancelText: '取消',
       success: (res) => {
         if (res.confirm) {
-          this.showDepositSheet(period, false);
+          this.openAbnormalCheckinWithAd(period);
         }
       },
     });
+  },
+
+  watchAbnormalCheckinAd() {
+    return new Promise((resolve, reject) => {
+      if (typeof wx.createRewardedVideoAd !== 'function') {
+        reject(new Error('UNSUPPORTED_REWARDED_AD'));
+        return;
+      }
+
+      const rewardedVideoAd = wx.createRewardedVideoAd({ adUnitId: ABNORMAL_CHECKIN_AD_UNIT_ID });
+      const onClose = (res) => {
+        rewardedVideoAd.offClose(onClose);
+        rewardedVideoAd.offError(onError);
+        resolve(!!(res && res.isEnded));
+      };
+      const onError = () => {
+        rewardedVideoAd.offClose(onClose);
+        rewardedVideoAd.offError(onError);
+        reject(new Error('AD_LOAD_FAIL'));
+      };
+
+      rewardedVideoAd.onClose(onClose);
+      rewardedVideoAd.onError(onError);
+      rewardedVideoAd.show()
+        .catch(() => rewardedVideoAd.load().then(() => rewardedVideoAd.show()))
+        .catch(() => {
+          rewardedVideoAd.offClose(onClose);
+          rewardedVideoAd.offError(onError);
+          reject(new Error('AD_LOAD_FAIL'));
+        });
+    });
+  },
+
+  openAbnormalCheckinWithAd(period) {
+    this.watchAbnormalCheckinAd()
+      .then((completed) => {
+        if (!completed) {
+          wx.showToast({ title: '广告未完整观看', icon: 'none' });
+          return;
+        }
+        this.setAbnormalCheckinAdPass();
+        this.showDepositSheet(period, false);
+      })
+      .catch((err) => {
+        if (err && err.message === 'UNSUPPORTED_REWARDED_AD') {
+          wx.showToast({ title: '当前版本不支持激励广告', icon: 'none' });
+          return;
+        }
+        wx.showToast({ title: '暂无广告资源，请稍后再试', icon: 'none' });
+      });
   },
 
   showDepositSheet(period, readonly) {
@@ -610,16 +695,21 @@ Page({
   },
 
   saveDeposit(savedAmount, note, completePlan) {
+    const selectedPeriod = this.data.selectedPeriod;
+    const isAbnormalCheckin = !!(selectedPeriod && selectedPeriod.date !== this.data.today);
     wx.showLoading({ title: '保存中' });
-    storage.updatePeriod(this.planId, this.data.selectedPeriod.index, {
+    storage.updatePeriod(this.planId, selectedPeriod.index, {
       savedAmount,
-      date: this.data.selectedPeriod.date,
+      date: selectedPeriod.date,
       note,
       completePlan,
     }).then(() => {
       this.closeSheet();
       return this.loadPlan(false);
     }).then(() => {
+      if (isAbnormalCheckin) {
+        this.clearAbnormalCheckinAdPass();
+      }
       // 🆕 替换原有 toast，改为显示带分享引导的成功弹窗
       if (completePlan) {
         // 计划完成：仍使用 toast（或后续可扩展为完成庆典弹窗）
