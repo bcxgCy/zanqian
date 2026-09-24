@@ -1,0 +1,67 @@
+<view class="page">
+  <scroll-view class="content" scroll-y>
+    <view class="card">
+      <view class="field">
+        <text class="label">物品名称</text>
+        <input class="input" placeholder="例如：无线耳机" value="{{form.itemName}}" data-field="itemName" bindinput="onInput" />
+      </view>
+
+      <view class="field">
+        <text class="label">价格</text>
+        <input class="input" type="digit" placeholder="请输入价格" value="{{form.price}}" data-field="price" bindinput="onInput" />
+      </view>
+
+      <view class="field">
+        <text class="label">购买理由</text>
+        <textarea class="textarea" placeholder="为什么想买？" value="{{form.reason}}" data-field="reason" bindinput="onInput" />
+      </view>
+
+      <view class="field">
+        <text class="label">替代方案</text>
+        <textarea class="textarea" placeholder="有没有更省钱的替代方案？" value="{{form.alternative}}" data-field="alternative" bindinput="onInput" />
+      </view>
+
+      <view class="field">
+        <text class="label">上传图片（最多2张）</text>
+        <view class="image-list">
+          <view class="image-item" wx:for="{{form.images}}" wx:key="*this">
+            <image class="image" src="{{item}}" mode="aspectFill"></image>
+            <view class="remove" data-index="{{index}}" bindtap="removeImage">×</view>
+          </view>
+          <view class="image-add" wx:if="{{form.images.length < 2}}" bindtap="chooseImages">+</view>
+        </view>
+      </view>
+
+      <view class="field">
+        <text class="label">审批方式</text>
+        <view class="mode-row">
+          <view class="mode-item {{form.approvalMode === 'single' ? 'active' : ''}}" data-mode="single" bindtap="onApprovalModeChange">单人审批</view>
+          <view class="mode-item {{form.approvalMode === 'multi' ? 'active' : ''}}" data-mode="multi" bindtap="onApprovalModeChange">多人审批</view>
+        </view>
+      </view>
+
+      <view class="field" wx:if="{{form.approvalMode === 'multi'}}">
+        <text class="label">审批人数（奇数）</text>
+        <picker range="{{multiCountOptions}}" value="{{multiCountIndex}}" bindchange="onMultiCountChange">
+          <view class="input">{{multiCountOptions[multiCountIndex]}}人</view>
+        </picker>
+      </view>
+
+      <view class="field">
+        <text class="label">冷静期</text>
+        <picker range="{{cooldownOptions}}" value="{{cooldownIndex}}" bindchange="onCooldownChange">
+          <view class="input">{{cooldownOptions[cooldownIndex]}}</view>
+        </picker>
+      </view>
+
+      <view class="field switch-field">
+        <text class="label">同步到广场</text>
+        <switch checked="{{form.syncToPlaza}}" bindchange="onSyncChange" color="#00B42A" />
+      </view>
+    </view>
+  </scroll-view>
+
+  <view class="submit-bar">
+    <button class="submit-btn" bindtap="submit">提交审批</button>
+  </view>
+</view>

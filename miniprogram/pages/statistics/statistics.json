@@ -1,5 +1,8 @@
 {
   "navigationBarTitleText": "存钱数据总览",
+  "navigationBarBackgroundColor": "#FFF9F0",
+  "navigationBarTextStyle": "black",
+  "backgroundColor": "#FFF9F0",
   "usingComponents": {
     "chart-bar": "/components/chart-bar/index",
     "chart-line": "/components/chart-line/index",

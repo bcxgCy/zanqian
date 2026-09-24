@@ -1,0 +1,160 @@
+.page {
+  --page-bg: #F4F9F4;
+  --card-bg: #FFFFFF;
+  --card-sub-bg: #EEF5F1;
+  --primary: #549F77;
+  --primary-press: #3F8562;
+  --secondary: #6DB58C;
+  --text-main: #242926;
+  --text-sub: #4A5650;
+  --text-muted: #72867B;
+  --divider: #E2EBE5;
+  --disable-bg: #D7E4DD;
+  min-height: 100vh;
+  background: var(--page-bg);
+  padding: 20rpx;
+  box-sizing: border-box;
+}
+
+.summary-card {
+  background: linear-gradient(135deg, #6DB58C 0%, #549F77 100%);
+  border-radius: 24rpx;
+  padding: 22rpx;
+  color: #fff;
+  margin-bottom: 16rpx;
+}
+
+.summary-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.summary-title { display: block; font-size: 32rpx; font-weight: 700; }
+.summary-total { display: block; margin-top: 8rpx; font-size: 58rpx; font-weight: 800; line-height: 1; }
+.summary-week { font-size: 24rpx; font-weight: 600; margin-top: 10rpx; }
+.summary-detail { margin-top: 14rpx; }
+.summary-detail-title { display: block; font-size: 26rpx; font-weight: 700; }
+.summary-detail-val { display: block; margin-top: 8rpx; font-size: 24rpx; font-weight: 700; }
+
+.summary-foot {
+  margin-top: 14rpx;
+  padding-top: 10rpx;
+  border-top: 1rpx solid rgba(255, 255, 255, 0.35);
+  display: flex;
+  justify-content: space-between;
+  gap: 12rpx;
+}
+
+.summary-pill { display: flex; align-items: center; font-size: 22rpx; font-weight: 600; }
+.pill-dot { font-size: 14rpx; margin-right: 8rpx; }
+
+.entry-row { display: flex; gap: 12rpx; margin-bottom: 16rpx; }
+
+.entry-box {
+  flex: 1;
+  background: var(--card-bg);
+  border-radius: 18rpx;
+  padding: 18rpx;
+  border: 1rpx solid var(--divider);
+  box-shadow: 0 4rpx 14rpx rgba(84, 159, 119, 0.08);
+}
+
+.entry-top { display: flex; align-items: center; }
+.entry-title { font-size: 30rpx; font-weight: 700; color: var(--text-main); }
+.entry-desc { display: block; margin-top: 10rpx; font-size: 24rpx; color: var(--text-sub); }
+
+.entry-btn {
+  margin-top: 14rpx;
+  width: 100%;
+  border-radius: 999rpx;
+  background: var(--primary);
+  color: #fff;
+  font-size: 24rpx;
+  line-height: 60rpx;
+  font-weight: 700;
+}
+
+.section { margin-bottom: 16rpx; }
+.section-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10rpx; }
+.section-title { display: block; font-size: 32rpx; font-weight: 700; color: var(--text-main); }
+.section-more { font-size: 22rpx; color: var(--primary); }
+
+.two-col-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10rpx; }
+
+.approval-card,
+.challenge-card {
+  background: var(--card-bg);
+  border-radius: 14rpx;
+  padding: 12rpx;
+  box-sizing: border-box;
+  border: 1rpx solid var(--divider);
+}
+
+.card-row { display: flex; align-items: center; justify-content: space-between; }
+.item-main { display: flex; align-items: center; min-width: 0; flex: 1; }
+.item-texts { min-width: 0; flex: 1; }
+.card-arrow { font-size: 28rpx; color: var(--text-muted); margin-left: 8rpx; }
+
+.approval-name { display: block; font-size: 24rpx; font-weight: 700; color: var(--text-main); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.approval-price { display: block; margin-top: 4rpx; font-size: 22rpx; color: var(--text-sub); }
+.approval-meta { display: block; margin-top: 8rpx; font-size: 20rpx; color: var(--text-muted); }
+
+.challenge-top { display: flex; align-items: center; min-width: 0; flex: 1; }
+.challenge-right { font-size: 20rpx; color: var(--text-muted); margin-left: 8rpx; }
+.challenge-name { font-size: 24rpx; font-weight: 700; color: var(--text-main); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.challenge-meta { display: block; margin-top: 8rpx; font-size: 20rpx; color: var(--text-muted); }
+
+.icon-placeholder {
+  border-radius: 10rpx;
+  background: var(--card-sub-bg);
+  border: 1rpx dashed var(--secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.icon-placeholder-text {
+  font-size: 18rpx;
+  color: var(--text-muted);
+}
+
+.entry-icon-placeholder {
+  width: 42rpx;
+  height: 42rpx;
+  margin-right: 10rpx;
+}
+
+.item-icon-placeholder,
+.challenge-icon-placeholder {
+  width: 44rpx;
+  height: 44rpx;
+  margin-right: 8rpx;
+}
+
+@media (prefers-color-scheme: dark) {
+  .page {
+    --page-bg: #171F1B;
+    --card-bg: #2C3832;
+    --card-sub-bg: #37473F;
+    --primary: #68BB8F;
+    --primary-press: #59A87E;
+    --secondary: #43745A;
+    --text-main: #EEF4F1;
+    --text-sub: #94A99C;
+    --text-muted: #677C71;
+    --divider: #3A4A43;
+    --disable-bg: #37473F;
+  }
+
+  .summary-card {
+    background: linear-gradient(135deg, #43745A 0%, #68BB8F 100%);
+  }
+
+  .entry-box,
+  .approval-card,
+  .challenge-card {
+    box-shadow: none;
+  }
+}

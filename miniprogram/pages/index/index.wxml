@@ -2,31 +2,73 @@
   <!-- 区域 A：顶部概览大卡片 -->
   <view class="overview card">
     <view class="overview-title-row">
-      <text class="overview-title">总储蓄目标</text>
-      <text class="star-deco">✦</text>
+      <text class="overview-title-top">已存金额（元）</text>
     </view>
-    <text class="label helper-text">全部计划已存入金额</text>
-    <text class="amount page-amount">¥{{overview.savedTotal}}</text>
-    <text class="wish-line">把每个心愿，慢慢存成真的</text>
-    <view class="divider"></view>
-    <view class="overview-sub">
-      <view class="sub-item">
-        <text class="sub-label helper-text">目标总额</text>
-        <text class="sub-value">¥{{overview.targetTotal}}</text>
+    <view class="amount page-amount">
+      <text class="amount-symbol">¥</text>
+      <text class="amount-number">{{overview.savedTotal}}</text>
+    </view>
+    <view class="overview-tags">
+      <text class="overview-tag">较上月增加 ¥{{monthIncreaseAmount}}</text>
+      <text class="overview-tag tag-daka">连续打卡 {{streakDays}} 天</text>
+    </view>
+
+    <view class="month-overview-card">
+      <view class="month-overview-head">
+        <text class="month-overview-title">本月存钱概览</text>
+        <picker mode="date" fields="month" value="{{selectedMonthPickerValue}}" bindchange="handleMonthChange">
+          <view class="month-picker-pill">{{selectedMonthLabel}}</view>
+        </picker>
       </view>
-      <view class="sub-item">
-        <text class="sub-label helper-text">待存金额</text>
-        <text class="sub-value mint">¥{{overview.remaining}}</text>
+      <view class="month-overview-stats">
+        <view class="month-stat-item">
+          <text class="month-stat-label">目标金额</text>
+          <text class="month-stat-value month-stat-value-green">¥{{monthOverview.targetAmount}}</text>
+        </view>
+        <view class="month-stat-item">
+          <text class="month-stat-label">存入金额</text>
+          <text class="month-stat-value">¥{{monthOverview.savedAmount}}</text>
+        </view>
+        <view class="month-stat-item">
+          <text class="month-stat-label">占比</text>
+          <text class="month-stat-value">{{monthOverview.ratio}}%</text>
+        </view>
       </view>
+    </view>
+  </view>
+
+  <view class="quick-actions card">
+    <view class="quick-action-item" bindtap="goAddPlan">
+      <view class="quick-action-icon quick-action-icon-green">
+        <image class="quick-action-icon-image" src="cloud://cloud1-d1g1g2urwd9ff5a66.636c-cloud1-d1g1g2urwd9ff5a66-1462912205/other/nav-add.jpg" mode="aspectFill"></image>
+      </view>
+      <text class="quick-action-text">新增计划</text>
+    </view>
+    <view class="quick-action-item" bindtap="goCalculator">
+      <view class="quick-action-icon quick-action-icon-yellow">
+        <image class="quick-action-icon-image" src="cloud://cloud1-d1g1g2urwd9ff5a66.636c-cloud1-d1g1g2urwd9ff5a66-1462912205/other/nav-calc.jpg" mode="aspectFill"></image>
+      </view>
+      <text class="quick-action-text">存款计算器</text>
+    </view>
+    <view class="quick-action-item" bindtap="goStatistics">
+      <view class="quick-action-icon quick-action-icon-red">
+        <image class="quick-action-icon-image" src="cloud://cloud1-d1g1g2urwd9ff5a66.636c-cloud1-d1g1g2urwd9ff5a66-1462912205/other/nav-tongji.jpg" mode="aspectFill"></image>
+      </view>
+      <text class="quick-action-text">数据统计</text>
+    </view>
+    <view class="quick-action-item" bindtap="goAllPlans">
+      <view class="quick-action-icon quick-action-icon-blue">
+        <image class="quick-action-icon-image" src="cloud://cloud1-d1g1g2urwd9ff5a66.636c-cloud1-d1g1g2urwd9ff5a66-1462912205/other/nav-all.jpg" mode="aspectFill"></image>
+      </view>
+      <text class="quick-action-text">全部计划</text>
     </view>
   </view>
 
   <!-- 区域 C：列表头部 -->
   <view class="section-header">
-    <text class="section-title-text">我的存钱计划</text>
-    <view class="stats-link" bindtap="goStatistics">
-      <text class="mint">查看全部</text>
-      <text class="arrow mint"> ›</text>
+    <text class="section-title-text">近期待打卡计划</text>
+    <view class="reminder-btn" bindtap="goReminderSettings">
+      <text class="reminder-btn-text">提醒</text>
     </view>
   </view>
 
@@ -39,27 +81,20 @@
       data-id="{{item.id}}"
       bindtap="goPlanDetail"
     >
-      <view class="plan-row">
+      <view class="plan-top">
         <view class="piggy-icon plan-icon-wrap">
           <image wx:if="{{item.avatarUrl}}" class="plan-avatar" src="{{item.avatarUrl}}" mode="aspectFill"></image>
           <text wx:else class="piggy-mark">🐷</text>
           <text class="plan-small-icon">{{item.icon}}</text>
         </view>
-        <view class="plan-body">
-          <view class="plan-head">
-            <view class="plan-name-wrap">
-              <text wx:if="{{item.presetId === '100day'}}" class="plan-name-tag">【100天挑战】</text>
-              <text class="plan-name">{{item.name}}</text>
+        <view class="plan-main">
+          <view class="plan-main-row plan-main-row-top">
+            <view class="plan-title-wrap">
+              <view class="plan-title-line">
+                <text class="plan-name">{{item.name}}</text>
+                <text class="plan-type-inline">{{item.planTypeName}}</text>
+              </view>
             </view>
-            <text class="plan-percent">{{item.progress}}%</text>
-          </view>
-          <text class="plan-type helper-text">{{item.planTypeName}}</text>
-          <view class="progress-bar">
-            <view class="progress-fill progress-fill-animated" style="width: {{item.progress}}%"></view>
-          </view>
-          <text class="plan-meta helper-text">已存 ¥{{item.savedAmount}} / 目标 ¥{{item.targetAmount}} · {{item.progress}}%</text>
-          <view class="plan-action-row">
-            <text class="next-save helper-text">{{item.nextSaveText}}</text>
             <view
               class="plan-action {{item.actionType === 'checkin' ? 'plan-action-primary' : 'plan-action-secondary'}}"
               data-id="{{item.id}}"
@@ -68,7 +103,16 @@
               catchtap="handlePlanAction"
             >{{item.actionText}}</view>
           </view>
+
+          <view class="plan-main-row plan-main-row-sub">
+            <text class="plan-amount-text">已存 ¥{{item.savedAmount}} / ¥{{item.targetAmount}}</text>
+            <text class="plan-next-save">{{item.nextSaveText}}</text>
+          </view>
         </view>
+      </view>
+
+      <view class="progress-bar">
+        <view class="progress-fill progress-fill-animated" style="width: {{item.progress}}%"></view>
       </view>
     </view>
 
@@ -77,12 +121,6 @@
       <text class="empty-title">还没有存钱心愿</text>
       <text class="empty-text helper-text">点击右下角 + 开启第一份攒钱目标</text>
     </view>
-  </view>
-
-  <!-- 区域 E：悬浮新增按钮 -->
-  <view class="fab fab-peach" bindtap="goAddPlan">
-    <text class="fab-icon">+</text>
-    <text class="fab-label">新建计划</text>
   </view>
 
   <view wx:if="{{showQuizPopup}}" class="quiz-popup-mask" catchtouchmove="preventTouchMove" bindtap="closeQuizPopup">

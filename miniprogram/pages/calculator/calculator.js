@@ -13,7 +13,8 @@ Page({
     name: '',
     icon: '💰',
     targetAmount: '',
-    calcMode: 'fixed',
+    planMode: 'preset',
+    calcMode: 'preset',
     expandedPreset: '',
     presetReverse30Day: false,
     customAmount: '',
@@ -23,9 +24,6 @@ Page({
     startDate: dateUtil.today(),
     endDate: '',
     randomAmount: false,
-    presetSheetShow: false,
-    presetSheetContent: null,
-    galleryShow: false,
     expandedPresetName: '',
   },
 
@@ -48,8 +46,18 @@ Page({
     this.setData({ icon: e.currentTarget.dataset.icon });
   },
 
-  switchCalcMode(e) {
-    this.setData({ calcMode: e.currentTarget.dataset.mode });
+  switchPlanMode(e) {
+    const mode = e.currentTarget.dataset.mode;
+    if (!mode) return;
+    if (mode === 'preset') {
+      this.setData({ planMode: 'preset', calcMode: 'preset' });
+      return;
+    }
+    this.setData({ planMode: 'custom', calcMode: this.data.calcMode === 'preset' ? 'fixed' : this.data.calcMode });
+  },
+
+  switchCustomCalcMode(e) {
+    this.setData({ planMode: 'custom', calcMode: e.currentTarget.dataset.mode });
   },
 
   togglePreset(e) {
@@ -80,25 +88,15 @@ Page({
     this.setData({ frequencyIndex: idx, customFrequency: map[idx] });
   },
 
-  openGallery() {
-    this.setData({ galleryShow: true });
-  },
-
-  closeSheets() {
-    this.setData({ galleryShow: false, presetSheetShow: false });
-  },
-
   showPresetSheet(e) {
     const id = e.currentTarget.dataset.id;
     const preset = planUtil.getPreset(id);
     const nextData = {
-      presetSheetShow: true,
-      presetSheetContent: preset,
       expandedPreset: id,
       expandedPresetName: preset.name,
       presetReverse30Day: id === '30day' ? this.data.presetReverse30Day : false,
       calcMode: 'preset',
-      galleryShow: false,
+      planMode: 'preset',
     };
 
     if (id === HUNDRED_DAY_PRESET_ID) {
@@ -113,10 +111,6 @@ Page({
 
   onPresetReverse30DayChange(e) {
     this.setData({ presetReverse30Day: !!e.detail.value });
-  },
-
-  closePresetSheet() {
-    this.setData({ presetSheetShow: false });
   },
 
   calculate() {

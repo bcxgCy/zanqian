@@ -1,0 +1,269 @@
+.page {
+  background: #FFF9F0;
+  min-height: 100vh;
+  padding: var(--spacing);
+  box-sizing: border-box;
+}
+
+.tab-wrap {
+  display: flex;
+  background: #FFFFFF;
+  border-radius: 40rpx;
+  padding: 8rpx;
+  border: 2rpx solid #EEF4E3;
+  box-shadow: 0 8rpx 32rpx rgba(168, 216, 78, 0.12), 0 2rpx 8rpx rgba(255, 255, 255, 0.7);
+  margin-bottom: 20rpx;
+}
+
+.tab-item {
+  flex: 1;
+  height: 64rpx;
+  border-radius: 999rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26rpx;
+  color: #7A746A;
+}
+
+.tab-item-active {
+  background: linear-gradient(90deg, #79D149 0%, #A8D84E 100%);
+  color: #FFFFFF;
+  font-weight: 600;
+}
+
+.plan-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.plan-card {
+  position: relative;
+  background: #FFFFFF;
+  border-radius: 40rpx;
+  padding: 24rpx;
+  overflow: hidden;
+  border: 2rpx solid #EEF4E3;
+  box-shadow: 0 8rpx 32rpx rgba(168, 216, 78, 0.12), 0 2rpx 8rpx rgba(255, 255, 255, 0.7);
+}
+
+.plan-done {
+  border: 1rpx solid var(--color-primary-light);
+}
+
+.plan-paused {
+  background: var(--color-disabled-bg);
+  border-color: var(--color-border);
+  box-shadow: none;
+}
+
+.plan-paused .piggy-icon,
+.plan-paused .plan-avatar,
+.plan-paused .progress-bar {
+  opacity: 0.58;
+}
+
+.plan-paused .progress-fill {
+  background: #C9CDD4;
+  animation: none;
+}
+
+.plan-paused .plan-name,
+.plan-paused .plan-amount-text,
+.plan-paused .plan-next-save,
+.plan-paused .plan-type-inline {
+  color: var(--color-text-muted);
+}
+
+.plan-paused .plan-action {
+  color: var(--color-text-muted);
+  background: #FFFFFF;
+  border: 1rpx solid var(--color-border);
+}
+
+.plan-top {
+  display: flex;
+  align-items: center;
+}
+
+.plan-icon-wrap {
+  width: 72rpx;
+  height: 72rpx;
+  margin-right: 16rpx;
+}
+
+.piggy-icon {
+  position: relative;
+  border-radius: 50%;
+  background: rgba(212, 175, 55, 0.14);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.piggy-mark {
+  font-size: 40rpx;
+}
+
+.plan-avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  display: block;
+}
+
+.plan-small-icon {
+  position: absolute;
+  right: -4rpx;
+  bottom: -4rpx;
+  width: 30rpx;
+  height: 30rpx;
+  border-radius: 50%;
+  background: #FFFFFF;
+  font-size: 18rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.plan-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.plan-main-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.plan-main-row-top {
+  margin-bottom: 14rpx;
+}
+
+.plan-main-row-sub {
+  gap: 12rpx;
+}
+
+.plan-title-wrap {
+  flex: 1;
+  min-width: 0;
+}
+
+.plan-title-line {
+  display: flex;
+  align-items: baseline;
+  gap: 10rpx;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.plan-name {
+  flex: 0 1 auto;
+  min-width: 120rpx;
+  max-width: 70%;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #2F2A22;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.plan-type-inline {
+  flex-shrink: 0;
+  font-size: 22rpx;
+  color: #7A746A;
+  margin-left: 2rpx;
+}
+
+.progress-bar {
+  margin-top: 18rpx;
+  height: 14rpx;
+  background: #ECF3DE;
+  border-radius: 999rpx;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 999rpx;
+  background: linear-gradient(90deg, #79D149 0%, #A8D84E 100%);
+}
+
+.plan-amount-text,
+.plan-next-save {
+  font-size: 24rpx;
+  color: #6E685E;
+}
+
+.plan-amount-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.plan-next-save {
+  flex-shrink: 0;
+}
+
+.plan-action {
+  flex-shrink: 0;
+  min-width: 132rpx;
+  height: 50rpx;
+  padding: 0 24rpx;
+  border-radius: 999rpx;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24rpx;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.plan-action-primary {
+  color: #FFFFFF;
+  background: linear-gradient(90deg, #79D149 0%, #A8D84E 100%);
+  box-shadow: 0 6rpx 14rpx rgba(121, 209, 73, 0.28);
+}
+
+.plan-action-secondary {
+  color: #5E8F20;
+  background: #FFFFFF;
+  border: 2rpx solid #B8D989;
+}
+
+.empty {
+  text-align: center;
+  padding: 100rpx 40rpx;
+  background: #FFFFFF;
+  border-radius: 40rpx;
+  box-shadow: 0 8rpx 32rpx rgba(168, 216, 78, 0.12), 0 2rpx 8rpx rgba(255, 255, 255, 0.7);
+}
+
+.empty-piggy {
+  width: 116rpx;
+  height: 116rpx;
+  margin: 0 auto 24rpx;
+  border-radius: 50%;
+  background: rgba(212, 175, 55, 0.14);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 64rpx;
+}
+
+.empty-title {
+  display: block;
+  font-size: 30rpx;
+  color: var(--color-text);
+  font-weight: 500;
+  margin-bottom: 24rpx;
+}
+
+.empty-text {
+  display: block;
+  line-height: 1.6;
+}

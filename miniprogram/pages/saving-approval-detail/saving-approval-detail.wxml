@@ -1,0 +1,36 @@
+<view class="page" wx:if="{{detail}}">
+  <view class="card">
+    <view class="head">
+      <text class="name">{{detail.name}}</text>
+      <text class="status">{{detail.status}}</text>
+    </view>
+    <text class="price">¥{{detail.price}}</text>
+    <view class="line"><text class="k">购买理由：</text><text class="v">{{detail.reason}}</text></view>
+    <view class="line"><text class="k">替代方案：</text><text class="v">{{detail.alternative}}</text></view>
+  </view>
+
+  <view class="card">
+    <text class="section-title">投票汇总</text>
+    <view class="vote-grid">
+      <view class="vote-item pass">
+        <text class="vote-label">综合通过</text>
+        <text class="vote-num">{{detail.passVotes}}票</text>
+      </view>
+      <view class="vote-item reject">
+        <text class="vote-label">综合驳回</text>
+        <text class="vote-num">{{detail.rejectVotes}}票</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="card">
+    <text class="section-title">回应详情</text>
+    <view class="reply" wx:for="{{detail.replies}}" wx:key="id">
+      <view class="reply-head">
+        <text class="reply-user">{{item.user}}</text>
+        <text class="reply-side {{item.side === '通过' ? 'pass-text' : 'reject-text'}}">{{item.side}}</text>
+      </view>
+      <text class="reply-content">{{item.content}}</text>
+    </view>
+  </view>
+</view>

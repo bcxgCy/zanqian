@@ -1,1 +1,7 @@
-{ "navigationBarTitleText": "存钱计划", "usingComponents": {} }
+{
+  "navigationBarTitleText": "存钱计划",
+  "navigationBarBackgroundColor": "#FFF9F0",
+  "navigationBarTextStyle": "black",
+  "backgroundColor": "#FFF9F0",
+  "usingComponents": {}
+}

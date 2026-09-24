@@ -25,13 +25,13 @@
 
   <view class="card chart-block">
     <view class="chart-title section-title-text">每日存入统计</view>
-    <chart-bar data="{{barData}}" height="{{200}}" color="#9ADFD6"></chart-bar>
+    <chart-bar data="{{barData}}" height="{{200}}" color="#8FCF57"></chart-bar>
     <view class="empty-chart helper-text" wx:if="{{!barData.length}}">暂无数据</view>
   </view>
 
   <view class="card chart-block">
     <view class="chart-title section-title-text">存款走势</view>
-    <chart-line data="{{lineData}}" height="{{200}}" color="#C8E8FA"></chart-line>
+    <chart-line data="{{lineData}}" height="{{200}}" color="#A8D84E"></chart-line>
     <view class="empty-chart helper-text" wx:if="{{!lineData.length}}">暂无数据</view>
   </view>
 

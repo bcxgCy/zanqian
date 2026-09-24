@@ -1,6 +1,14 @@
 {
   "pages": [
     "pages/index/index",
+    "pages/all-plans/all-plans",
+    "pages/saving/saving",
+    "pages/saving-challenge/saving-challenge",
+    "pages/saving-challenge-detail/saving-challenge-detail",
+    "pages/saving-challenge-create/saving-challenge-create",
+    "pages/saving-approval/saving-approval",
+    "pages/saving-approval-detail/saving-approval-detail",
+    "pages/saving-approval-create/saving-approval-create",
     "pages/calculator/calculator",
     "pages/me/me",
     "pages/statistics/statistics",
@@ -35,8 +43,8 @@
         "selectedIconPath": "images/tab/home-active.png"
       },
       {
-        "pagePath": "pages/calculator/calculator",
-        "text": "存款计算器",
+        "pagePath": "pages/saving/saving",
+        "text": "省钱",
         "iconPath": "images/tab/calc.png",
         "selectedIconPath": "images/tab/calc-active.png"
       },

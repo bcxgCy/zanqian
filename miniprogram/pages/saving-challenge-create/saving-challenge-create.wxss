@@ -1,0 +1,261 @@
+.page {
+  --page-bg: #F4F9F4;
+  --card-bg: #FFFFFF;
+  --primary: #549F77;
+  --primary-hover: #3F8562;
+  --secondary: #D5ECDE;
+  --text-main: #242926;
+  --text-sub: #4A5650;
+  --placeholder: #A0AFA6;
+  --divider: #E2EBE5;
+  --input-bg: #FFFFFF;
+  --input-border: #E2EBE5;
+  --error: #F87171;
+  min-height: 100vh;
+  background: var(--page-bg);
+  padding: 24rpx;
+  box-sizing: border-box;
+}
+
+.card {
+  background: var(--card-bg);
+  border-radius: 20rpx;
+  padding: 20rpx;
+  box-shadow: 0 6rpx 18rpx rgba(63, 133, 98, 0.08);
+}
+
+.field {
+  margin-bottom: 18rpx;
+}
+
+.label {
+  display: block;
+  margin-bottom: 8rpx;
+  font-size: 26rpx;
+  color: var(--text-main);
+  font-weight: 600;
+}
+
+.input,
+.textarea,
+.sheet-search {
+  width: 100%;
+  background: var(--input-bg);
+  border-radius: 14rpx;
+  border: 2rpx solid var(--input-border);
+  padding: 0 24rpx;
+  box-sizing: border-box;
+  font-size: 24rpx;
+  height: 96rpx;
+  line-height: 96rpx;
+  color: var(--text-main);
+}
+
+.textarea {
+  min-height: 176rpx;
+  height: auto;
+  line-height: 1.5;
+  padding-top: 18rpx;
+  padding-bottom: 18rpx;
+}
+
+.input:focus,
+.textarea:focus,
+.sheet-search:focus {
+  border-color: var(--primary);
+}
+
+.input-placeholder,
+.textarea-placeholder,
+.sheet-search-placeholder {
+  color: var(--placeholder);
+}
+
+.day-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10rpx;
+}
+
+.day-item {
+  padding: 10rpx 18rpx;
+  border-radius: 999rpx;
+  border: 1rpx solid var(--divider);
+  background: var(--card-bg);
+  color: var(--text-sub);
+  font-size: 24rpx;
+}
+
+.day-item.active {
+  color: var(--primary-hover);
+  border-color: var(--primary);
+  background: var(--secondary);
+  font-weight: 600;
+}
+
+.custom-input {
+  margin-top: 12rpx;
+}
+
+.switch-field {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.switch-field .label {
+  margin-bottom: 0;
+}
+
+.submit-btn {
+  margin-top: 12rpx;
+  background: var(--primary);
+  color: #fff;
+  border-radius: 999rpx;
+}
+
+.template-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10rpx;
+  margin-top: 12rpx;
+}
+
+.template-chip {
+  padding: 8rpx 16rpx;
+  border-radius: 999rpx;
+  background: #EEF5F1;
+  color: var(--text-sub);
+  border: 1rpx solid var(--divider);
+  font-size: 22rpx;
+}
+
+.template-chip.more {
+  color: var(--primary-hover);
+  background: var(--secondary);
+  border-color: #B8DDC7;
+}
+
+.sheet-mask {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 20;
+}
+
+.sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 72vh;
+  background: var(--card-bg);
+  border-top-left-radius: 24rpx;
+  border-top-right-radius: 24rpx;
+  z-index: 21;
+  transform: translateY(100%);
+  transition: transform 0.2s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.sheet.show {
+  transform: translateY(0);
+}
+
+.sheet-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20rpx 24rpx 12rpx;
+}
+
+.sheet-title {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.sheet-close {
+  font-size: 24rpx;
+  color: var(--text-sub);
+}
+
+.sheet-search-wrap {
+  padding: 0 24rpx 12rpx;
+}
+
+.sheet-scroll {
+  flex: 1;
+  padding: 0 24rpx 24rpx;
+  box-sizing: border-box;
+}
+
+.group {
+  margin-bottom: 18rpx;
+}
+
+.group-title {
+  display: block;
+  font-size: 24rpx;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 10rpx;
+}
+
+.tpl-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14rpx 0;
+  border-bottom: 1rpx solid var(--divider);
+}
+
+.tpl-name {
+  font-size: 24rpx;
+  color: var(--text-main);
+}
+
+.tpl-amount {
+  font-size: 22rpx;
+  color: var(--primary-hover);
+}
+
+.sheet-empty {
+  text-align: center;
+  color: var(--text-sub);
+  font-size: 24rpx;
+  margin-top: 40rpx;
+}
+
+@media (prefers-color-scheme: dark) {
+  .page {
+    --page-bg: #171F1B;
+    --card-bg: #2C3832;
+    --primary: #68BB8F;
+    --primary-hover: #59A87E;
+    --secondary: #43745A;
+    --text-main: #EEF4F1;
+    --text-sub: #94A99C;
+    --placeholder: #94A99C;
+    --divider: #3A4A43;
+    --input-bg: #2C3832;
+    --input-border: #3A4A43;
+  }
+
+  .card {
+    box-shadow: none;
+  }
+
+  .template-chip {
+    background: #37473F;
+    border-color: #3A4A43;
+    color: #94A99C;
+  }
+
+  .template-chip.more {
+    background: #43745A;
+    border-color: #68BB8F;
+    color: #EEF4F1;
+  }
+}

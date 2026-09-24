@@ -1,21 +1,23 @@
 <view class="page">
   <!-- 区域 A：基础信息 -->
   <view class="card">
-    <view class="field media-field">
-      <view class="avatar-picker" bindtap="chooseAvatar">
-        <text class="label helper-text">计划头像</text>
-        <view class="avatar-preview">
+    <view class="field avatar-merge-field">
+      <text class="label helper-text">计划头像</text>
+      <view class="avatar-layout-row">
+        <view class="avatar-preview" bindtap="chooseAvatar">
           <image wx:if="{{avatarUrl}}" class="avatar-image" src="{{avatarUrl}}" mode="aspectFill"></image>
-          <text wx:else class="avatar-fallback">🐷</text>
+          <text wx:else class="avatar-fallback">{{icon || '🐷'}}</text>
         </view>
-        <text class="avatar-action">{{avatarUrl ? '更换照片' : '拍照 / 相册'}}</text>
-      </view>
-      <view class="category-picker">
-        <text class="label helper-text">选择分类图标</text>
-        <scroll-view scroll-x class="icon-scroll" enable-flex>
-          <view class="icon-list">
+
+        <scroll-view scroll-x class="preset-avatar-scroll" enable-flex>
+          <view class="preset-avatar-grid">
+            <view class="preset-avatar-item upload-item" bindtap="chooseAvatar">
+              <text class="upload-item-text">拍照/
+相册</text>
+            </view>
+
             <view
-              class="icon-item {{icon === item ? 'active' : ''}}"
+              class="preset-avatar-item {{!avatarUrl && icon === item ? 'active' : ''}}"
               wx:for="{{icons}}"
               wx:key="*this"
               data-icon="{{item}}"
@@ -26,6 +28,20 @@
           </view>
         </scroll-view>
       </view>
+
+      <scroll-view scroll-x class="icon-scroll hide-original-icon-list" enable-flex>
+        <view class="icon-list">
+          <view
+            class="icon-item {{!avatarUrl && icon === item ? 'active' : ''}}"
+            wx:for="{{icons}}"
+            wx:key="*this"
+            data-icon="{{item}}"
+            bindtap="selectIcon"
+          >
+            <text>{{item}}</text>
+          </view>
+        </view>
+      </scroll-view>
     </view>
     <view class="field">
       <text class="label helper-text">存钱目的</text>
@@ -43,48 +59,36 @@
           bindinput="onInput"
           disabled="{{planMode === 'preset' && selectedPreset === '100day'}}"
         />
-        <text class="input-icon">🪙</text>
       </view>
       <text class="target-fixed-tip helper-text" wx:if="{{planMode === 'preset' && selectedPreset === '100day'}}">100天挑战目标固定为 ¥5050</text>
     </view>
   </view>
 
-  <!-- 区域 B：预设方案面板 -->
-  <view class="panel card">
-    <view class="panel-header mint-header {{planMode === 'preset' ? 'active' : ''}}" data-mode="preset" bindtap="switchPlanMode">
-      <text class="panel-title">预设存钱方案</text>
-      <text class="panel-arrow">{{planMode === 'preset' ? '▲' : '▼'}}</text>
-    </view>
-    <block wx:if="{{planMode === 'preset'}}">
-      <view class="preset-item" wx:for="{{presets}}" wx:key="id">
-        <view class="preset-head {{selectedPreset === item.id ? 'selected' : ''}}" data-id="{{item.id}}" bindtap="togglePreset">
-          <text class="preset-icon">{{item.icon}}</text>
-          <text class="preset-name">{{item.name}}</text>
-          <text class="preset-check mint">{{selectedPreset === item.id ? '✓' : ''}}</text>
-          <text class="preset-arrow">{{expandedPreset === item.id ? '▲' : '▼'}}</text>
-        </view>
-        <view class="preset-desc helper-text" wx:if="{{expandedPreset === item.id}}">
-          <text>{{item.description}}</text>
-        </view>
-        <view class="preset-mode" wx:if="{{expandedPreset === item.id && item.id === '30day'}}">
-          <text class="preset-mode-label helper-text">反向模式：第1天30元，第30天1元</text>
-          <switch checked="{{presetReverse30Day}}" bindchange="onPresetReverse30DayChange" color="#9ADFD6" />
-        </view>
-      </view>
-    </block>
+  <view class="mode-switch card">
+    <view class="mode-btn {{planMode === 'preset' ? 'mode-btn-active' : ''}}" data-mode="preset" bindtap="switchPlanMode">预设存钱方案</view>
+    <view class="mode-btn {{planMode === 'custom' ? 'mode-btn-active' : ''}}" data-mode="custom" bindtap="switchPlanMode">自定义存钱方案</view>
   </view>
 
-  <!-- 区域 B：自定义面板 -->
-  <view class="panel card">
-    <view class="panel-header peach-header {{planMode === 'custom' ? 'active' : ''}}" data-mode="custom" bindtap="switchPlanMode">
-      <text class="panel-title">自定义存钱计划</text>
-      <text class="panel-arrow">{{planMode === 'custom' ? '▲' : '▼'}}</text>
+  <view class="panel card" wx:if="{{planMode === 'preset'}}">
+    <view class="preset-grid">
+      <view
+        class="preset-grid-item {{selectedPreset === item.id ? 'selected' : ''}}"
+        wx:for="{{presets}}"
+        wx:key="id"
+        data-id="{{item.id}}"
+        bindtap="showPresetSheet"
+      >
+        <text class="preset-grid-icon">{{item.icon}}</text>
+        <text class="preset-grid-name">{{item.name}}</text>
+      </view>
     </view>
-    <block wx:if="{{planMode === 'custom'}}">
+  </view>
+
+  <view class="panel card" wx:if="{{planMode === 'custom'}}">
       <view class="sub-panel">
         <view class="sub-panel-head">
           <text class="sub-panel-title">固定存入设置</text>
-          <text class="sub-panel-desc">设置每期存入金额与频次</text>
+          <!-- <text class="sub-panel-desc">设置每期存入金额与频次</text> -->
         </view>
         <view class="field">
           <view class="label-row">
@@ -107,12 +111,12 @@
       <view class="sub-panel sub-panel-split">
         <view class="sub-panel-head">
           <text class="sub-panel-title">时间区间设置</text>
-          <text class="sub-panel-desc">结束时间可不填，将按金额自动推算</text>
+          <!-- <text class="sub-panel-desc">结束时间可不填，将按金额自动推算</text> -->
         </view>
         <view class="field">
           <view class="label-row">
             <text class="label">开始时间</text>
-            <text class="label-hint">📅 必填</text>
+            <text class="label-hint"></text>
           </view>
           <picker mode="date" value="{{startDate}}" bindchange="onStartChange">
             <view class="input picker">{{startDate}}</view>
@@ -121,22 +125,32 @@
         <view class="field">
           <view class="label-row">
             <text class="label">结束时间</text>
-            <text class="label-hint">📅 可选</text>
+            <text class="label-hint"></text>
           </view>
           <picker mode="date" value="{{endDate}}" bindchange="onEndChange">
             <view class="input picker">{{endDate || '不设置则按每期金额计算'}}</view>
           </picker>
         </view>
       </view>
-    </block>
   </view>
 
-  <button class="submit-btn btn-mint" bindtap="submit">去设置并加入计划</button>
+  <view class="submit-fixed-wrap">
+    <button class="submit-btn" bindtap="submit">新增计划</button>
+  </view>
 
   <view class="sheet-mask" wx:if="{{presetSheetShow}}" bindtap="closePresetSheet"></view>
-  <view class="sheet {{presetSheetShow ? 'show sheet-show-animate' : ''}}" catchtap="">
+  <view class="sheet {{presetSheetShow ? 'show' : ''}}" catchtap="">
     <view class="sheet-title section-title-text">{{presetSheetContent.name}}</view>
     <text class="sheet-desc helper-text">{{presetSheetContent.description}}</text>
-    <button class="sheet-close btn-mint" bindtap="closePresetSheet">知道了</button>
+    <view class="preset-mode" wx:if="{{presetSheetContent && presetSheetContent.id === '30day'}}">
+      <text class="preset-mode-label helper-text">反向模式：第1天30元，第30天1元</text>
+      <switch checked="{{presetReverse30Day}}" bindchange="onPresetReverse30DayChange" color="#9ADFD6" />
+    </view>
+    <view class="sheet-actions">
+      <button class="sheet-action-btn sheet-action-secondary" bindtap="closePresetSheet">取消</button>
+      <button class="sheet-action-btn sheet-action-primary" bindtap="choosePresetFromSheet">
+        {{selectedPreset === (presetSheetContent ? presetSheetContent.id : '') ? '已选择' : '选择此方案'}}
+      </button>
+    </view>
   </view>
 </view>

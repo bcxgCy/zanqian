@@ -1,0 +1,50 @@
+.page {
+  --page-bg: #F4F9F4;
+  --card-bg: #FFFFFF;
+  --primary: #549F77;
+  --text-main: #242926;
+  --text-sub: #4A5650;
+  --text-muted: #72867B;
+  --divider: #E2EBE5;
+  --success: #10B981;
+  --error: #F87171;
+  min-height: 100vh;
+  background: var(--page-bg);
+  padding: 24rpx;
+  box-sizing: border-box;
+}
+
+.card { background: var(--card-bg); border: 1rpx solid var(--divider); border-radius: 20rpx; padding: 18rpx; margin-bottom: 12rpx; }
+.head { display: flex; justify-content: space-between; align-items: center; }
+.name { font-size: 30rpx; color: var(--text-main); font-weight: 700; }
+.status { font-size: 22rpx; color: #F59E0B; }
+.price { display: block; margin-top: 8rpx; font-size: 30rpx; font-weight: 700; color: var(--text-main); }
+.line { margin-top: 8rpx; font-size: 24rpx; color: var(--text-sub); }
+.k { color: var(--text-muted); }
+.section-title { display: block; font-size: 26rpx; font-weight: 700; color: var(--text-main); margin-bottom: 12rpx; }
+.vote-grid { display: flex; gap: 12rpx; }
+.vote-item { flex: 1; border-radius: 14rpx; padding: 14rpx; }
+.vote-item.pass { background: rgba(16, 185, 129, 0.12); }
+.vote-item.reject { background: rgba(248, 113, 113, 0.12); }
+.vote-label { display: block; font-size: 22rpx; color: var(--text-sub); }
+.vote-num { display: block; margin-top: 6rpx; font-size: 34rpx; font-weight: 700; color: var(--text-main); }
+.reply { border-top: 1rpx solid var(--divider); padding-top: 12rpx; margin-top: 12rpx; }
+.reply:first-of-type { border-top: none; padding-top: 0; margin-top: 0; }
+.reply-head { display: flex; justify-content: space-between; align-items: center; }
+.reply-user { font-size: 24rpx; font-weight: 600; color: var(--text-main); }
+.reply-side { font-size: 22rpx; }
+.pass-text { color: var(--success); }
+.reject-text { color: var(--error); }
+.reply-content { display: block; margin-top: 8rpx; font-size: 24rpx; color: var(--text-sub); line-height: 1.5; }
+
+@media (prefers-color-scheme: dark) {
+  .page {
+    --page-bg: #171F1B;
+    --card-bg: #2C3832;
+    --primary: #68BB8F;
+    --text-main: #EEF4F1;
+    --text-sub: #94A99C;
+    --text-muted: #677C71;
+    --divider: #3A4A43;
+  }
+}

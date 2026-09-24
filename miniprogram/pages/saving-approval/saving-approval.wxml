@@ -1,0 +1,17 @@
+<view class="page">
+  <view class="tabs">
+    <view class="tab {{activeTab === 'created' ? 'active' : ''}}" data-tab="created" bindtap="switchTab">我发起的</view>
+    <view class="tab {{activeTab === 'reviewed' ? 'active' : ''}}" data-tab="reviewed" bindtap="switchTab">我评估过的</view>
+  </view>
+
+  <view class="card" wx:for="{{currentList}}" wx:key="id" data-id="{{item.id}}" bindtap="goDetail">
+    <view class="head">
+      <text class="name">{{item.name}}</text>
+      <text class="status">{{item.status}}</text>
+    </view>
+    <text class="price">¥{{item.price}}</text>
+    <text class="desc">{{item.reason}}</text>
+  </view>
+
+  <view class="empty" wx:if="{{!currentList.length}}">暂无数据</view>
+</view>

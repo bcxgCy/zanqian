@@ -1,20 +1,6 @@
 <view class="page calc-page">
   <view class="card">
     <view class="field">
-      <text class="label helper-text">选择分类图标</text>
-      <scroll-view scroll-x class="icon-scroll" enable-flex>
-        <view class="icon-list">
-          <view class="icon-item {{icon === item ? 'active' : ''}}" wx:for="{{icons}}" wx:key="*this" data-icon="{{item}}" bindtap="selectIcon">
-            <text>{{item}}</text>
-          </view>
-        </view>
-      </scroll-view>
-    </view>
-    <view class="field">
-      <text class="label helper-text">存钱目的</text>
-      <input class="input" placeholder="例：年终旅行基金" value="{{name}}" data-field="name" bindinput="onInput" />
-    </view>
-    <view class="field">
       <text class="label helper-text">存钱目标金额</text>
       <view class="input-row" bindtap="onTargetAmountTap">
         <input
@@ -26,99 +12,107 @@
           placeholder="请输入"
           disabled="{{calcMode === 'preset' && expandedPreset === '100day'}}"
         />
-        <text class="input-icon">🪙</text>
       </view>
-      <text class="helper-text" wx:if="{{calcMode === 'preset' && expandedPreset === '100day'}}">100天挑战目标固定为 ¥5050</text>
     </view>
   </view>
 
   <view class="card">
-    <view class="mode-tabs">
-      <view class="mode-tab {{calcMode === 'fixed' ? 'active' : ''}}" data-mode="fixed" bindtap="switchCalcMode">固定频次存钱</view>
-      <view class="mode-tab {{calcMode === 'deadline' ? 'active' : ''}}" data-mode="deadline" bindtap="switchCalcMode">限定结束时间</view>
+    <view class="mode-switch">
+      <view class="mode-btn {{planMode === 'preset' ? 'mode-btn-active' : ''}}" data-mode="preset" bindtap="switchPlanMode">预设方案</view>
+      <view class="mode-btn {{planMode === 'custom' ? 'mode-btn-active' : ''}}" data-mode="custom" bindtap="switchPlanMode">自定义方案</view>
     </view>
 
-    <view class="preset-hint helper-text" wx:if="{{calcMode === 'preset' && expandedPreset}}">
-      已选预设：{{expandedPresetName}}
-    </view>
+    <block wx:if="{{planMode === 'preset'}}">
+      <view class="preset-hint helper-text" wx:if="{{expandedPreset}}">已选预设：{{expandedPresetName}}</view>
 
-    <view class="field row" wx:if="{{calcMode === 'preset' && expandedPreset === '30day'}}">
-      <text class="label helper-text">反向模式（30 → 1）</text>
-      <switch checked="{{presetReverse30Day}}" bindchange="onPresetReverse30DayChange" color="#9ADFD6" />
-    </view>
-
-    <block wx:if="{{calcMode === 'fixed'}}">
-      <view class="field">
-        <text class="label helper-text">每期固定金额</text>
-        <input class="input" type="digit" value="{{customAmount}}" data-field="customAmount" bindinput="onInput" />
-      </view>
-      <view class="field">
-        <text class="label helper-text">存入频次</text>
-        <view class="freq-options">
-          <view class="freq-item {{frequencyIndex === 0 ? 'active' : ''}}" data-index="0" bindtap="onFreqTap">每天</view>
-          <view class="freq-item {{frequencyIndex === 1 ? 'active' : ''}}" data-index="1" bindtap="onFreqTap">每周</view>
-          <view class="freq-item {{frequencyIndex === 2 ? 'active' : ''}}" data-index="2" bindtap="onFreqTap">每月</view>
+      <view class="gallery-grid inline-preset-grid">
+        <view
+          class="gallery-item {{expandedPreset === item.id ? 'gallery-item-active' : ''}}"
+          wx:for="{{presets}}"
+          wx:key="id"
+          data-id="{{item.id}}"
+          bindtap="showPresetSheet"
+        >
+          <text class="g-icon">{{item.icon}}</text>
+          <text class="g-name helper-text">{{item.name}}</text>
         </view>
       </view>
-      <view class="field">
-        <text class="label helper-text">开始时间 📅</text>
-        <picker mode="date" value="{{startDate}}" bindchange="onStartChange">
-          <view class="input picker">{{startDate}}</view>
-        </picker>
+
+      <view class="field row preset-extra-row" wx:if="{{expandedPreset === '30day'}}">
+        <text class="label helper-text">反向模式（30 → 1）</text>
+        <switch checked="{{presetReverse30Day}}" bindchange="onPresetReverse30DayChange" color="#9ADFD6" />
       </view>
     </block>
 
-    <block wx:elif="{{calcMode === 'deadline'}}">
-      <view class="field">
-        <text class="label helper-text">目标截止日期 📅</text>
-        <picker mode="date" value="{{endDate}}" bindchange="onEndChange">
-          <view class="input picker">{{endDate || '选择日期'}}</view>
-        </picker>
-      </view>
-      <view class="field">
-        <text class="label helper-text">存入频次</text>
-        <view class="freq-options">
-          <view class="freq-item {{frequencyIndex === 0 ? 'active' : ''}}" data-index="0" bindtap="onFreqTap">每天</view>
-          <view class="freq-item {{frequencyIndex === 1 ? 'active' : ''}}" data-index="1" bindtap="onFreqTap">每周</view>
-          <view class="freq-item {{frequencyIndex === 2 ? 'active' : ''}}" data-index="2" bindtap="onFreqTap">每月</view>
+    <block wx:if="{{planMode === 'custom'}}">
+      <view class="custom-method-list">
+        <view class="custom-method-item {{calcMode === 'fixed' ? 'active' : ''}}" data-mode="fixed" bindtap="switchCustomCalcMode">
+          <view class="custom-method-texts">
+            <text class="custom-method-title">固定频次存钱</text>
+            <text class="custom-method-desc">按每期固定金额持续存入</text>
+          </view>
+          <view class="custom-method-radio {{calcMode === 'fixed' ? 'active' : ''}}"></view>
+        </view>
+        <view class="custom-method-item {{calcMode === 'deadline' ? 'active' : ''}}" data-mode="deadline" bindtap="switchCustomCalcMode">
+          <view class="custom-method-texts">
+            <text class="custom-method-title">限定结束时间</text>
+            <text class="custom-method-desc">按截止日期自动计算每期金额</text>
+          </view>
+          <view class="custom-method-radio {{calcMode === 'deadline' ? 'active' : ''}}"></view>
         </view>
       </view>
-      <view class="field row">
-        <text class="label helper-text">随机金额</text>
-        <switch checked="{{randomAmount}}" bindchange="onRandomChange" color="#9ADFD6" />
-      </view>
-      <view class="field">
-        <text class="label helper-text">开始时间 📅</text>
-        <picker mode="date" value="{{startDate}}" bindchange="onStartChange">
-          <view class="input picker">{{startDate}}</view>
-        </picker>
-      </view>
+
+      <block wx:if="{{calcMode === 'fixed'}}">
+        <view class="field">
+          <text class="label helper-text">每期固定金额</text>
+          <input class="input" type="digit" value="{{customAmount}}" data-field="customAmount" bindinput="onInput" />
+        </view>
+        <view class="field">
+          <text class="label helper-text">存入频次</text>
+          <view class="freq-options">
+            <view class="freq-item {{frequencyIndex === 0 ? 'active' : ''}}" data-index="0" bindtap="onFreqTap">每天</view>
+            <view class="freq-item {{frequencyIndex === 1 ? 'active' : ''}}" data-index="1" bindtap="onFreqTap">每周</view>
+            <view class="freq-item {{frequencyIndex === 2 ? 'active' : ''}}" data-index="2" bindtap="onFreqTap">每月</view>
+          </view>
+        </view>
+        <view class="field">
+          <text class="label helper-text">开始时间</text>
+          <picker mode="date" value="{{startDate}}" bindchange="onStartChange">
+            <view class="input picker">{{startDate}}</view>
+          </picker>
+        </view>
+      </block>
+
+      <block wx:elif="{{calcMode === 'deadline'}}">
+        <view class="field">
+          <text class="label helper-text">开始时间</text>
+          <picker mode="date" value="{{startDate}}" bindchange="onStartChange">
+            <view class="input picker">{{startDate}}</view>
+          </picker>
+        </view>
+        <view class="field">
+          <text class="label helper-text">目标截止日期</text>
+          <picker mode="date" value="{{endDate}}" bindchange="onEndChange">
+            <view class="input picker">{{endDate || '选择日期'}}</view>
+          </picker>
+        </view>
+        <view class="field">
+          <text class="label helper-text">存入频次</text>
+          <view class="freq-options">
+            <view class="freq-item {{frequencyIndex === 0 ? 'active' : ''}}" data-index="0" bindtap="onFreqTap">每天</view>
+            <view class="freq-item {{frequencyIndex === 1 ? 'active' : ''}}" data-index="1" bindtap="onFreqTap">每周</view>
+            <view class="freq-item {{frequencyIndex === 2 ? 'active' : ''}}" data-index="2" bindtap="onFreqTap">每月</view>
+          </view>
+        </view>
+        <view class="field row">
+          <text class="label helper-text">随机金额</text>
+          <switch checked="{{randomAmount}}" bindchange="onRandomChange" color="#9ADFD6" />
+        </view>
+      </block>
     </block>
   </view>
 
   <view class="action-group">
-    <button class="action-btn calc-btn btn-peach" bindtap="calculate">开始计算</button>
-    <view class="action-btn gallery-btn btn-peach" bindtap="openGallery">
-      <text class="action-btn-icon">📋</text>
-      <text>预设方案</text>
-    </view>
-  </view>
-
-  <view class="sheet-mask" wx:if="{{presetSheetShow || galleryShow}}" bindtap="closeSheets"></view>
-
-  <view class="sheet {{galleryShow ? 'show' : ''}}" catchtap="">
-    <view class="sheet-title section-title-text">预设存钱方案</view>
-    <view class="gallery-grid">
-      <view class="gallery-item" wx:for="{{presets}}" wx:key="id" data-id="{{item.id}}" bindtap="showPresetSheet">
-        <text class="g-icon">{{item.icon}}</text>
-        <text class="g-name helper-text">{{item.name}}</text>
-      </view>
-    </view>
-  </view>
-
-  <view class="sheet detail-sheet {{presetSheetShow ? 'show' : ''}}" catchtap="">
-    <view class="sheet-title section-title-text">{{presetSheetContent.name}}</view>
-    <text class="sheet-desc helper-text">{{presetSheetContent.description}}</text>
-    <button class="sheet-close btn-mint" bindtap="closePresetSheet">知道了</button>
+    <button class="action-btn calc-btn" bindtap="calculate">开始计算</button>
   </view>
 </view>

@@ -1,0 +1,15 @@
+<view class="page">
+  <view class="tabs">
+    <view class="tab {{activeTab === 'ongoing' ? 'active' : ''}}" data-tab="ongoing" bindtap="switchTab">进行中</view>
+    <view class="tab {{activeTab === 'history' ? 'active' : ''}}" data-tab="history" bindtap="switchTab">历史挑战</view>
+  </view>
+
+  <view class="card" wx:for="{{currentList}}" wx:key="id" data-id="{{item.id}}" bindtap="goDetail">
+    <text class="title">{{item.name}}</text>
+    <text class="meta" wx:if="{{activeTab === 'ongoing'}}">已坚持 {{item.streakDays}} 天 / 剩余 {{item.leftDays}} 天</text>
+    <text class="meta" wx:if="{{activeTab === 'history'}}">挑战周期 {{item.periodDays}} 天 · {{item.resultText}}</text>
+    <text class="meta">每日省 ¥{{item.dailyAmount}} · 累计省 ¥{{item.savedAmount}}</text>
+  </view>
+
+  <view class="empty" wx:if="{{!currentList.length}}">暂无挑战记录</view>
+</view>

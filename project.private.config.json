@@ -22,11 +22,67 @@
     "miniprogram": {
       "list": [
         {
+          "name": "pages/calculator-result/calculator-result",
+          "pathName": "pages/calculator-result/calculator-result",
+          "query": "key=calc_result_1790261455632",
+          "scene": null,
+          "launchMode": "default"
+        },
+        {
+          "name": "pages/calculator/calculator",
+          "pathName": "pages/calculator/calculator",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
+          "name": "pages/plan-add/plan-add",
+          "pathName": "pages/plan-add/plan-add",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
+          "name": "pages/saving-challenge/saving-challenge",
+          "pathName": "pages/saving-challenge/saving-challenge",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
+          "name": "pages/saving-challenge-create/saving-challenge-create",
+          "pathName": "pages/saving-challenge-create/saving-challenge-create",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
+          "name": "pages/saving-approval/saving-approval",
+          "pathName": "pages/saving-approval/saving-approval",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
+          "name": "pages/saving-approval-create/saving-approval-create",
+          "pathName": "pages/saving-approval-create/saving-approval-create",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
+          "name": "pages/saving/saving",
+          "pathName": "pages/saving/saving",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
           "name": "pages/saving-quiz/saving-quiz",
           "pathName": "pages/saving-quiz/saving-quiz",
           "query": "",
-          "scene": null,
-          "launchMode": "default"
+          "launchMode": "default",
+          "scene": null
         },
         {
           "name": "pages/achievement/achievement",

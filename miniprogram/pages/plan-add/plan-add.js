@@ -87,15 +87,6 @@ Page({
         if (template.customConfig.endDate) {
           setData.endDate = template.customConfig.endDate;
         }
-        // 判断是固定金额还是截止日期模式
-        if (template.planType === 'custom_deadline') {
-          // 需要结束日期才能用截止日期模式
-          if (template.endDate) {
-            setData.planMode = 'deadline';
-          }
-        } else {
-          setData.planMode = 'fixed';
-        }
       }
 
       this.setData(setData);
@@ -129,7 +120,11 @@ Page({
   },
 
   selectIcon(e) {
-    this.setData({ icon: e.currentTarget.dataset.icon });
+    this.setData({ icon: e.currentTarget.dataset.icon, avatarUrl: '' });
+  },
+
+  clearAvatar() {
+    this.setData({ avatarUrl: '' });
   },
 
   chooseAvatar() {
@@ -203,11 +198,31 @@ Page({
   showPresetSheet(e) {
     const id = e.currentTarget.dataset.id;
     const preset = planUtil.getPreset(id);
-    this.setData({ presetSheetShow: true, presetSheetContent: preset });
+    this.setData({ presetSheetShow: true, presetSheetContent: preset, expandedPreset: id });
+  },
+
+  choosePresetFromSheet() {
+    const preset = this.data.presetSheetContent;
+    if (!preset || !preset.id) return;
+    const id = preset.id;
+    const nextData = {
+      selectedPreset: id,
+      expandedPreset: id,
+      presetSheetShow: false,
+    };
+
+    if (id === HUNDRED_DAY_PRESET_ID) {
+      nextData.targetAmount = String(HUNDRED_DAY_FIXED_TARGET);
+      if (!this.data.name.trim()) {
+        nextData.name = HUNDRED_DAY_DEFAULT_NAME;
+      }
+    }
+
+    this.setData(nextData);
   },
 
   closePresetSheet() {
-    this.setData({ presetSheetShow: false });
+    this.setData({ presetSheetShow: false, presetSheetContent: null });
   },
 
   submit() {

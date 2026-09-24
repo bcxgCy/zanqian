@@ -1,0 +1,97 @@
+<view class="page">
+  <view class="summary-card">
+    <view class="summary-header">
+      <view>
+        <text class="summary-title">省钱总结</text>
+        <text class="summary-total">¥{{summary.totalSaved}}</text>
+      </view>
+      <text class="summary-week">本周预估省钱总额</text>
+    </view>
+
+    <view class="summary-detail">
+      <text class="summary-detail-title">省钱挑战已省</text>
+      <text class="summary-detail-val">¥{{summary.challengeSaved}} | 消费评估后放弃购买 ¥{{summary.approvalSaved}}</text>
+    </view>
+
+    <view class="summary-foot">
+      <view class="summary-pill">
+        <text class="pill-dot">●</text>
+        <text>{{summary.ongoingChallengeCount}}个进行中项目</text>
+      </view>
+      <view class="summary-pill">
+        <text class="pill-dot">●</text>
+        <text>{{summary.pendingApprovalCount}}笔待处理审批</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="entry-row">
+    <view class="entry-box" bindtap="goApprovalList">
+      <view class="entry-top">
+        <view class="icon-placeholder entry-icon-placeholder">
+          <text class="icon-placeholder-text">ICON</text>
+        </view>
+        <text class="entry-title">消费审批</text>
+      </view>
+      <text class="entry-desc">买前发起评估</text>
+      <button class="entry-btn" size="mini" catchtap="goApprovalCreate">发起审批</button>
+    </view>
+
+    <view class="entry-box" bindtap="goChallengeCreate">
+      <view class="entry-top">
+        <view class="icon-placeholder entry-icon-placeholder">
+          <text class="icon-placeholder-text">ICON</text>
+        </view>
+        <text class="entry-title">省钱挑战</text>
+      </view>
+      <text class="entry-desc">坚持7天计划</text>
+      <button class="entry-btn" size="mini" catchtap="goChallengeCreate">开始挑战</button>
+    </view>
+  </view>
+
+  <view class="section">
+    <view class="section-head">
+      <text class="section-title">我的审批</text>
+      <text class="section-more" bindtap="goApprovalList">更多 ›</text>
+    </view>
+    <view class="two-col-list">
+      <view class="approval-card" wx:for="{{ongoingApprovals}}" wx:key="id" data-id="{{item.id}}" bindtap="goApprovalDetail">
+        <view class="card-row">
+          <view class="item-main">
+            <view class="icon-placeholder item-icon-placeholder">
+              <text class="icon-placeholder-text">IMG</text>
+            </view>
+            <view class="item-texts">
+              <text class="approval-name">{{item.itemName}}</text>
+              <text class="approval-price">¥{{item.price}}</text>
+            </view>
+          </view>
+          <text class="card-arrow">›</text>
+        </view>
+        <text class="approval-meta">{{item.statusText}} | 剩余{{item.remainingHours}}小时</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="section">
+    <view class="section-head">
+      <text class="section-title">我的挑战</text>
+      <text class="section-more" bindtap="goChallengeList">更多 ›</text>
+    </view>
+    <view class="two-col-list">
+      <view class="challenge-card" wx:for="{{ongoingChallenges}}" wx:key="id" data-id="{{item.id}}" bindtap="goChallengeDetail">
+        <view class="card-row">
+          <view class="challenge-top">
+            <view class="icon-placeholder challenge-icon-placeholder">
+              <text class="icon-placeholder-text">IMG</text>
+            </view>
+            <text class="challenge-name">{{item.name}}</text>
+          </view>
+          <text class="challenge-right">剩余{{item.leftDays}}天</text>
+        </view>
+        <text class="challenge-meta">连续{{item.streakDays}}天未返</text>
+      </view>
+    </view>
+  </view>
+
+</view>

@@ -42,7 +42,7 @@
   </view>
 
   <view class="bottom-actions">
-    <button class="apply-btn btn-mint" bindtap="applyPlan">去设置为存钱计划</button>
-    <button class="back-btn btn-ghost" bindtap="goBack">返回计算器</button>
+    <button class="apply-btn" bindtap="applyPlan">去设置为存钱计划</button>
+    <button class="back-btn" bindtap="goBack">返回计算器</button>
   </view>
 </view>

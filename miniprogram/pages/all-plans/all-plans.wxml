@@ -1,0 +1,56 @@
+<view class="page">
+  <view class="tab-wrap">
+    <view class="tab-item {{activeTab === 'ongoing' ? 'tab-item-active' : ''}}" data-tab="ongoing" bindtap="switchTab">进行中</view>
+    <view class="tab-item {{activeTab === 'completed' ? 'tab-item-active' : ''}}" data-tab="completed" bindtap="switchTab">已完成</view>
+  </view>
+
+  <view class="plan-list">
+    <view
+      class="plan-card {{item.progress >= 100 ? 'plan-done' : ''}} {{item.paused ? 'plan-paused' : ''}}"
+      wx:for="{{displayPlans}}"
+      wx:key="id"
+      data-id="{{item.id}}"
+      bindtap="goPlanDetail"
+    >
+      <view class="plan-top">
+        <view class="piggy-icon plan-icon-wrap">
+          <image wx:if="{{item.avatarUrl}}" class="plan-avatar" src="{{item.avatarUrl}}" mode="aspectFill"></image>
+          <text wx:else class="piggy-mark">🐷</text>
+          <text class="plan-small-icon">{{item.icon}}</text>
+        </view>
+        <view class="plan-main">
+          <view class="plan-main-row plan-main-row-top">
+            <view class="plan-title-wrap">
+              <view class="plan-title-line">
+                <text class="plan-name">{{item.name}}</text>
+                <text class="plan-type-inline">{{item.planTypeName}}</text>
+              </view>
+            </view>
+            <view
+              class="plan-action {{item.actionType === 'checkin' ? 'plan-action-primary' : 'plan-action-secondary'}}"
+              data-id="{{item.id}}"
+              data-action="{{item.actionType}}"
+              data-period-index="{{item.nextPeriodIndex}}"
+              catchtap="handlePlanAction"
+            >{{item.actionText}}</view>
+          </view>
+
+          <view class="plan-main-row plan-main-row-sub">
+            <text class="plan-amount-text">已存 ¥{{item.savedAmount}} / ¥{{item.targetAmount}}</text>
+            <text class="plan-next-save">{{item.nextSaveText}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="progress-bar">
+        <view class="progress-fill progress-fill-animated" style="width: {{item.progress}}%"></view>
+      </view>
+    </view>
+
+    <view class="empty" wx:if="{{!displayPlans.length}}">
+      <view class="empty-piggy">🐷</view>
+      <text class="empty-title">暂无计划</text>
+      <text class="empty-text helper-text">切换标签查看另一类计划</text>
+    </view>
+  </view>
+</view>

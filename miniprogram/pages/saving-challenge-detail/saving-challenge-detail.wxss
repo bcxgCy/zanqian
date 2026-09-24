@@ -1,0 +1,51 @@
+.page {
+  --page-bg: #F4F9F4;
+  --card-bg: #FFFFFF;
+  --text-main: #242926;
+  --text-sub: #4A5650;
+  --text-muted: #72867B;
+  --divider: #E2EBE5;
+  --success: #10B981;
+  --warning: #F59E0B;
+  --error: #F87171;
+  min-height: 100vh;
+  background: var(--page-bg);
+  padding: 24rpx;
+  box-sizing: border-box;
+}
+
+.card { background: var(--card-bg); border: 1rpx solid var(--divider); border-radius: 20rpx; padding: 18rpx; margin-bottom: 12rpx; }
+.title { display: block; font-size: 30rpx; font-weight: 700; color: var(--text-main); }
+.meta { display: block; margin-top: 8rpx; font-size: 24rpx; color: var(--text-sub); }
+.meta.amount { color: var(--success); font-weight: 600; }
+.calendar-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10rpx; }
+.calendar-title { font-size: 26rpx; font-weight: 700; color: var(--text-main); }
+.month { font-size: 22rpx; color: var(--text-muted); }
+.legend { display: flex; gap: 18rpx; margin-bottom: 10rpx; }
+.legend-item { display: flex; align-items: center; font-size: 22rpx; color: var(--text-sub); }
+.dot { width: 14rpx; height: 14rpx; border-radius: 50%; margin-right: 8rpx; display: inline-block; }
+.dot.checked { background: var(--success); }
+.dot.missed { background: var(--error); }
+.dot.repair { background: var(--warning); }
+.week-row { display: grid; grid-template-columns: repeat(7, 1fr); margin-bottom: 6rpx; }
+.week-item { text-align: center; font-size: 22rpx; color: var(--text-muted); }
+.calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8rpx; }
+.day-cell { height: 64rpx; border-radius: 10rpx; border: 1rpx solid var(--divider); display: flex; align-items: center; justify-content: center; background: #FAFBFC; }
+.day-cell.empty { border: none; background: transparent; }
+.day-num { font-size: 22rpx; color: var(--text-main); }
+.day-cell.status-checked { background: rgba(16,185,129,0.14); border-color: rgba(16,185,129,0.45); }
+.day-cell.status-missed { background: rgba(248,113,113,0.14); border-color: rgba(248,113,113,0.45); }
+.day-cell.status-repair { background: rgba(245,158,11,0.14); border-color: rgba(245,158,11,0.45); }
+
+@media (prefers-color-scheme: dark) {
+  .page {
+    --page-bg: #171F1B;
+    --card-bg: #2C3832;
+    --text-main: #EEF4F1;
+    --text-sub: #94A99C;
+    --text-muted: #677C71;
+    --divider: #3A4A43;
+  }
+
+  .day-cell { background: #37473F; }
+}

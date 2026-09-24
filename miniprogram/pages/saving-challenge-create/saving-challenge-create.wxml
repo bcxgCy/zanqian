@@ -1,0 +1,61 @@
+<view class="page">
+  <view class="card">
+    <view class="field">
+      <text class="label">挑战名称</text>
+      <input class="input" placeholder="例如：7天不喝奶茶" value="{{form.name}}" data-field="name" bindinput="onInput" />
+      <view class="template-row">
+        <view class="template-chip" wx:for="{{quickTemplates}}" wx:key="name" data-name="{{item.name}}" data-amount="{{item.dailyAmount}}" bindtap="pickQuickTemplate">{{item.name}}</view>
+        <view class="template-chip more" bindtap="openTemplateSheet">更多</view>
+      </view>
+    </view>
+
+    <view class="field">
+      <text class="label">每日预估省钱</text>
+      <input class="input" type="digit" placeholder="请输入金额" value="{{form.dailyAmount}}" data-field="dailyAmount" bindinput="onInput" />
+    </view>
+
+    <view class="field">
+      <text class="label">周期（天）</text>
+      <view class="day-options">
+        <view class="day-item {{selectedDayOption === item.value ? 'active' : ''}}" wx:for="{{dayOptions}}" wx:key="value" data-value="{{item.value}}" bindtap="onSelectDayOption">{{item.label}}</view>
+      </view>
+      <input wx:if="{{selectedDayOption === 'custom'}}" class="input custom-input" type="number" placeholder="请输入1-365天" value="{{customDays}}" bindinput="onCustomDaysInput" />
+    </view>
+
+    <view class="field">
+      <text class="label">挑战说明（选填）</text>
+      <textarea class="textarea" placeholder="写点挑战目标与约束规则" value="{{form.note}}" data-field="note" bindinput="onInput" />
+    </view>
+
+    <view class="field switch-field">
+      <text class="label">同步到广场</text>
+      <switch checked="{{form.syncToPlaza}}" bindchange="onSyncChange" color="#00B42A" />
+    </view>
+
+    <button class="submit-btn" bindtap="submit">创建挑战（前端演示）</button>
+  </view>
+
+  <view wx:if="{{showTemplateSheet}}" class="sheet-mask" bindtap="closeTemplateSheet"></view>
+  <view class="sheet {{showTemplateSheet ? 'show' : ''}}">
+    <view class="sheet-head">
+      <text class="sheet-title">选择挑战模板</text>
+      <text class="sheet-close" bindtap="closeTemplateSheet">关闭</text>
+    </view>
+
+    <view class="sheet-search-wrap">
+      <input class="sheet-search" placeholder="搜索模板关键词" value="{{templateKeyword}}" bindinput="onTemplateSearchInput" />
+    </view>
+
+    <scroll-view scroll-y class="sheet-scroll">
+      <view class="group" wx:for="{{filteredTemplateGroups}}" wx:key="title">
+        <text class="group-title">{{item.title}}</text>
+        <view class="tpl-item" wx:for="{{item.list}}" wx:key="name" data-name="{{item.name}}" data-amount="{{item.dailyAmount}}" bindtap="pickTemplateFromSheet">
+          <text class="tpl-name">{{item.name}}</text>
+          <text class="tpl-amount">日均省 {{item.dailyAmount}} 元</text>
+        </view>
+      </view>
+
+      <view class="sheet-empty" wx:if="{{!filteredTemplateGroups.length}}">没有匹配的模板</view>
+    </scroll-view>
+  </view>
+</view>
