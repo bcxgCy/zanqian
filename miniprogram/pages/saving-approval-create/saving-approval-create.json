@@ -1,1 +1,7 @@
-{ "navigationBarTitleText": "发起消费审批", "usingComponents": {} }
+{
+  "navigationBarTitleText": "发起消费审批",
+  "navigationBarBackgroundColor": "#FFF9F0",
+  "navigationBarTextStyle": "black",
+  "backgroundColor": "#FFF9F0",
+  "usingComponents": {}
+}

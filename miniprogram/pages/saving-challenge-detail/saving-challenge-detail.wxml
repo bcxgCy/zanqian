@@ -1,8 +1,14 @@
 <view class="page" wx:if="{{challenge}}">
-  <view class="card">
-    <text class="title">{{challenge.name}}</text>
-    <text class="meta">周期 {{challenge.periodDays}} 天 · 每日省 ¥{{challenge.dailyAmount}}</text>
-    <text class="meta amount">累计已省 ¥{{challenge.savedAmount}}</text>
+  <view class="hero card">
+    <text class="hero-title">{{challenge.name}}</text>
+    <view class="hero-tags">
+      <text class="hero-tag">周期 {{challenge.periodDays}} 天</text>
+      <text class="hero-tag">每日省 ¥{{challenge.dailyAmount}}</text>
+    </view>
+    <view class="hero-amount-row">
+      <text class="hero-amount-label">累计已省</text>
+      <text class="hero-amount">¥{{challenge.savedAmount}}</text>
+    </view>
   </view>
 
   <view class="card">
@@ -13,7 +19,7 @@
 
     <view class="legend">
       <view class="legend-item"><text class="dot checked"></text><text>已打卡</text></view>
-      <view class="legend-item"><text class="dot missed"></text><text>未打卡</text></view>
+      <view class="legend-item"><text class="dot pending"></text><text>待打卡</text></view>
       <view class="legend-item"><text class="dot repair"></text><text>补打卡</text></view>
     </view>
 
@@ -23,7 +29,7 @@
 
     <view class="calendar-grid">
       <view class="day-cell {{item.className}} {{item.empty ? 'empty' : ''}}" wx:for="{{calendarCells}}" wx:key="key" data-key="{{item.key}}" bindtap="onDayTap">
-        <text wx:if="{{!item.empty}}" class="day-num">{{item.day}}</text>
+        <text class="day-num" wx:if="{{!item.empty}}">{{item.day}}</text>
       </view>
     </view>
   </view>

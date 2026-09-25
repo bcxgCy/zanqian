@@ -1,15 +1,33 @@
 <view class="page">
-  <view class="tabs">
+  <view class="tabs card-shell">
     <view class="tab {{activeTab === 'ongoing' ? 'active' : ''}}" data-tab="ongoing" bindtap="switchTab">进行中</view>
     <view class="tab {{activeTab === 'history' ? 'active' : ''}}" data-tab="history" bindtap="switchTab">历史挑战</view>
   </view>
 
   <view class="card" wx:for="{{currentList}}" wx:key="id" data-id="{{item.id}}" bindtap="goDetail">
-    <text class="title">{{item.name}}</text>
-    <text class="meta" wx:if="{{activeTab === 'ongoing'}}">已坚持 {{item.streakDays}} 天 / 剩余 {{item.leftDays}} 天</text>
-    <text class="meta" wx:if="{{activeTab === 'history'}}">挑战周期 {{item.periodDays}} 天 · {{item.resultText}}</text>
-    <text class="meta">每日省 ¥{{item.dailyAmount}} · 累计省 ¥{{item.savedAmount}}</text>
+    <view class="head">
+      <text class="title">{{item.name}}</text>
+      <view class="arrow-wrap"><text class="arrow">›</text></view>
+    </view>
+
+    <view class="meta-row" wx:if="{{activeTab === 'ongoing'}}">
+      <text class="meta-chip">已坚持 {{item.streakDays}} 天</text>
+      <text class="meta-chip">剩余 {{item.leftDays}} 天</text>
+    </view>
+
+    <view class="meta-row" wx:if="{{activeTab === 'history'}}">
+      <text class="meta-chip">挑战周期 {{item.periodDays}} 天</text>
+      <text class="meta-chip">{{item.resultText}}</text>
+    </view>
+
+    <view class="amount-row">
+      <text class="amount-label">每日省</text>
+      <text class="amount-value">¥{{item.dailyAmount}}</text>
+      <text class="amount-sep">·</text>
+      <text class="amount-label">累计省</text>
+      <text class="amount-value">¥{{item.savedAmount}}</text>
+    </view>
   </view>
 
-  <view class="empty" wx:if="{{!currentList.length}}">暂无挑战记录</view>
+  <view class="empty card-shell" wx:if="{{!currentList.length}}">暂无挑战记录</view>
 </view>

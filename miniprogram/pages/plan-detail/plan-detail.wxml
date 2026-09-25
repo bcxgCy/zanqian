@@ -29,7 +29,7 @@
       </view>
       <view class="plan-info">
         <text class="name">{{plan.name}}</text>
-        <text class="scheme helper-text">{{planTypeName}} · 目标 ¥{{plan.targetAmount}}</text>
+        <text class="scheme helper-text">{{planTypeName}}</text>
       </view>
       <!-- 打卡提醒按钮：居右对齐 -->
       <button

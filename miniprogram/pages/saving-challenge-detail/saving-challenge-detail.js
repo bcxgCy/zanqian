@@ -43,7 +43,7 @@ const mockChallengeMap = {
     statusMap: {
       '2026-09-01': 'checked',
       '2026-09-02': 'checked',
-      '2026-09-03': 'missed',
+      '2026-09-03': 'pending',
       '2026-09-04': 'repair',
       '2026-09-05': 'checked',
       '2026-09-06': 'pending',
@@ -60,7 +60,7 @@ const mockChallengeMap = {
       '2026-09-01': 'checked',
       '2026-09-02': 'repair',
       '2026-09-03': 'checked',
-      '2026-09-04': 'missed',
+      '2026-09-04': 'pending',
       '2026-09-05': 'checked',
       '2026-09-06': 'pending',
       '2026-09-07': 'pending',
@@ -103,7 +103,7 @@ Page({
     if (cell.empty) return;
 
     const canCheckinToday = cell.status === 'pending' && cell.isToday;
-    const canRepair = cell.status === 'missed';
+    const canRepair = cell.status === 'pending' && !cell.isToday;
     if (!canCheckinToday && !canRepair) return;
 
     const actionTitle = canRepair ? '补打卡' : '今日待打卡';
@@ -119,7 +119,7 @@ Page({
         if (res.confirm) {
           next.status = canRepair ? 'repair' : 'checked';
         } else {
-          next.status = canRepair ? 'missed' : 'missed';
+          next.status = 'pending';
         }
         next.className = `status-${next.status}`;
         nextCells[index] = next;

@@ -1,12 +1,17 @@
 <view class="page" wx:if="{{detail}}">
-  <view class="card">
-    <view class="head">
+  <view class="hero card">
+    <view class="hero-top">
       <text class="name">{{detail.name}}</text>
-      <text class="status">{{detail.status}}</text>
+      <text class="status-pill">{{detail.status}}</text>
     </view>
-    <text class="price">¥{{detail.price}}</text>
-    <view class="line"><text class="k">购买理由：</text><text class="v">{{detail.reason}}</text></view>
-    <view class="line"><text class="k">替代方案：</text><text class="v">{{detail.alternative}}</text></view>
+    <view class="price-row">
+      <text class="price-currency">¥</text>
+      <text class="price">{{detail.price}}</text>
+    </view>
+    <view class="reason-block">
+      <view class="line"><text class="k">购买理由</text><text class="v">{{detail.reason}}</text></view>
+      <view class="line"><text class="k">替代方案</text><text class="v">{{detail.alternative}}</text></view>
+    </view>
   </view>
 
   <view class="card">

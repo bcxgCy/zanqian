@@ -1,39 +1,55 @@
 <view class="page">
-  <view class="card">
-    <view class="field">
-      <text class="label">挑战名称</text>
-      <input class="input" placeholder="例如：7天不喝奶茶" value="{{form.name}}" data-field="name" bindinput="onInput" />
-      <view class="template-row">
-        <view class="template-chip" wx:for="{{quickTemplates}}" wx:key="name" data-name="{{item.name}}" data-amount="{{item.dailyAmount}}" bindtap="pickQuickTemplate">{{item.name}}</view>
-        <view class="template-chip more" bindtap="openTemplateSheet">更多</view>
+  <scroll-view class="content" scroll-y>
+    <view class="hero card">
+      <text class="hero-caption">坚持比冲动更值钱</text>
+      <text class="hero-title">发起省钱挑战</text>
+      <text class="hero-desc">设定一个小目标，连续打卡，把原本要花的钱攒下来。</text>
+    </view>
+
+    <view class="card form-card">
+      <view class="field">
+        <text class="label">挑战名称</text>
+        <input class="input" placeholder="例如：7天不喝奶茶" value="{{form.name}}" data-field="name" bindinput="onInput" />
+        <view class="template-row">
+          <view class="template-chip" wx:for="{{quickTemplates}}" wx:key="name" data-name="{{item.name}}" data-amount="{{item.dailyAmount}}" bindtap="pickQuickTemplate">{{item.name}}</view>
+          <view class="template-chip more" bindtap="openTemplateSheet">更多模板</view>
+        </view>
+      </view>
+
+      <view class="field">
+        <text class="label">每日预估省钱（元）</text>
+        <input class="input" type="digit" placeholder="请输入金额" value="{{form.dailyAmount}}" data-field="dailyAmount" bindinput="onInput" />
+      </view>
+
+      <view class="field">
+        <text class="label">挑战周期（天）</text>
+        <view class="day-options">
+          <view class="day-item {{selectedDayOption === item.value ? 'active' : ''}}" wx:for="{{dayOptions}}" wx:key="value" data-value="{{item.value}}" bindtap="onSelectDayOption">{{item.label}}</view>
+        </view>
+        <input wx:if="{{selectedDayOption === 'custom'}}" class="input custom-input" type="number" placeholder="请输入1-365天" value="{{customDays}}" bindinput="onCustomDaysInput" />
+      </view>
+
+      <view class="field">
+        <text class="label">挑战说明（选填）</text>
+        <textarea
+          class="textarea"
+          placeholder="写点挑战目标与约束规则"
+          value="{{form.note}}"
+          data-field="note"
+          bindinput="onInput"
+          auto-height="{{false}}"
+          disable-default-padding="{{true}}"
+        />
       </view>
     </view>
 
-    <view class="field">
-      <text class="label">每日预估省钱</text>
-      <input class="input" type="digit" placeholder="请输入金额" value="{{form.dailyAmount}}" data-field="dailyAmount" bindinput="onInput" />
-    </view>
-
-    <view class="field">
-      <text class="label">周期（天）</text>
-      <view class="day-options">
-        <view class="day-item {{selectedDayOption === item.value ? 'active' : ''}}" wx:for="{{dayOptions}}" wx:key="value" data-value="{{item.value}}" bindtap="onSelectDayOption">{{item.label}}</view>
+    <view class="card form-card">
+      <view class="field switch-field">
+        <text class="label">同步到广场</text>
+        <switch checked="{{form.syncToPlaza}}" bindchange="onSyncChange" color="#E6B34E" />
       </view>
-      <input wx:if="{{selectedDayOption === 'custom'}}" class="input custom-input" type="number" placeholder="请输入1-365天" value="{{customDays}}" bindinput="onCustomDaysInput" />
     </view>
-
-    <view class="field">
-      <text class="label">挑战说明（选填）</text>
-      <textarea class="textarea" placeholder="写点挑战目标与约束规则" value="{{form.note}}" data-field="note" bindinput="onInput" />
-    </view>
-
-    <view class="field switch-field">
-      <text class="label">同步到广场</text>
-      <switch checked="{{form.syncToPlaza}}" bindchange="onSyncChange" color="#00B42A" />
-    </view>
-
-    <button class="submit-btn" bindtap="submit">创建挑战（前端演示）</button>
-  </view>
+  </scroll-view>
 
   <view wx:if="{{showTemplateSheet}}" class="sheet-mask" bindtap="closeTemplateSheet"></view>
   <view class="sheet {{showTemplateSheet ? 'show' : ''}}">
@@ -57,5 +73,9 @@
 
       <view class="sheet-empty" wx:if="{{!filteredTemplateGroups.length}}">没有匹配的模板</view>
     </scroll-view>
+  </view>
+
+  <view class="submit-bar">
+    <button class="submit-btn" bindtap="submit">创建挑战</button>
   </view>
 </view>

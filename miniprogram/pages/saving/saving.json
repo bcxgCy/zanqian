@@ -1,6 +1,8 @@
 {
   "navigationBarTitleText": "省钱",
   "enablePullDownRefresh": true,
-  "backgroundColor": "#F8F6F0",
+  "navigationBarBackgroundColor": "#FFF9F0",
+  "navigationBarTextStyle": "black",
+  "backgroundColor": "#FFF9F0",
   "usingComponents": {}
 }

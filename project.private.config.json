@@ -22,11 +22,18 @@
     "miniprogram": {
       "list": [
         {
+          "name": "pages/plan-detail/plan-detail",
+          "pathName": "pages/plan-detail/plan-detail",
+          "query": "id=plan_1788101448488",
+          "scene": null,
+          "launchMode": "default"
+        },
+        {
           "name": "pages/calculator-result/calculator-result",
           "pathName": "pages/calculator-result/calculator-result",
           "query": "key=calc_result_1790261455632",
-          "scene": null,
-          "launchMode": "default"
+          "launchMode": "default",
+          "scene": null
         },
         {
           "name": "pages/calculator/calculator",

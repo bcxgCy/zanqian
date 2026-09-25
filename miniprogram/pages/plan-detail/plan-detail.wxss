@@ -106,7 +106,9 @@
 }
 
 .section-title {
-  margin: 0 0 16rpx 4rpx;
+  margin: 0 0 16rpx 16rpx;
+  font-size: 32rpx;
+  font-weight: 500;
 }
 
 .period-header {
@@ -753,4 +755,243 @@
   border: none;
   border-radius: 40rpx;
   padding: 12rpx 40rpx;
+}
+
+/* ===== 2026 UI refresh: 与新增页统一风格 ===== */
+.page {
+  background: #FFF9F0;
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding-bottom: calc(220rpx + env(safe-area-inset-bottom));
+}
+
+.card {
+  background: #FFFFFF;
+  border-radius: 40rpx;
+  border: 2rpx solid #EEF4E3;
+  box-shadow: 0 8rpx 32rpx rgba(168, 216, 78, 0.12), 0 2rpx 8rpx rgba(255, 255, 255, 0.7);
+  margin-bottom: 20rpx;
+}
+
+.progress-card {
+  background: linear-gradient(135deg, #E8F5D8 0%, #F0F8E6 50%, #EAF6DD 100%);
+  border: 4rpx solid #FFFFFF;
+}
+
+.progress-bar-full {
+  height: 14rpx;
+  background: #ECF3DE;
+  border-radius: 999rpx;
+}
+
+.progress-fill {
+  background: linear-gradient(90deg, #79D149 0%, #A8D84E 100%);
+  border-radius: 999rpx;
+}
+
+.progress-grid {
+  gap: 12rpx;
+  justify-content: space-between;
+}
+
+.progress-item {
+  flex: 1;
+  background: #FFFFFF;
+  border-radius: 24rpx;
+  padding: 14rpx 8rpx;
+}
+
+.progress-item .num {
+  color: #2F2A22 !important;
+}
+
+.progress-item:nth-child(1) .num {
+  color: #5E8F20 !important;
+}
+
+.progress-item:nth-child(2) .num {
+  color: #4F7D32 !important;
+}
+
+.progress-item:nth-child(3) .num {
+  color: #B07A2E !important;
+}
+
+.meta {
+  border-bottom: 1rpx solid rgba(143, 175, 102, 0.28);
+  color: #7D776C;
+}
+
+.name {
+  color: #2F2A22;
+  font-weight: 600;
+}
+
+.scheme {
+  color: #7D776C;
+}
+
+.subscribe-btn-inline {
+  height: 56rpx;
+  line-height: 56rpx;
+  border-radius: 999rpx;
+  font-size: 22rpx;
+  font-weight: 600;
+  padding: 0 22rpx;
+  letter-spacing: 0.5rpx;
+}
+
+.subscribe-btn-inline.btn-mint {
+  background: linear-gradient(90deg, #86C952 0%, #A8D84E 100%)!important;
+  border: 2rpx solid #8FCF57 !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 8rpx 18rpx rgba(143, 207, 87, 0.24);
+}
+
+.subscribe-btn-inline.btn-disabled {
+  background: #F8FBF2;
+  border: 2rpx solid #DDE9C8 !important;
+  color: #8FA07A !important;
+}
+
+.period-header {
+  margin-bottom: 16rpx;
+}
+
+.period-view-toggle {
+  padding: 8rpx;
+  background: #FFFFFF;
+  border-radius: 999rpx;
+  border: 2rpx solid #E6EED8;
+}
+
+.toggle-item {
+  min-width: 96rpx;
+  color: #7A746A;
+}
+
+.toggle-item.active {
+  background: linear-gradient(90deg, #79D149 0%, #A8D84E 100%);
+  color: #FFFFFF;
+  box-shadow: none;
+}
+
+.period-item {
+  border-radius: 28rpx;
+  margin-bottom: 14rpx;
+  padding: 22rpx var(--spacing);
+}
+
+.period-item.todo {
+  background: #FFFFFF;
+  border: 2rpx solid #E8EFD9;
+}
+
+.period-item.done {
+  background: #F2F8E8;
+  border: 2rpx solid #DDE9C8;
+}
+
+.period-item.is-overdue {
+  background: #F3F3F3;
+  border-color: #E7E7E7;
+  opacity: 0.72;
+}
+
+.period-item.is-early {
+  background: #F5F8FB;
+  border-color: #E0E7F0;
+  opacity: 0.7;
+}
+
+.period-index {
+  color: #2F2A22;
+  font-weight: 600;
+}
+
+.period-date,
+.period-status {
+  color: #8B857A;
+}
+
+.period-amount {
+  color: #2F2A22;
+}
+
+.period-amount-secret {
+  color: #5E8F20;
+}
+
+.calendar-month {
+  background: #FFFFFF;
+  border: 2rpx solid #E8EFD9;
+  border-radius: 28rpx;
+}
+
+.calendar-month-switch {
+  background: #F2F8E8;
+  color: #5E8F20;
+}
+
+.calendar-cell-active {
+  background: #FFFFFF;
+  border-color: #E3ECD4;
+}
+
+.calendar-cell-active.is-completed {
+  background: #F2F8E8;
+}
+
+.calendar-cell-active.is-today {
+  border-color: #8FCF57;
+  box-shadow: 0 0 0 2rpx rgba(143, 207, 87, 0.22);
+}
+
+.plan-action-wrap {
+  position: fixed;
+  left: var(--spacing);
+  right: var(--spacing);
+  bottom: calc(16rpx + env(safe-area-inset-bottom));
+  margin-top: 0;
+  z-index: 60;
+}
+
+.plan-state-btn,
+.subscribe-btn,
+.delete-btn,
+.share-plan-btn {
+  border-radius: 32rpx !important;
+  height: 84rpx;
+  font-size: 25rpx;
+  border: 2rpx solid #D7E6BE !important;
+  background: #FFFFFF !important;
+  color: #5E8F20 !important;
+}
+
+.plan-state-btn.pause-btn {
+  color: #B07A2E !important;
+  border-color: #E9D3A9 !important;
+}
+
+.delete-btn {
+  color: #C56D6D !important;
+  border-color: #EEC8C8 !important;
+}
+
+.share-plan-btn {
+  color: #5E8F20 !important;
+  border-color: #B8D989 !important;
+}
+
+.subscribe-btn.btn-mint {
+  background: #8FCF57 !important;
+  border-color: #8FCF57 !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 8rpx 20rpx rgba(143, 207, 87, 0.22);
+}
+
+.subscribe-btn.btn-disabled {
+  background: #F4F4F4 !important;
+  border-color: #E8E8E8 !important;
+  color: #A0A0A0 !important;
 }
