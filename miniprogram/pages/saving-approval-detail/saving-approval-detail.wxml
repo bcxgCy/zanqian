@@ -11,31 +11,126 @@
     <view class="reason-block">
       <view class="line"><text class="k">购买理由</text><text class="v">{{detail.reason}}</text></view>
       <view class="line"><text class="k">替代方案</text><text class="v">{{detail.alternative}}</text></view>
+
+      <view class="line" wx:if="{{detail.images && detail.images.length}}">
+        <text class="k">参考图片</text>
+        <view class="detail-image-list">
+          <image
+            class="detail-image"
+            wx:for="{{detail.images}}"
+            wx:key="*this"
+            src="{{item}}"
+            mode="aspectFill"
+            data-index="{{index}}"
+            bindtap="onPreviewImage"
+          ></image>
+        </view>
+      </view>
+
     </view>
   </view>
 
   <view class="card">
     <text class="section-title">投票汇总</text>
-    <view class="vote-grid">
-      <view class="vote-item pass">
-        <text class="vote-label">综合通过</text>
-        <text class="vote-num">{{detail.passVotes}}票</text>
+    <view class="vote-summary-row">
+      <view class="vote-side pass-side">
+        <text class="vote-side-label">通过</text>
+        <text class="vote-side-num">{{detail.passVotes}} 票</text>
       </view>
-      <view class="vote-item reject">
-        <text class="vote-label">综合驳回</text>
-        <text class="vote-num">{{detail.rejectVotes}}票</text>
+      <view class="vote-side reject-side">
+        <text class="vote-side-label">驳回</text>
+        <text class="vote-side-num">{{detail.rejectVotes}} 票</text>
       </view>
     </view>
+
+    <view class="vote-progress-single">
+      <view
+        class="vote-progress-half pass-half"
+        style="width: {{(((detail.passVotes || 0) * 100) / (((detail.passVotes || 0) + (detail.rejectVotes || 0)) || 1))}}%;"
+      ></view>
+      <view
+        class="vote-progress-half reject-half"
+        style="width: {{(((detail.rejectVotes || 0) * 100) / (((detail.passVotes || 0) + (detail.rejectVotes || 0)) || 1))}}%;"
+      ></view>
+    </view>
+  </view>
+
+  <view class="card" wx:if="{{detail.canReview}}">
+    <text class="section-title">审批操作</text>
+    <view class="vote-option-list">
+      <view
+        class="vote-option {{reviewForm.vote === 'buy' ? 'active' : ''}}"
+        data-vote="buy"
+        bindtap="onVoteSelect"
+      >
+        通过
+      </view>
+      <view
+        class="vote-option reject {{reviewForm.vote === 'reject' ? 'active' : ''}}"
+        data-vote="reject"
+        bindtap="onVoteSelect"
+      >
+        驳回
+      </view>
+    </view>
+
+    <view class="field-block">
+      <text class="field-label">审批理由（必填）</text>
+      <textarea
+        class="field-textarea"
+        placeholder="请说明你通过或驳回的理由"
+        value="{{reviewForm.comment}}"
+        data-field="comment"
+        bindinput="onReviewInput"
+      />
+    </view>
+
+    <button class="review-submit" bindtap="submitReview">提交审批</button>
   </view>
 
   <view class="card">
     <text class="section-title">回应详情</text>
+    <view class="reply-empty" wx:if="{{!detail.replies.length}}">暂时还没有回应，等一条新审批意见吧</view>
     <view class="reply" wx:for="{{detail.replies}}" wx:key="id">
       <view class="reply-head">
-        <text class="reply-user">{{item.user}}</text>
+        <view class="reply-user-wrap">
+          <text class="reply-avatar">{{item.user.slice(0, 1)}}</text>
+          <text class="reply-user">{{item.user}}</text>
+        </view>
         <text class="reply-side {{item.side === '通过' ? 'pass-text' : 'reject-text'}}">{{item.side}}</text>
       </view>
+      <text class="reply-vote">{{item.voteText}}</text>
       <text class="reply-content">{{item.content}}</text>
+      <text class="reply-alt" wx:if="{{item.alternative}}">替代建议：{{item.alternative}}</text>
     </view>
+  </view>
+
+  <view class="card" wx:if="{{detail.canRevokeReview}}">
+    <text class="section-title">撤销评估</text>
+    <button class="review-revoke" bindtap="onRevokeReviewTap">撤销我的评估</button>
+  </view>
+
+  <view class="card" wx:if="{{detail.canFinalize}}">
+    <text class="section-title">最终结果</text>
+    <view class="vote-grid">
+      <button class="vote-item reject" data-decision="abandoned" bindtap="onDecisionTap">已放弃购买</button>
+      <button class="vote-item pass" data-decision="purchased" bindtap="onDecisionTap">还是购买了</button>
+    </view>
+  </view>
+
+  <view class="card" wx:if="{{detail.canRevokeFinalDecision}}">
+    <text class="section-title">撤销最终结果</text>
+    <button class="review-revoke" bindtap="onRevokeFinalDecisionTap">撤销最终结果</button>
+  </view>
+</view>
+
+<view class="detail-share-fixed" wx:if="{{detail && !loading}}">
+  <button class="detail-share-fixed-btn" open-type="share">分享给他人审批</button>
+</view>
+
+<view class="detail-loading-mask" wx:if="{{loading}}">
+  <view class="detail-loading-card">
+    <view class="loading-dot"></view>
+    <text class="detail-loading-text">正在拉取审批详情，请稍等…</text>
   </view>
 </view>

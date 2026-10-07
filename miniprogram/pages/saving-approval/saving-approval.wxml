@@ -6,21 +6,25 @@
 
   <view class="card" wx:for="{{currentList}}" wx:key="id" data-id="{{item.id}}" bindtap="goDetail">
     <view class="head">
-      <view class="title-wrap">
-        <text class="name">{{item.name}}</text>
-      </view>
+      <text class="type-tag">审批</text>
+      <text class="author">{{activeTab === 'created' ? '我发起的' : '我已审批'}}</text>
+    </view>
+
+    <view class="title-row">
+      <text class="name">{{item.name}}</text>
       <view class="card-arrow-wrap">
         <text class="card-arrow">›</text>
       </view>
     </view>
-    <view class="meta-row">
-      <view class="price-wrap">
-        <text class="price-label">预算金额</text>
-        <text class="price">¥{{item.price}}</text>
-      </view>
-      <text class="status-pill {{item.status === '已放弃' ? 'status-reject' : (item.status === '已出结果' ? 'status-done' : 'status-pending')}}">{{item.status}}</text>
-    </view>
+
     <text class="desc">{{item.reason}}</text>
+
+    <view class="meta-row">
+      <view class="meta-left">
+        <text class="meta-text">预算 ¥{{item.price}}</text>
+        <text class="meta-text status-text {{(item.status === 'abandoned' || item.statusText === '已放弃') ? 'status-reject' : ((item.status === 'result' || item.statusText === '已出结果') ? 'status-done' : 'status-pending')}}">{{item.statusText || item.status}}</text>
+      </view>
+    </view>
   </view>
 
   <view class="empty card-shell" wx:if="{{!currentList.length}}">暂无审批数据</view>

@@ -38,11 +38,11 @@
 
 .card {
   background: #FFFFFF;
-  border: 2rpx solid #EEF4E3;
-  border-radius: 32rpx;
-  padding: 20rpx;
+  border: 2rpx solid #F3E6D2;
+  border-radius: 26rpx;
+  padding: 18rpx;
   margin-bottom: 14rpx;
-  box-shadow: 0 6rpx 20rpx rgba(168, 216, 78, 0.08);
+  box-shadow: 0 8rpx 18rpx rgba(227, 166, 85, 0.1);
 }
 
 .card:active {
@@ -52,13 +52,30 @@
 .head {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  gap: 10rpx;
+  align-items: center;
 }
 
-.title-wrap {
-  flex: 1;
-  min-width: 0;
+.type-tag {
+  font-size: 20rpx;
+  border-radius: 999rpx;
+  padding: 6rpx 12rpx;
+  font-weight: 700;
+  color: #8C4A00;
+  background: #FFE7A8;
+  border: 1rpx solid #F2C35C;
+}
+
+.author {
+  font-size: 20rpx;
+  color: #A17A4C;
+}
+
+.title-row {
+  margin-top: 10rpx;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10rpx;
 }
 
 .name {
@@ -72,56 +89,45 @@
   white-space: nowrap;
 }
 
-.status-pill {
-  flex-shrink: 0;
-  font-size: 20rpx;
-  padding: 6rpx 14rpx;
-  border-radius: 999rpx;
-  font-weight: 700;
-  line-height: 1.2;
-}
-
 .status-pending {
   color: #8A5A19;
-  background: #FFE7B3;
-  border: 1rpx solid #F0C979;
+  background: #FFF1CD;
+  border: 1rpx solid #EFC679;
 }
 
 .status-done {
   color: #3F7E1F;
-  background: #E9F8D9;
-  border: 1rpx solid #8FCF57;
+  background: #EAF6DD;
+  border: 1rpx solid #95CC64;
 }
 
 .status-reject {
   color: #B55353;
-  background: #FFE1E1;
-  border: 1rpx solid #E07A7A;
+  background: #FFE7E7;
+  border: 1rpx solid #E48B8B;
 }
 
 .meta-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   margin-top: 10rpx;
 }
 
-.price-wrap {
+.meta-left {
   display: flex;
-  align-items: baseline;
+  flex-wrap: wrap;
   gap: 8rpx;
 }
 
-.price-label {
+.meta-text {
   font-size: 20rpx;
-  color: #9A9387;
+  color: #8A642C;
+  background: #FFF5E8;
+  border: 1rpx solid #F1DEC1;
+  border-radius: 999rpx;
+  padding: 5rpx 10rpx;
 }
 
-.price {
-  display: block;
-  font-size: 34rpx;
-  font-weight: 800;
-  color: #2F2A22;
+.status-text {
+  font-weight: 700;
 }
 
 .card-arrow-wrap {
@@ -143,11 +149,12 @@
   display: block;
   margin-top: 10rpx;
   font-size: 22rpx;
-  color: #6E685E;
+  color: #7E6343;
   line-height: 1.5;
-  background: #FFF9F0;
+  background: #FFFCF6;
   border-radius: 16rpx;
   padding: 10rpx 12rpx;
+  border: 1rpx solid #F1E4CE;
 }
 
 .empty {

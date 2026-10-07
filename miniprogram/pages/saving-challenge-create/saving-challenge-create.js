@@ -1,3 +1,5 @@
+const savingChallengeService = require('../../utils/savingChallengeService');
+
 const TEMPLATE_GROUPS = [
   {
     title: '☕饮品零食类',
@@ -74,7 +76,7 @@ Page({
       days: 7,
       dailyAmount: '',
       note: '',
-      syncToPlaza: false,
+      syncToPlaza: true,
     },
     dayOptions: [
       { label: '3天', value: 3 },
@@ -169,7 +171,7 @@ Page({
     });
   },
 
-  submit() {
+  async submit() {
     const { name, days, dailyAmount } = this.data.form;
     if (!name.trim()) {
       wx.showToast({ title: '请输入挑战名称', icon: 'none' });
@@ -187,7 +189,26 @@ Page({
       wx.showToast({ title: '请输入每日预估省钱', icon: 'none' });
       return;
     }
-    wx.showToast({ title: '创建成功（前端演示）', icon: 'success' });
-    setTimeout(() => wx.navigateBack(), 500);
+    wx.showLoading({ title: '创建中', mask: true });
+    try {
+      const payload = {
+        name: name.trim(),
+        days: Number(days),
+        dailyAmount: Number(dailyAmount),
+        note: (this.data.form.note || '').trim(),
+        syncToPlaza: !!this.data.form.syncToPlaza,
+      };
+      const res = await savingChallengeService.createChallenge(payload);
+      if (!res.ok) {
+        wx.showToast({ title: res.error || '创建失败', icon: 'none' });
+        return;
+      }
+      wx.showToast({ title: '创建成功', icon: 'success' });
+      setTimeout(() => wx.navigateBack(), 400);
+    } catch (err) {
+      wx.showToast({ title: '创建失败，请稍后重试', icon: 'none' });
+    } finally {
+      wx.hideLoading();
+    }
   },
 });

@@ -54,7 +54,7 @@
       <text class="section-title">我的审批</text>
       <text class="section-more" bindtap="goApprovalList">更多 ›</text>
     </view>
-    <view class="two-col-list">
+    <view class="two-col-list" wx:if="{{ongoingApprovals.length}}">
       <view class="approval-card" wx:for="{{ongoingApprovals}}" wx:key="id" data-id="{{item.id}}" bindtap="goApprovalDetail">
         <view class="card-row">
           <view class="item-main">
@@ -68,8 +68,16 @@
           </view>
           <text class="card-arrow">›</text>
         </view>
-        <text class="approval-meta">{{item.statusText}} · 剩余{{item.remainingHours}}小时</text>
+        <text class="approval-meta">{{item.statusText}}</text>
       </view>
+    </view>
+    <view class="empty-block" wx:else bindtap="goApprovalCreate">
+      <view class="empty-plus-circle">
+        <view class="empty-plus-h"></view>
+        <view class="empty-plus-v"></view>
+      </view>
+      <text class="empty-title">还没有审批记录</text>
+      <text class="empty-desc">先发起一条消费审批，冷静一下再决定</text>
     </view>
   </view>
 
@@ -78,7 +86,7 @@
       <text class="section-title">我的挑战</text>
       <text class="section-more" bindtap="goChallengeList">更多 ›</text>
     </view>
-    <view class="two-col-list">
+    <view class="two-col-list" wx:if="{{ongoingChallenges.length}}">
       <view class="challenge-card" wx:for="{{ongoingChallenges}}" wx:key="id" data-id="{{item.id}}" bindtap="goChallengeDetail">
         <view class="card-row">
           <view class="challenge-top">
@@ -89,8 +97,16 @@
           </view>
           <text class="challenge-right">剩余{{item.leftDays}}天</text>
         </view>
-        <text class="challenge-meta">连续{{item.streakDays}}天未返</text>
+        <text class="challenge-meta">连续{{item.streakDays}}天完成</text>
       </view>
+    </view>
+    <view class="empty-block" wx:else bindtap="goChallengeCreate">
+      <view class="empty-plus-circle">
+        <view class="empty-plus-h"></view>
+        <view class="empty-plus-v"></view>
+      </view>
+      <text class="empty-title">还没有挑战进行中</text>
+      <text class="empty-desc">创建一个省钱挑战，开始连续打卡</text>
     </view>
   </view>
 </view>

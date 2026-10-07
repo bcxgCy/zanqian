@@ -1,27 +1,52 @@
+const savingHomeService = require('../../utils/savingHomeService');
+
 Page({
   data: {
     summary: {
-      challengeSaved: 45,
-      approvalSaved: 83,
-      totalSaved: 128,
-      ongoingChallengeCount: 3,
-      pendingApprovalCount: 2,
+      challengeSaved: 0,
+      approvalSaved: 0,
+      totalSaved: 0,
+      ongoingChallengeCount: 0,
+      pendingApprovalCount: 0,
     },
-    ongoingApprovals: [
-      { id: 'a1', itemName: '无线耳机', price: 159, statusText: '冷静期中', remainingHours: 20 },
-      { id: 'a2', itemName: '机械键盘', price: 399, statusText: '投票中', remainingHours: 12 },
-    ],
-    ongoingChallenges: [
-      { id: 'c1', name: '7天不喝奶茶', leftDays: 4, streakDays: 3 },
-      { id: 'c2', name: '7天不打车', leftDays: 5, streakDays: 2 },
-    ],
+    ongoingApprovals: [],
+    ongoingChallenges: [],
+  },
+
+  onShow() {
+    this.loadApprovalHomeData();
   },
 
   onPullDownRefresh() {
-    setTimeout(() => {
+    this.loadApprovalHomeData().finally(() => {
       wx.stopPullDownRefresh();
       wx.showToast({ title: '已更新', icon: 'success' });
-    }, 300);
+    });
+  },
+
+  async loadApprovalHomeData() {
+    try {
+      const homeRes = await savingHomeService.getHomeData();
+      if (!homeRes.ok) {
+        wx.showToast({ title: homeRes.error || '加载失败', icon: 'none' });
+        return;
+      }
+      const remoteSummary = homeRes.summary || {};
+      const summary = Object.assign({}, this.data.summary, {
+        approvalSaved: remoteSummary.approvalSaved || 0,
+        pendingApprovalCount: remoteSummary.pendingApprovalCount || 0,
+        challengeSaved: remoteSummary.challengeSaved || 0,
+        ongoingChallengeCount: remoteSummary.ongoingChallengeCount || 0,
+      });
+      summary.totalSaved = (summary.challengeSaved || 0) + (summary.approvalSaved || 0);
+      this.setData({
+        summary,
+        ongoingApprovals: Array.isArray(homeRes.ongoingApprovals) ? homeRes.ongoingApprovals : [],
+        ongoingChallenges: Array.isArray(homeRes.ongoingChallenges) ? homeRes.ongoingChallenges : [],
+      });
+    } catch (err) {
+      wx.showToast({ title: '省钱数据加载失败', icon: 'none' });
+    }
   },
 
   goApprovalList() {

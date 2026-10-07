@@ -30,6 +30,56 @@ function getPlanDocId(openid, planId) {
   return openid + '_' + planId;
 }
 
+function inferImageContentType(fileID) {
+  const lower = String(fileID || '').toLowerCase();
+  if (lower.includes('.png')) return 'image/png';
+  if (lower.includes('.webp')) return 'image/webp';
+  if (lower.includes('.gif')) return 'image/gif';
+  return 'image/jpeg';
+}
+
+async function checkImageSecurity(fileID, fieldName) {
+  if (!fileID) return;
+  try {
+    const downloadRes = await cloud.downloadFile({ fileID });
+    const buffer = downloadRes && downloadRes.fileContent;
+    if (!buffer) {
+      throw new Error((fieldName || '图片') + '读取失败');
+    }
+    await cloud.openapi.security.imgSecCheck({
+      media: {
+        contentType: inferImageContentType(fileID),
+        value: buffer,
+      },
+    });
+  } catch (err) {
+    const msg = String((err && err.errMsg) || err.message || '');
+    if (msg.includes('risky content')) {
+      throw new Error((fieldName || '图片') + '包含敏感内容，请更换后再提交');
+    }
+    throw new Error((fieldName || '图片') + '安全校验失败，请稍后重试');
+  }
+}
+
+async function checkUserImageSecurity(user) {
+  const avatarUrl = user && user.avatarUrl ? user.avatarUrl : '';
+  if (!avatarUrl) return;
+  await checkImageSecurity(avatarUrl, '用户头像');
+}
+
+async function checkPlanImageSecurity(plan) {
+  const avatarUrl = plan && plan.avatarUrl ? plan.avatarUrl : '';
+  if (!avatarUrl) return;
+  await checkImageSecurity(avatarUrl, '计划头像');
+}
+
+async function checkPlansImageSecurity(plans) {
+  const list = Array.isArray(plans) ? plans : [];
+  for (let i = 0; i < list.length; i++) {
+    await checkPlanImageSecurity(list[i]);
+  }
+}
+
 async function ensureCollection(name) {
   // 云开发没有显式迁移脚本，这里按需创建集合，重复创建时忽略 exists 错误。
   try {
@@ -152,6 +202,7 @@ async function replacePlans(openid, plans) {
   await db.collection(PLAN_COLLECTION).where({ openid }).remove();
 
   const nextPlans = Array.isArray(plans) ? plans : [];
+  await checkPlansImageSecurity(nextPlans);
   const baseSort = Date.now();
   for (let i = 0; i < nextPlans.length; i++) {
     await setPlan(openid, nextPlans[i], baseSort + nextPlans.length - i);
@@ -163,6 +214,7 @@ async function replacePlans(openid, plans) {
 
 async function addPlan(openid, plan) {
   await getFullState(openid);
+  await checkPlanImageSecurity(plan);
   const savedPlan = await setPlan(openid, plan, Date.now());
   const state = await getFullState(openid);
   return Object.assign({}, state, { plan: savedPlan });
@@ -182,6 +234,7 @@ async function updatePlan(openid, planId, updates) {
   const nextPlan = Object.assign({}, current, updates || {}, {
     id: planId,
   });
+  await checkPlanImageSecurity(nextPlan);
   const savedPlan = await setPlan(openid, nextPlan, currentDoc.sortOrder);
   const nextState = await getFullState(openid);
   return Object.assign({}, nextState, { plan: savedPlan });
@@ -230,6 +283,14 @@ exports.main = async (event) => {
   }
 
   if (action === 'saveUser') {
+    try {
+      await checkUserImageSecurity(event.user || getDefaultUser());
+    } catch (err) {
+      return {
+        openid,
+        error: err.message || '头像校验失败',
+      };
+    }
     await updateUserState(openid, {
       user: event.user || getDefaultUser(),
     });

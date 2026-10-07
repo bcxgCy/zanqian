@@ -1,3 +1,7 @@
+const savingApprovalService = require('../../utils/savingApprovalService');
+
+const SHARE_POSTER = 'cloud://cloud1-d1g1g2urwd9ff5a66.636c-cloud1-d1g1g2urwd9ff5a66-1462912205/other/shenpi-share.jpg';
+
 Page({
   data: {
     form: {
@@ -10,19 +14,39 @@ Page({
       multiCount: 3,
       syncToPlaza: true,
     },
-    cooldownOptions: ['24小时', '48小时', '72小时'],
-    cooldownIndex: 0,
     multiCountOptions: [3, 5, 7],
     multiCountIndex: 0,
+    showSharePopup: false,
+    createdApprovalId: '',
+  },
+
+  onLoad() {
+    if (wx.showShareMenu) {
+      wx.showShareMenu({
+        menus: ['shareAppMessage'],
+      });
+    }
+  },
+
+  onShareAppMessage() {
+    const id = this.data.createdApprovalId;
+    if (!id) {
+      return {
+        title: '救命！我又想买东西了，快来当我的理性搭子～',
+        imageUrl: SHARE_POSTER,
+        path: '/pages/saving/saving',
+      };
+    }
+    return {
+      title: '我钱包发来求救：这单到底该不该冲？',
+      imageUrl: SHARE_POSTER,
+      path: `/pages/saving-approval-detail/saving-approval-detail?id=${id}`,
+    };
   },
 
   onInput(e) {
     const field = e.currentTarget.dataset.field;
     this.setData({ [`form.${field}`]: e.detail.value });
-  },
-
-  onCooldownChange(e) {
-    this.setData({ cooldownIndex: Number(e.detail.value) || 0 });
   },
 
   onMultiCountChange(e) {
@@ -42,6 +66,8 @@ Page({
   onSyncChange(e) {
     this.setData({ 'form.syncToPlaza': !!e.detail.value });
   },
+
+  noop() {},
 
   chooseImages() {
     const left = 2 - this.data.form.images.length;
@@ -72,7 +98,21 @@ Page({
     this.setData({ 'form.images': list });
   },
 
-  submit() {
+  async uploadImages() {
+    const images = this.data.form.images || [];
+    if (!images.length) return [];
+
+    const tasks = images.map((filePath) => {
+      const ext = (filePath.split('.').pop() || 'jpg').toLowerCase();
+      const cloudPath = `saving-approval/${Date.now()}_${Math.random().toString(36).slice(2, 8)}.${ext}`;
+      return wx.cloud.uploadFile({ cloudPath, filePath }).then((res) => res.fileID).catch(() => '');
+    });
+
+    const uploaded = await Promise.all(tasks);
+    return uploaded.filter(Boolean);
+  },
+
+  async submit() {
     const { itemName, price, approvalMode, multiCount } = this.data.form;
     if (!itemName.trim()) {
       wx.showToast({ title: '请输入物品名称', icon: 'none' });
@@ -83,18 +123,51 @@ Page({
       return;
     }
 
-    const tip = approvalMode === 'single'
-      ? '单人审批将由1人评估后自动结束并汇总结果'
-      : `多人审批将在${multiCount}人投票完成后自动结束并汇总结果`;
+    wx.showLoading({ title: '提交中', mask: true });
+    try {
+      const images = await this.uploadImages();
+      const payload = {
+        itemName: itemName.trim(),
+        price: Number(price),
+        reason: (this.data.form.reason || '').trim(),
+        alternative: (this.data.form.alternative || '').trim(),
+        approvalMode,
+        multiCount,
+        syncToPlaza: !!this.data.form.syncToPlaza,
+        images,
+      };
 
-    wx.showModal({
-      title: '提交成功（前端演示）',
-      content: tip,
-      showCancel: false,
-      confirmText: '知道了',
-      success: () => {
-        wx.navigateBack();
-      },
+      const res = await savingApprovalService.createApproval(payload);
+      if (!res.ok) {
+        wx.showToast({ title: res.error || '提交失败', icon: 'none' });
+        return;
+      }
+      const approvalId = (res.approval && res.approval.id) || '';
+      this.setData({
+        createdApprovalId: approvalId,
+        showSharePopup: true,
+      });
+      wx.showToast({ title: '提交成功', icon: 'success' });
+    } catch (err) {
+      wx.showToast({ title: '提交失败，请稍后重试', icon: 'none' });
+    } finally {
+      wx.hideLoading();
+    }
+  },
+
+  closeSharePopup() {
+    this.setData({ showSharePopup: false });
+  },
+
+  goToCreatedDetail() {
+    const id = this.data.createdApprovalId;
+    if (!id) {
+      this.closeSharePopup();
+      return;
+    }
+    this.closeSharePopup();
+    wx.redirectTo({
+      url: `/pages/saving-approval-detail/saving-approval-detail?id=${id}`,
     });
   },
 });

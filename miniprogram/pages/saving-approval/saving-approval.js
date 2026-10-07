@@ -1,26 +1,41 @@
+const savingApprovalService = require('../../utils/savingApprovalService');
+
 Page({
   data: {
     activeTab: 'created',
-    createdList: [
-      { id: 'a1', name: '无线耳机', price: 599, status: '冷静中', reason: '通勤听歌，想提升体验' },
-      { id: 'a2', name: '咖啡机', price: 899, status: '投票中', reason: '希望在家自制咖啡' },
-      { id: 'a3', name: '球鞋', price: 699, status: '已放弃', reason: '款式好看但非刚需' },
-    ],
-    reviewedList: [
-      { id: 'a2', name: '咖啡机', price: 899, status: '投票中', reason: '希望在家自制咖啡' },
-      { id: 'a4', name: '机械键盘', price: 399, status: '已出结果', reason: '想提升办公输入体验' },
-    ],
+    createdList: [],
+    reviewedList: [],
     currentList: [],
   },
 
   onLoad() {
-    this.refreshList();
+    this.loadApprovals();
+  },
+
+  onShow() {
+    this.loadApprovals();
   },
 
   switchTab(e) {
     const tab = e.currentTarget.dataset.tab;
     if (!tab || tab === this.data.activeTab) return;
     this.setData({ activeTab: tab }, () => this.refreshList());
+  },
+
+  async loadApprovals() {
+    try {
+      const res = await savingApprovalService.getApprovals();
+      if (!res.ok) {
+        wx.showToast({ title: res.error || '加载失败', icon: 'none' });
+        return;
+      }
+      this.setData({
+        createdList: Array.isArray(res.createdList) ? res.createdList : [],
+        reviewedList: Array.isArray(res.reviewedList) ? res.reviewedList : [],
+      }, () => this.refreshList());
+    } catch (err) {
+      wx.showToast({ title: '审批列表加载失败', icon: 'none' });
+    }
   },
 
   refreshList() {

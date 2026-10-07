@@ -9,6 +9,7 @@
     "pages/saving-approval/saving-approval",
     "pages/saving-approval-detail/saving-approval-detail",
     "pages/saving-approval-create/saving-approval-create",
+    "pages/plaza/plaza",
     "pages/calculator/calculator",
     "pages/me/me",
     "pages/statistics/statistics",
@@ -39,20 +40,26 @@
       {
         "pagePath": "pages/index/index",
         "text": "存钱计划",
-        "iconPath": "images/tab/home.png",
-        "selectedIconPath": "images/tab/home-active.png"
+        "iconPath": "images/tab/plan.png",
+        "selectedIconPath": "images/tab/plan-active.png"
       },
       {
         "pagePath": "pages/saving/saving",
         "text": "省钱",
-        "iconPath": "images/tab/calc.png",
-        "selectedIconPath": "images/tab/calc-active.png"
+        "iconPath": "images/tab/saving-tab.png",
+        "selectedIconPath": "images/tab/saving-tab-active.png"
+      },
+      {
+        "pagePath": "pages/plaza/plaza",
+        "text": "广场",
+        "iconPath": "images/tab/plaza.png",
+        "selectedIconPath": "images/tab/plaza-active.png"
       },
       {
         "pagePath": "pages/me/me",
         "text": "我的",
-        "iconPath": "images/tab/me.png",
-        "selectedIconPath": "images/tab/me-active.png"
+        "iconPath": "images/tab/me-tab.png",
+        "selectedIconPath": "images/tab/me-tab-active.png"
       }
     ]
   },

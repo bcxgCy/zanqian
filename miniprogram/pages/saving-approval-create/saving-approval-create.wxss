@@ -199,3 +199,74 @@
   font-weight: 700;
   line-height: 72rpx;
 }
+
+.share-mask {
+  position: fixed;
+  inset: 0;
+  background: rgba(39, 28, 10, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 40rpx;
+  z-index: 99;
+}
+
+.share-dialog {
+  width: 100%;
+  background: #FFFDF8;
+  border-radius: 28rpx;
+  padding: 34rpx 28rpx 26rpx;
+  border: 2rpx solid #F2E6D0;
+  box-shadow: 0 16rpx 48rpx rgba(148, 98, 18, 0.16);
+}
+
+.share-title {
+  display: block;
+  font-size: 34rpx;
+  font-weight: 700;
+  color: #3A2B15;
+}
+
+.share-desc {
+  display: block;
+  margin-top: 12rpx;
+  font-size: 24rpx;
+  line-height: 1.6;
+  color: #7D6A4B;
+}
+
+.share-actions {
+  margin-top: 28rpx;
+  display: flex;
+  gap: 16rpx;
+}
+
+.share-action {
+  flex: 1;
+  border-radius: 999rpx;
+  font-size: 26rpx;
+  line-height: 72rpx;
+  padding: 0;
+  margin: 0;
+}
+
+.share-action::after {
+  border: 0;
+}
+
+.share-action.ghost {
+  background: #F7F2E7;
+  color: #7E673E;
+}
+
+.share-action.primary {
+  background: #E6B34E;
+  color: #fff;
+}
+
+.share-close {
+  margin-top: 18rpx;
+  text-align: center;
+  font-size: 24rpx;
+  color: #A08E70;
+}

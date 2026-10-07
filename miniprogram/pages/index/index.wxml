@@ -83,9 +83,7 @@
     >
       <view class="plan-top">
         <view class="piggy-icon plan-icon-wrap">
-          <image wx:if="{{item.avatarUrl}}" class="plan-avatar" src="{{item.avatarUrl}}" mode="aspectFill"></image>
-          <text wx:else class="piggy-mark">🐷</text>
-          <text class="plan-small-icon">{{item.icon}}</text>
+          <view class="icon-circle">{{item.icon || '💰'}}</view>
         </view>
         <view class="plan-main">
           <view class="plan-main-row plan-main-row-top">

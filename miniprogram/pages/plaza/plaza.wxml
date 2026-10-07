@@ -1,0 +1,68 @@
+<view class="page">
+  <view class="hero card">
+    <text class="hero-title">省钱广场</text>
+    <text class="hero-desc">看看大家公开的审批与挑战，一起变得更克制。</text>
+  </view>
+
+  <view class="list">
+    <view class="feed-card" wx:for="{{feedList}}" wx:key="id" data-id="{{item.id}}" data-type="{{item.type}}" bindtap="onCardTap">
+      <view class="card-head">
+        <text class="type-tag {{item.type}}">{{item.type === 'approval' ? '审批' : '挑战'}}</text>
+        <text class="author">{{item.mine ? '自己' : item.author}}</text>
+      </view>
+
+      <text class="title">{{item.title}}</text>
+      <text class="desc" wx:if="{{item.desc}}">{{item.desc}}</text>
+
+      <view class="meta" wx:if="{{item.type === 'approval'}}">
+        <view class="meta-left">
+          <text class="meta-text">预算 ¥{{item.price}}</text>
+          <text class="meta-text">{{item.statusText}}</text>
+          <text class="meta-text">{{item.voteCount}} 人已评估</text>
+        </view>
+        <view class="actions" wx:if="{{!item.mine && item.statusText === '投票中'}}">
+          <button
+            wx:if="{{!item.reviewedByMe}}"
+            class="action-btn action-approve"
+            data-id="{{item.id}}"
+            catchtap="goApproval"
+          >去审批</button>
+          <button wx:else class="action-btn action-approved" disabled>已审批</button>
+        </view>
+      </view>
+
+      <view class="progress-row" wx:if="{{item.type === 'approval'}}">
+        <view class="progress-track">
+          <view class="progress-fill approval" style="width: {{(item.progress || 0) * 100}}%;"></view>
+        </view>
+        <text class="progress-text">{{item.progressText}}</text>
+      </view>
+
+      <view class="meta" wx:if="{{item.type === 'challenge'}}">
+        <view class="meta-left">
+          <text class="meta-text">{{item.periodDays}} 天挑战</text>
+          <text class="meta-text">日均省 ¥{{item.dailyAmount}}</text>
+          <text class="meta-text">点赞 {{item.likeCount || 0}}</text>
+        </view>
+        <view class="actions" wx:if="{{!item.mine}}">
+          <button
+            class="action-btn action-like"
+            data-id="{{item.id}}"
+            catchtap="toggleLike"
+          >{{item.liked ? '已点赞' : '点赞'}} · {{item.likeCount}}</button>
+        </view>
+      </view>
+
+      <view class="progress-row" wx:if="{{item.type === 'challenge'}}">
+        <view class="progress-track">
+          <view class="progress-fill challenge" style="width: {{(item.progress || 0) * 100}}%;"></view>
+        </view>
+        <text class="progress-text">{{item.progressText}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="empty card" wx:if="{{!feedList.length && !loading}}">暂时还没有公开内容</view>
+  <view class="bottom-tip" wx:if="{{loading}}">加载中...</view>
+  <view class="bottom-tip" wx:if="{{!hasMore && feedList.length}}">没有更多了</view>
+</view>

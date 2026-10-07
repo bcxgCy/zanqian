@@ -1,13 +1,18 @@
 <view class="page" wx:if="{{challenge}}">
   <view class="hero card">
-    <text class="hero-title">{{challenge.name}}</text>
-    <view class="hero-tags">
-      <text class="hero-tag">周期 {{challenge.periodDays}} 天</text>
-      <text class="hero-tag">每日省 ¥{{challenge.dailyAmount}}</text>
-    </view>
-    <view class="hero-amount-row">
-      <text class="hero-amount-label">累计已省</text>
-      <text class="hero-amount">¥{{challenge.savedAmount}}</text>
+    <view class="hero-top">
+      <view class="hero-main">
+        <text class="hero-title">{{challenge.name}}</text>
+        <view class="hero-tags">
+          <text class="hero-tag">周期 {{challenge.periodDays}} 天</text>
+          <text class="hero-tag">每日省 ¥{{challenge.dailyAmount}}</text>
+          <text class="hero-tag">获赞 {{challenge.likeCount || 0}}</text>
+        </view>
+      </view>
+      <view class="hero-amount-right">
+        <text class="hero-amount-label">累计已省</text>
+        <text class="hero-amount">¥{{challenge.savedAmount}}</text>
+      </view>
     </view>
   </view>
 
@@ -21,6 +26,7 @@
       <view class="legend-item"><text class="dot checked"></text><text>已打卡</text></view>
       <view class="legend-item"><text class="dot pending"></text><text>待打卡</text></view>
       <view class="legend-item"><text class="dot repair"></text><text>补打卡</text></view>
+      <view class="legend-item"><text class="dot inactive"></text><text>非打卡日</text></view>
     </view>
 
     <view class="week-row">
@@ -33,4 +39,8 @@
       </view>
     </view>
   </view>
+</view>
+
+<view class="challenge-share-fixed" wx:if="{{challenge}}">
+  <button class="challenge-share-btn" open-type="share">邀请他人加入挑战</button>
 </view>

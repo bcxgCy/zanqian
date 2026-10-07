@@ -73,13 +73,6 @@
         </picker>
       </view>
 
-      <view class="field">
-        <text class="label">冷静期</text>
-        <picker range="{{cooldownOptions}}" value="{{cooldownIndex}}" bindchange="onCooldownChange">
-          <view class="input picker">{{cooldownOptions[cooldownIndex]}}</view>
-        </picker>
-      </view>
-
       <view class="field switch-field">
         <text class="label">同步到广场</text>
         <switch checked="{{form.syncToPlaza}}" bindchange="onSyncChange" color="#E6B34E" />
@@ -89,5 +82,17 @@
 
   <view class="submit-bar">
     <button class="submit-btn" bindtap="submit">提交审批</button>
+  </view>
+
+  <view class="share-mask" wx:if="{{showSharePopup}}" catchtouchmove="noop">
+    <view class="share-dialog">
+      <text class="share-title">审批已发起</text>
+      <text class="share-desc">可以分享给好友一起帮你审批，也可以稍后在详情页再分享。</text>
+      <view class="share-actions">
+        <button class="share-action ghost" bindtap="goToCreatedDetail">去详情页</button>
+        <button class="share-action primary" open-type="share">分享给他人</button>
+      </view>
+      <view class="share-close" bindtap="closeSharePopup">稍后再说</view>
+    </view>
   </view>
 </view>

@@ -23,9 +23,7 @@
     </view>
     <view class="plan-brief">
       <view class="plan-avatar-wrap">
-        <image wx:if="{{plan.avatarUrl}}" class="plan-avatar" src="{{plan.avatarUrl}}" mode="aspectFill"></image>
-        <view wx:else class="icon-circle">🐷</view>
-        <text class="plan-small-icon">{{plan.icon}}</text>
+        <view class="icon-circle">{{plan.icon || '💰'}}</view>
       </view>
       <view class="plan-info">
         <text class="name">{{plan.name}}</text>

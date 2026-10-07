@@ -39,7 +39,7 @@
     ></image>
   </view>
 
-  <view class="card badge-card">
+  <view class="card badge-card" wx:if="{{false}}">
     <view class="section-title section-title-text">储蓄勋章 <text class="star-deco">✦</text></view>
     <scroll-view scroll-x class="badge-scroll" enable-flex>
       <view class="badge-list">

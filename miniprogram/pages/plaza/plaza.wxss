@@ -1,0 +1,202 @@
+.page {
+  min-height: 100vh;
+  background: #FFF8EF;
+  padding: var(--spacing);
+  box-sizing: border-box;
+}
+
+.card {
+  background: #FFFFFF;
+  border: 2rpx solid #F3E6D2;
+  border-radius: 28rpx;
+  box-shadow: 0 8rpx 24rpx rgba(227, 166, 85, 0.12);
+}
+
+.hero {
+  padding: 24rpx;
+  margin-bottom: 16rpx;
+  background: linear-gradient(135deg, #FFEBCF 0%, #FFF5E6 100%);
+}
+
+.hero-title {
+  display: block;
+  font-size: 34rpx;
+  font-weight: 800;
+  color: #7B4E12;
+}
+
+.hero-desc {
+  display: block;
+  margin-top: 8rpx;
+  font-size: 24rpx;
+  color: #8D6841;
+}
+
+.list {
+  display: block;
+}
+
+.feed-card {
+  background: #FFFFFF;
+  border: 2rpx solid #F3E6D2;
+  border-radius: 26rpx;
+  padding: 18rpx;
+  margin-bottom: 14rpx;
+  box-shadow: 0 8rpx 18rpx rgba(227, 166, 85, 0.1);
+}
+
+.card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.type-tag {
+  font-size: 20rpx;
+  border-radius: 999rpx;
+  padding: 6rpx 12rpx;
+  font-weight: 700;
+}
+
+.type-tag.approval {
+  color: #8C4A00;
+  background: #FFE7A8;
+  border: 1rpx solid #F2C35C;
+}
+
+.type-tag.challenge {
+  color: #9E2E2E;
+  background: #FFD7D7;
+  border: 1rpx solid #F0A7A7;
+}
+
+.author {
+  font-size: 20rpx;
+  color: #A17A4C;
+}
+
+.title {
+  display: block;
+  margin-top: 10rpx;
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #5A3A12;
+  line-height: 1.4;
+}
+
+.desc {
+  display: block;
+  margin-top: 6rpx;
+  font-size: 23rpx;
+  color: #7E6343;
+  line-height: 1.45;
+}
+
+.meta {
+  margin-top: 10rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10rpx;
+}
+
+.meta-left {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8rpx;
+  min-width: 0;
+}
+
+.meta-text {
+  font-size: 20rpx;
+  color: #8A642C;
+  background: #FFF5E8;
+  border: 1rpx solid #F1DEC1;
+  border-radius: 999rpx;
+  padding: 5rpx 10rpx;
+}
+
+.actions {
+  display: flex;
+  flex-shrink: 0;
+}
+
+.action-btn {
+  margin: 0;
+  width: 128rpx!important;
+  min-width: 128rpx!important;
+  height: 46rpx;
+  line-height: 46rpx;
+  border-radius: 999rpx;
+  font-size: 20rpx;
+  padding: 0 14rpx;
+}
+
+.action-approve {
+  background: linear-gradient(135deg, #F0C678 0%, #E5A94E 100%);
+  color: #4C2E08;
+}
+
+.action-like {
+  background: #FFF3E0;
+  color: #8C5A17;
+  border: 1rpx solid #EDCF9D;
+}
+
+.action-approved {
+  background: #F4F0E6;
+  color: #9A8C73;
+  border: 1rpx solid #DDD2BE;
+}
+
+.progress-row {
+  margin-top: 10rpx;
+}
+
+.progress-track {
+  width: 100%;
+  height: 10rpx;
+  border-radius: 999rpx;
+  background: #F3E9D6;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 999rpx;
+}
+
+.progress-fill.approval {
+  background: linear-gradient(90deg, #E5A94E 0%, #D98C2F 100%);
+}
+
+.progress-fill.challenge {
+  background: linear-gradient(90deg, #CF6A6A 0%, #B94D4D 100%);
+}
+
+.progress-text {
+  display: block;
+  margin-top: 6rpx;
+  font-size: 20rpx;
+  color: #9A7A4A;
+}
+
+.mine-tip {
+  font-size: 20rpx;
+  color: #B58A58;
+}
+
+.empty {
+  margin-top: 20rpx;
+  padding: 30rpx;
+  text-align: center;
+  color: #9B7747;
+  font-size: 24rpx;
+}
+
+.bottom-tip {
+  text-align: center;
+  font-size: 22rpx;
+  color: #A88350;
+  padding: 14rpx 0 20rpx;
+}
