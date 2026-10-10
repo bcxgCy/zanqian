@@ -24,7 +24,7 @@
   </view>
 
   <view class="entry-row card">
-    <view class="entry-box" bindtap="goApprovalCreate">
+    <view class="entry-box" wx:if="{{showApprovalEntry}}" bindtap="goApprovalCreate">
       <view class="entry-left">
         <view class="entry-icon-wrap approval-bg">
           <image class="entry-icon-image" src="cloud://cloud1-d1g1g2urwd9ff5a66.636c-cloud1-d1g1g2urwd9ff5a66-1462912205/other/nav-shenpi.jpg" mode="aspectFill"></image>
@@ -49,7 +49,7 @@
     </view>
   </view>
 
-  <view class="section card">
+  <view class="section card" wx:if="{{showApprovalEntry}}">
     <view class="section-head">
       <text class="section-title">我的审批</text>
       <text class="section-more" bindtap="goApprovalList">更多 ›</text>

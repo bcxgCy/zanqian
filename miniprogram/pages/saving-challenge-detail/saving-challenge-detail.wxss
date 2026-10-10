@@ -201,11 +201,55 @@
   background: rgba(255, 249, 240, 0.95);
   backdrop-filter: blur(6rpx);
   z-index: 88;
+  display: flex;
+  gap: 12rpx;
+}
+
+.challenge-subscribe-btn {
+  flex: 1;
+  margin: 0;
+  line-height: 72rpx;
+  border-radius: 999rpx;
+  font-size: 24rpx;
+  font-weight: 700;
+}
+
+.challenge-subscribe-btn.active {
+  background: #EFF9DF;
+  border: 2rpx solid #A8D84E;
+  color: #4E7E12;
+}
+
+.challenge-subscribe-btn.disabled,
+.challenge-subscribe-btn[disabled] {
+  background: #F4F0E6;
+  border: 2rpx solid #E2D8C5;
+  color: #988A70;
+}
+
+.challenge-subscribe-btn::after {
+  border: 0;
+}
+
+.challenge-delete-btn {
+  flex: 1;
+  margin: 0;
+  line-height: 72rpx;
+  border-radius: 999rpx;
+  background: #FFF2F2;
+  border: 2rpx solid #F0CACA;
+  color: #C45353;
+  font-size: 24rpx;
+  font-weight: 700;
+}
+
+.challenge-delete-btn::after {
+  border: 0;
 }
 
 .challenge-share-btn {
+  flex: 1;
   margin: 0;
-  width: 100%;
   line-height: 72rpx;
   border-radius: 999rpx;
   background: #E6B34E;

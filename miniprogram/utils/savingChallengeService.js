@@ -32,11 +32,15 @@ function getHomeData() {
   return callSavingChallengeService({ action: 'getHomeData' });
 }
 
+function deleteChallenge(challengeId) {
+  return callSavingChallengeService({ action: 'deleteChallenge', challengeId });
+}
+
 module.exports = {
   createChallenge,
   getChallenges,
   getChallengeDetail,
   checkinChallenge,
   getHomeData,
+  deleteChallenge,
 };
-

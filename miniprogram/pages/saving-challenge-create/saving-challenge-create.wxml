@@ -76,6 +76,6 @@
   </view>
 
   <view class="submit-bar">
-    <button class="submit-btn" bindtap="submit">创建挑战</button>
+    <button class="submit-btn {{submitting ? 'is-submitting' : ''}}" bindtap="submit" loading="{{submitting}}" disabled="{{submitting}}">{{submitting ? '创建中...' : '创建挑战'}}</button>
   </view>
 </view>

@@ -313,6 +313,23 @@ async function getHomeData(openid) {
   };
 }
 
+async function deleteChallenge(openid, challengeId) {
+  await ensureCollection(CHALLENGE_COLLECTION);
+  if (!challengeId) return { ok: false, error: '缺少挑战ID' };
+
+  try {
+    const res = await db.collection(CHALLENGE_COLLECTION).doc(challengeId).get();
+    const doc = res.data;
+    if (!doc || doc.openid !== openid) {
+      return { ok: false, error: '无权删除该挑战' };
+    }
+    await db.collection(CHALLENGE_COLLECTION).doc(challengeId).remove();
+    return { ok: true };
+  } catch (err) {
+    return { ok: false, error: '挑战不存在或已删除' };
+  }
+}
+
 exports.main = async (event) => {
   const wxContext = cloud.getWXContext();
   const openid = wxContext.OPENID;
@@ -323,6 +340,7 @@ exports.main = async (event) => {
   if (action === 'getChallengeDetail') return getChallengeDetail(openid, event.challengeId);
   if (action === 'checkinChallenge') return checkinChallenge(openid, event.challengeId, event.dateKey, event.mode);
   if (action === 'getHomeData') return getHomeData(openid);
+  if (action === 'deleteChallenge') return deleteChallenge(openid, event.challengeId);
 
   return { ok: false, error: 'Unknown action: ' + action };
 };

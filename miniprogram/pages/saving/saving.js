@@ -11,6 +11,7 @@ Page({
     },
     ongoingApprovals: [],
     ongoingChallenges: [],
+    showApprovalEntry: true,
   },
 
   onShow() {
@@ -43,6 +44,7 @@ Page({
         summary,
         ongoingApprovals: Array.isArray(homeRes.ongoingApprovals) ? homeRes.ongoingApprovals : [],
         ongoingChallenges: Array.isArray(homeRes.ongoingChallenges) ? homeRes.ongoingChallenges : [],
+        showApprovalEntry: homeRes.showApprovalEntry !== false,
       });
     } catch (err) {
       wx.showToast({ title: '省钱数据加载失败', icon: 'none' });

@@ -88,7 +88,7 @@
     <button class="review-submit" bindtap="submitReview">提交审批</button>
   </view>
 
-  <view class="card">
+  <view class="card" wx:if="{{detail.showReplyDetail !== false}}">
     <text class="section-title">回应详情</text>
     <view class="reply-empty" wx:if="{{!detail.replies.length}}">暂时还没有回应，等一条新审批意见吧</view>
     <view class="reply" wx:for="{{detail.replies}}" wx:key="id">

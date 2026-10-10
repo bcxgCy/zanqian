@@ -91,6 +91,9 @@ Page({
 
   onShow() {
     this.loadPlan();
+    subscribe.syncStatusFromCloud(this.planId).finally(() => {
+      this.updateSubscribeButtonStatus();
+    });
   },
 
   onHide() {
@@ -840,32 +843,30 @@ Page({
    * 场景三：用户主动点击开启提醒
    */
   onSubscribeTap() {
-    const btnStatus = subscribe.getButtonStatus(this.planId);
-    if (btnStatus.status === 'cooldown') {
-      wx.showToast({
-        title: `暂时无法开启，${btnStatus.remainingDays}天后重试`,
-        icon: 'none',
-      });
-      return;
-    }
-    if (btnStatus.status === 'disabled') {
-      wx.showToast({
-        title: '打卡提醒已生效',
-        icon: 'none',
-      });
-      return;
-    }
+    subscribe.syncStatusFromCloud(this.planId).finally(() => {
+      const btnStatus = subscribe.getButtonStatus(this.planId);
+      if (btnStatus.status === 'cooldown') {
+        wx.showToast({
+          title: `暂时无法开启，${btnStatus.remainingDays}天后重试`,
+          icon: 'none',
+        });
+        return;
+      }
+      if (btnStatus.status === 'disabled') {
+        wx.showToast({
+          title: '打卡提醒已生效',
+          icon: 'none',
+        });
+        return;
+      }
 
-    // 直接触发订阅授权（同步调用，在 TAP 手势的调用栈中）
-    const requested = subscribe.triggerManual(this.planId);
-    if (requested) {
-      // 已发起请求，等用户操作后更新状态
-      // 注意：不能在这里立即更新，需要等用户在弹窗中操作后
-      // 可以通过延迟或让用户手动刷新来更新
-      setTimeout(() => {
-        this.updateSubscribeButtonStatus();
-      }, 1000);
-    }
+      const requested = subscribe.triggerManual(this.planId);
+      if (requested) {
+        setTimeout(() => {
+          this.updateSubscribeButtonStatus();
+        }, 1000);
+      }
+    });
   },
 
   /**

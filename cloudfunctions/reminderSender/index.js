@@ -34,6 +34,11 @@ const PUSH_TYPES = {
   PLAN_COMPLETE: 'planComplete',    // 结项通知
 };
 
+const RECORD_TYPES = {
+  PLAN: 'plan',
+  CHALLENGE: 'challenge',
+};
+
 // 推送限制常量
 const MAX_PLANS_PER_RUN = 100;       // 单次最多处理的计划数（防止超时）
 const PUSH_RETRY_COUNT = 1;          // 推送失败重试次数
@@ -188,7 +193,7 @@ async function ensureSubscribeCollection() {
  * @param {string} openid 用户openid
  * @param {string} planId 心愿ID
  */
-async function getSubscribeRecord(openid, planId) {
+async function getSubscribeRecord(openid, planId, recordType = RECORD_TYPES.PLAN) {
   try {
     const res = await db.collection(SUBSCRIBE_COLLECTION)
       .where({
@@ -196,7 +201,12 @@ async function getSubscribeRecord(openid, planId) {
         planId,
       })
       .get();
-    return res.data && res.data.length > 0 ? res.data[0] : null;
+    const list = res.data || [];
+    if (!list.length) return null;
+    if (recordType === RECORD_TYPES.PLAN) {
+      return list.find((item) => !item.recordType || item.recordType === RECORD_TYPES.PLAN) || null;
+    }
+    return list.find((item) => item.recordType === recordType) || null;
   } catch (err) {
     console.warn('获取订阅记录失败', err);
     return null;
@@ -206,12 +216,13 @@ async function getSubscribeRecord(openid, planId) {
 /**
  * 更新或创建订阅记录
  */
-async function upsertSubscribeRecord(openid, planId, data) {
+async function upsertSubscribeRecord(openid, planId, data, recordType = RECORD_TYPES.PLAN) {
   await ensureSubscribeCollection();
-  const existing = await getSubscribeRecord(openid, planId);
+  const existing = await getSubscribeRecord(openid, planId, recordType);
   const recordData = Object.assign({
     openid,
     planId,
+    recordType,
     updatedAt: db.serverDate(),
   }, data);
 
@@ -228,23 +239,30 @@ async function upsertSubscribeRecord(openid, planId, data) {
 /**
  * 标记额度已使用
  */
-async function markQuotaUsed(openid, planId, pushType) {
+async function markQuotaUsed(openid, planId, pushType, recordType = RECORD_TYPES.PLAN) {
   await upsertSubscribeRecord(openid, planId, {
     quotaUsed: true,
     usedAt: db.serverDate(),
     lastPushType: pushType,
     lastPushDate: getToday(),
-  });
+  }, recordType);
 }
 
 /**
  * 清除某心愿的所有订阅记录（删除心愿时调用）
  */
-async function clearSubscribeRecords(planId) {
+async function clearSubscribeRecords(planId, recordType = RECORD_TYPES.PLAN) {
   try {
-    await db.collection(SUBSCRIBE_COLLECTION)
+    const res = await db.collection(SUBSCRIBE_COLLECTION)
       .where({ planId })
-      .remove();
+      .get();
+    const list = (res.data || []).filter((item) => {
+      if (recordType === RECORD_TYPES.PLAN) {
+        return !item.recordType || item.recordType === RECORD_TYPES.PLAN;
+      }
+      return item.recordType === recordType;
+    });
+    await Promise.all(list.map((item) => db.collection(SUBSCRIBE_COLLECTION).doc(item._id).remove()));
   } catch (err) {
     console.warn('清除订阅记录失败', err);
   }
@@ -435,6 +453,7 @@ async function pushDailyCheckin() {
 
         // 构建 planId -> record 的映射
         (recordsRes.data || []).forEach(record => {
+          if (record.recordType && record.recordType !== RECORD_TYPES.PLAN) return;
           recordsMap[record.planId] = record;
         });
       } catch (err) {
@@ -469,7 +488,7 @@ async function pushDailyCheckin() {
         let record = recordsMap[plan.id];
         if (!record) {
           // 回退：单独查询
-          record = await getSubscribeRecord(plan.openid, plan.id);
+          record = await getSubscribeRecord(plan.openid, plan.id, RECORD_TYPES.PLAN);
         }
 
         if (!shouldPush(record)) {
@@ -550,6 +569,7 @@ async function pushExpireWarning() {
           .where({ planId: _.in(planIds) })
           .get();
         (recordsRes.data || []).forEach(record => {
+          if (record.recordType && record.recordType !== RECORD_TYPES.PLAN) return;
           recordsMap[record.planId] = record;
         });
       } catch (err) {
@@ -578,7 +598,7 @@ async function pushExpireWarning() {
         // 检查订阅状态（优先批量结果）
         let record = recordsMap[plan.id];
         if (!record) {
-          record = await getSubscribeRecord(plan.openid, plan.id);
+          record = await getSubscribeRecord(plan.openid, plan.id, RECORD_TYPES.PLAN);
         }
 
         if (!shouldPush(record)) {
@@ -654,6 +674,7 @@ async function pushPlanComplete() {
           .where({ planId: _.in(planIds) })
           .get();
         (recordsRes.data || []).forEach(record => {
+          if (record.recordType && record.recordType !== RECORD_TYPES.PLAN) return;
           recordsMap[record.planId] = record;
         });
       } catch (err) {
@@ -675,7 +696,7 @@ async function pushPlanComplete() {
         // 检查订阅状态（优先批量结果）
         let record = recordsMap[plan.id];
         if (!record) {
-          record = await getSubscribeRecord(plan.openid, plan.id);
+          record = await getSubscribeRecord(plan.openid, plan.id, RECORD_TYPES.PLAN);
         }
 
         if (!shouldPush(record)) {
@@ -722,16 +743,30 @@ async function syncAuthStatus(openid, planId) {
     authTime: getToday(),
     quotaUsed: false,
     rejectTime: null,
-  });
+  }, RECORD_TYPES.PLAN);
   return { success: true, message: '授权状态已同步' };
+}
+
+async function syncChallengeAuthStatus(openid, challengeId) {
+  await upsertSubscribeRecord(openid, challengeId, {
+    authTime: getToday(),
+    quotaUsed: false,
+    rejectTime: null,
+  }, RECORD_TYPES.CHALLENGE);
+  return { success: true, message: '挑战提醒授权状态已同步' };
 }
 
 /**
  * 清除某心愿的订阅记录（删除心愿时调用）
  */
 async function clearRecordsByPlanId(planId) {
-  await clearSubscribeRecords(planId);
+  await clearSubscribeRecords(planId, RECORD_TYPES.PLAN);
   return { success: true, message: '订阅记录已清除' };
+}
+
+async function clearChallengeRecordsById(challengeId) {
+  await clearSubscribeRecords(challengeId, RECORD_TYPES.CHALLENGE);
+  return { success: true, message: '挑战提醒记录已清除' };
 }
 
 // ==================== 主入口 ====================
@@ -789,22 +824,42 @@ exports.main = async (event, context) => {
       // 前端授权成功后调用，同步授权状态
       return syncAuthStatus(openid, event.planId);
 
+    case 'syncChallengeAuth':
+      return syncChallengeAuthStatus(openid, event.challengeId);
+
     case 'clearRecords':
       // 删除心愿时调用，清除订阅记录
       return clearRecordsByPlanId(event.planId);
 
+    case 'clearChallengeRecords':
+      return clearChallengeRecordsById(event.challengeId);
+
     case 'getStatus':
       // 查询订阅状态（调试用）
-      const record = await getSubscribeRecord(openid, event.planId);
+      const record = await getSubscribeRecord(openid, event.planId, RECORD_TYPES.PLAN);
       return {
         record,
         shouldPush: shouldPush(record),
       };
 
+    case 'getChallengeStatus':
+      const challengeRecord = await getSubscribeRecord(openid, event.challengeId, RECORD_TYPES.CHALLENGE);
+      return {
+        record: challengeRecord,
+        shouldPush: shouldPush(challengeRecord),
+      };
+
     default:
       return {
         error: 'Unknown type: ' + type,
-        availableTypes: Object.values(PUSH_TYPES).concat(['syncAuth', 'clearRecords', 'getStatus']),
+        availableTypes: Object.values(PUSH_TYPES).concat([
+          'syncAuth',
+          'syncChallengeAuth',
+          'clearRecords',
+          'clearChallengeRecords',
+          'getStatus',
+          'getChallengeStatus',
+        ]),
         triggerName,
       };
   }

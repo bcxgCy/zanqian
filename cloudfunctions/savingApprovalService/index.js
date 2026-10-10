@@ -1,4 +1,5 @@
 const cloud = require('wx-server-sdk');
+const serviceConfig = require('./config.json');
 
 cloud.init({
   env: cloud.DYNAMIC_CURRENT_ENV,
@@ -8,6 +9,7 @@ const db = cloud.database();
 const _ = db.command;
 
 const APPROVAL_COLLECTION = 'saving_approvals';
+const SHOW_REPLY_DETAIL = serviceConfig.showReplyDetail !== false;
 
 const STATUS_TEXT_MAP = {
   voting: '投票中',
@@ -163,6 +165,17 @@ function toDetail(doc) {
   const status = getRuntimeStatus(doc);
   const voteStats = getVoteStats(doc);
   const reviews = Array.isArray(doc.reviews) ? doc.reviews : [];
+  const replies = SHOW_REPLY_DETAIL
+    ? reviews.map((item) => ({
+      id: item.id,
+      side: item.vote === 'buy' ? '通过' : '驳回',
+      voteText: VOTE_OPTIONS[item.vote] || item.vote,
+      user: item.userName || '匿名用户',
+      content: item.comment || '',
+      alternative: item.alternative || '',
+      createdAt: safeNumber(item.createdAt, 0),
+    }))
+    : [];
 
   return {
     id: doc._id,
@@ -178,15 +191,8 @@ function toDetail(doc) {
     passVotes: voteStats.buy,
     rejectVotes: voteStats.reject + voteStats.wait,
     voteStats,
-    replies: reviews.map((item) => ({
-      id: item.id,
-      side: item.vote === 'buy' ? '通过' : '驳回',
-      voteText: VOTE_OPTIONS[item.vote] || item.vote,
-      user: item.userName || '匿名用户',
-      content: item.comment || '',
-      alternative: item.alternative || '',
-      createdAt: safeNumber(item.createdAt, 0),
-    })),
+    showReplyDetail: SHOW_REPLY_DETAIL,
+    replies,
     finalDecision: doc.finalDecision || '',
     createdAt: safeNumber(doc.createdAt, 0),
     updatedAt: safeNumber(doc.updatedAt, 0),

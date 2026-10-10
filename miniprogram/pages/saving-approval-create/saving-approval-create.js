@@ -30,15 +30,19 @@ Page({
 
   onShareAppMessage() {
     const id = this.data.createdApprovalId;
+    const itemName = (this.data.form.itemName || '').trim();
+    const price = Number(this.data.form.price) || 0;
+    const amountText = price > 0 ? `¥${price}` : '这笔消费';
+    const nameText = itemName || '这个东西';
     if (!id) {
       return {
-        title: '救命！我又想买东西了，快来当我的理性搭子～',
+        title: `我想买${nameText}（${amountText}），快来帮我参谋一下！`,
         imageUrl: SHARE_POSTER,
         path: '/pages/saving/saving',
       };
     }
     return {
-      title: '我钱包发来求救：这单到底该不该冲？',
+      title: `我想买${nameText}（${amountText}），快来帮我审批！`,
       imageUrl: SHARE_POSTER,
       path: `/pages/saving-approval-detail/saving-approval-detail?id=${id}`,
     };

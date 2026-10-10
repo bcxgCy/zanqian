@@ -5,7 +5,7 @@
   </view>
 
   <view class="list">
-    <view class="feed-card" wx:for="{{feedList}}" wx:key="id" data-id="{{item.id}}" data-type="{{item.type}}" bindtap="onCardTap">
+    <view class="feed-card" wx:for="{{feedList}}" wx:key="id" data-id="{{item.id}}" data-type="{{item.type}}" data-mine="{{item.mine}}" bindtap="onCardTap">
       <view class="card-head">
         <text class="type-tag {{item.type}}">{{item.type === 'approval' ? '审批' : '挑战'}}</text>
         <text class="author">{{item.mine ? '自己' : item.author}}</text>

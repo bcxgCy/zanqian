@@ -4,6 +4,7 @@ const dateUtil = require('../../utils/date');
 const quizUtil = require('../../utils/savingPersonaQuiz');
 const statsUtil = require('../../utils/stats');
 const money = require('../../utils/money');
+const subscribe = require('../../utils/subscribe');
 
 let guideShown = false;
 const QUIZ_POPUP_FREQ_KEY = 'saving_quiz_popup_freq_v1';
@@ -255,8 +256,20 @@ Page({
     wx.navigateTo({ url: '/pages/statistics/statistics' });
   },
 
-  goReminderSettings() {
-    wx.navigateTo({ url: '/pages/settings/settings' });
+  onOneKeyReminderTap() {
+    const plans = Array.isArray(this.data.plans) ? this.data.plans : [];
+    if (!plans.length) {
+      wx.showToast({ title: '当前没有待提醒计划', icon: 'none' });
+      return;
+    }
+
+    const planIds = plans.map((item) => item && item.id).filter(Boolean);
+    const requested = subscribe.requestSubscribeBatch(planIds);
+    if (requested) {
+      setTimeout(() => {
+        this.loadData();
+      }, 1000);
+    }
   },
 
   goCalculator() {

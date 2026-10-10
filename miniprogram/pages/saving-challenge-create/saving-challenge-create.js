@@ -95,6 +95,7 @@ Page({
     showTemplateSheet: false,
     templateKeyword: '',
     filteredTemplateGroups: TEMPLATE_GROUPS,
+    submitting: false,
   },
 
   onInput(e) {
@@ -172,6 +173,9 @@ Page({
   },
 
   async submit() {
+    if (this.data.submitting) {
+      return;
+    }
     const { name, days, dailyAmount } = this.data.form;
     if (!name.trim()) {
       wx.showToast({ title: '请输入挑战名称', icon: 'none' });
@@ -189,6 +193,7 @@ Page({
       wx.showToast({ title: '请输入每日预估省钱', icon: 'none' });
       return;
     }
+    this.setData({ submitting: true });
     wx.showLoading({ title: '创建中', mask: true });
     try {
       const payload = {
@@ -209,6 +214,7 @@ Page({
       wx.showToast({ title: '创建失败，请稍后重试', icon: 'none' });
     } finally {
       wx.hideLoading();
+      this.setData({ submitting: false });
     }
   },
 });

@@ -39,8 +39,15 @@
       </view>
     </view>
   </view>
+
 </view>
 
 <view class="challenge-share-fixed" wx:if="{{challenge}}">
-  <button class="challenge-share-btn" open-type="share">邀请他人加入挑战</button>
+  <button class="challenge-delete-btn" bindtap="onDeleteChallengeTap">删除挑战</button>
+  <button
+    class="challenge-subscribe-btn {{subscribeBtnStatus === 'active' ? 'active' : 'disabled'}}"
+    bindtap="onSubscribeTap"
+    disabled="{{subscribeBtnStatus !== 'active'}}"
+  >{{subscribeBtnText}}</button>
+  <button class="challenge-share-btn" open-type="share">邀请他人</button>
 </view>

@@ -1,4 +1,5 @@
 const savingChallengeService = require('../../utils/savingChallengeService');
+const savingChallengeSubscribe = require('../../utils/savingChallengeSubscribe');
 
 const SHARE_POSTER = 'cloud://cloud1-d1g1g2urwd9ff5a66.636c-cloud1-d1g1g2urwd9ff5a66-1462912205/other/shengqian-share.jpg';
 
@@ -50,6 +51,8 @@ Page({
     weekTitles: ['一', '二', '三', '四', '五', '六', '日'],
     monthLabel: '',
     calendarCells: [],
+    subscribeBtnStatus: 'active',
+    subscribeBtnText: '开启提醒',
   },
 
   onLoad(options) {
@@ -65,9 +68,10 @@ Page({
 
   onShareAppMessage() {
     const challenge = this.data.challenge || {};
+    const challengeName = (challenge.name || '').trim() || '省钱挑战';
     const checkedDays = Number(challenge.checkedDays) || 0;
     const savedAmount = Number(challenge.savedAmount) || 0;
-    const title = `我已打卡${checkedDays}天，省下¥${savedAmount}，来一起加入省钱挑战！`;
+    const title = `${challengeName}我已坚持${checkedDays}天，省下¥${savedAmount}，邀请你一起加入！`;
     return {
       title,
       imageUrl: SHARE_POSTER,
@@ -77,6 +81,44 @@ Page({
 
   onShow() {
     this.loadDetail();
+    savingChallengeSubscribe.syncStatusFromCloud(this.data.challengeId).finally(() => {
+      this.updateSubscribeButtonStatus();
+    });
+  },
+
+  updateSubscribeButtonStatus() {
+    const challengeId = this.data.challengeId;
+    if (!challengeId) return;
+    const status = savingChallengeSubscribe.getButtonStatus(challengeId);
+    this.setData({
+      subscribeBtnStatus: status.status,
+      subscribeBtnText: status.text,
+    });
+  },
+
+  onSubscribeTap() {
+    const challengeId = this.data.challengeId;
+    if (!challengeId) return;
+
+    const requested = savingChallengeSubscribe.triggerManual(challengeId);
+    if (requested) {
+      setTimeout(() => {
+        this.updateSubscribeButtonStatus();
+      }, 1000);
+      return;
+    }
+
+    savingChallengeSubscribe.syncStatusFromCloud(challengeId).finally(() => {
+      this.updateSubscribeButtonStatus();
+    });
+  },
+
+  trySubscribeBeforeCheckin() {
+    const challengeId = this.data.challengeId;
+    if (!challengeId) return;
+    const status = savingChallengeSubscribe.getButtonStatus(challengeId);
+    if (status.status !== 'active') return;
+    savingChallengeSubscribe.triggerManual(challengeId);
   },
 
   async loadDetail() {
@@ -151,6 +193,7 @@ Page({
       cancelText: '没做到',
       success: async (res) => {
         if (!res.confirm) return;
+        this.trySubscribeBeforeCheckin();
         try {
           const ret = await savingChallengeService.checkinChallenge(
             this.data.challengeId,
@@ -163,8 +206,39 @@ Page({
           }
           wx.showToast({ title: canRepair ? '补打卡成功' : '打卡成功', icon: 'success' });
           this.loadDetail();
+          this.updateSubscribeButtonStatus();
         } catch (err) {
           wx.showToast({ title: '打卡失败', icon: 'none' });
+        }
+      },
+    });
+  },
+
+  onDeleteChallengeTap() {
+    const challengeId = this.data.challengeId;
+    if (!challengeId) return;
+
+    wx.showModal({
+      title: '删除挑战',
+      content: '删除后不可恢复，确认删除这个挑战吗？',
+      confirmColor: '#D65A5A',
+      success: async (res) => {
+        if (!res.confirm) return;
+        wx.showLoading({ title: '删除中', mask: true });
+        try {
+          const ret = await savingChallengeService.deleteChallenge(challengeId);
+          if (!ret.ok) {
+            wx.showToast({ title: ret.error || '删除失败', icon: 'none' });
+            return;
+          }
+          wx.showToast({ title: '已删除', icon: 'success' });
+          setTimeout(() => {
+            wx.navigateBack();
+          }, 300);
+        } catch (err) {
+          wx.showToast({ title: '删除失败', icon: 'none' });
+        } finally {
+          wx.hideLoading();
         }
       },
     });

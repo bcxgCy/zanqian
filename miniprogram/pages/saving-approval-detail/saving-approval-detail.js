@@ -24,9 +24,10 @@ Page({
 
   onShareAppMessage() {
     const detail = this.data.detail || {};
-    const title = detail.name
-      ? `快来裁判一下：${detail.name} 该不该买？`
-      : '我差点冲动下单，快来帮我踩刹车～';
+    const nameText = (detail.name || '').trim() || '这个东西';
+    const price = Number(detail.price) || 0;
+    const amountText = price > 0 ? `¥${price}` : '这笔消费';
+    const title = `我想买${nameText}（${amountText}），快来帮我审批！`;
     return {
       title,
       imageUrl: SHARE_POSTER,

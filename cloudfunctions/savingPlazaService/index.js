@@ -1,4 +1,5 @@
 const cloud = require('wx-server-sdk');
+const serviceConfig = require('./config.json');
 
 cloud.init({
   env: cloud.DYNAMIC_CURRENT_ENV,
@@ -10,6 +11,9 @@ const _ = db.command;
 const APPROVAL_COLLECTION = 'saving_approvals';
 const CHALLENGE_COLLECTION = 'saving_challenges';
 const ensuredCollections = {};
+const SHOW_APPROVAL_IN_PLAZA = typeof serviceConfig.showApprovalInPlaza === 'boolean'
+  ? serviceConfig.showApprovalInPlaza
+  : (serviceConfig.showReplyDetail !== false);
 
 function nowTs() {
   return Date.now();
@@ -181,9 +185,11 @@ async function getPlazaFeed(openid, page, pageSize) {
   ]);
 
   const merged = [];
-  (approvalRes.data || [])
-    .filter(isApprovalInProgress)
-    .forEach((doc) => merged.push(toPlazaApproval(doc, openid)));
+  if (SHOW_APPROVAL_IN_PLAZA) {
+    (approvalRes.data || [])
+      .filter(isApprovalInProgress)
+      .forEach((doc) => merged.push(toPlazaApproval(doc, openid)));
+  }
 
   (challengeRes.data || [])
     .filter(isChallengeInProgress)

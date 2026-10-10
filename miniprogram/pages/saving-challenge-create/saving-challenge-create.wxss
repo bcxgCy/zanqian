@@ -178,6 +178,11 @@
   line-height: 72rpx;
 }
 
+.submit-btn.is-submitting,
+.submit-btn[disabled] {
+  opacity: 0.72;
+}
+
 .sheet-mask {
   position: fixed;
   inset: 0;

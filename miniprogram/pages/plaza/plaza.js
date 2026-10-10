@@ -186,9 +186,14 @@ Page({
   onCardTap(e) {
     const id = e.currentTarget.dataset.id;
     const type = e.currentTarget.dataset.type;
+    const mine = !!e.currentTarget.dataset.mine;
     if (!id) return;
     if (type === 'approval') {
       wx.navigateTo({ url: '/pages/saving-approval-detail/saving-approval-detail?id=' + id });
+      return;
+    }
+    if (type === 'challenge' && mine) {
+      wx.navigateTo({ url: '/pages/saving-challenge-detail/saving-challenge-detail?id=' + id });
       return;
     }
     wx.showToast({ title: '挑战可直接点赞互动', icon: 'none' });

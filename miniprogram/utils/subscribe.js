@@ -231,6 +231,50 @@ function syncAuthToCloud(planId) {
 }
 
 /**
+ * 从云端同步某计划的订阅状态到本地
+ * 目的：云端推送成功后会把 quotaUsed 置为 true，需要回写本地，确保可再次订阅
+ * @param {string} planId 心愿ID
+ */
+function syncStatusFromCloud(planId) {
+  if (!planId) return Promise.resolve(null);
+  try {
+    return wx.cloud.callFunction({
+      name: 'reminderSender',
+      data: {
+        type: 'getStatus',
+        planId,
+      },
+    }).then((res) => {
+      const result = (res && res.result) || {};
+      const record = result.record || null;
+      if (!record) return null;
+
+      if (record.authTime) {
+        wx.setStorageSync(getStorageKey(planId, 'auth'), record.authTime);
+      }
+
+      if (record.quotaUsed) {
+        markAsUsed(planId);
+      } else if (record.authTime) {
+        wx.removeStorageSync(getStorageKey(planId, 'used'));
+      }
+
+      if (record.rejectTime) {
+        wx.setStorageSync(getStorageKey(planId, 'reject'), record.rejectTime);
+      }
+
+      return record;
+    }).catch((err) => {
+      console.warn('同步云端订阅状态失败', err);
+      return null;
+    });
+  } catch (e) {
+    console.warn('云端状态同步不可用', e);
+    return Promise.resolve(null);
+  }
+}
+
+/**
  * 记录用户拒绝
  * @param {string} planId 心愿ID
  */
@@ -342,6 +386,50 @@ function triggerManual(planId) {
   return requestSubscribe(planId);
 }
 
+/**
+ * 首页一键提醒：单次授权，批量为多个心愿开启提醒
+ * 仅对状态为 active 的计划生效（无有效额度且不在冷却期）
+ * @param {string[]} planIds 心愿ID列表
+ */
+function requestSubscribeBatch(planIds) {
+  const uniquePlanIds = Array.from(new Set((planIds || []).filter(Boolean)));
+  if (!uniquePlanIds.length) {
+    wx.showToast({ title: '暂无可提醒计划', icon: 'none' });
+    return false;
+  }
+
+  const activePlanIds = uniquePlanIds.filter((planId) => {
+    const status = getButtonStatus(planId);
+    return status.status === 'active';
+  });
+
+  if (!activePlanIds.length) {
+    wx.showToast({ title: '这些计划提醒已生效', icon: 'none' });
+    return false;
+  }
+
+  wx.requestSubscribeMessage({
+    tmplIds: [TEMPLATE_ID],
+    success: (res) => {
+      if (res[TEMPLATE_ID] === 'accept') {
+        activePlanIds.forEach((planId) => recordAuth(planId));
+        wx.showToast({
+          title: activePlanIds.length > 1 ? `已开启${activePlanIds.length}个计划提醒` : '打卡提醒已开启',
+          icon: 'success',
+        });
+      } else {
+        activePlanIds.forEach((planId) => recordReject(planId));
+        wx.showToast({ title: '已取消', icon: 'none' });
+      }
+    },
+    fail: (err) => {
+      console.warn('批量订阅请求失败', err);
+    },
+  });
+
+  return true;
+}
+
 // ==================== 导出模块 ====================
 
 module.exports = {
@@ -357,6 +445,8 @@ module.exports = {
 
   // 授权操作
   requestSubscribe,
+  syncStatusFromCloud,
+  requestSubscribeBatch,
   markAsUsed,
   clearAllRecords,
 

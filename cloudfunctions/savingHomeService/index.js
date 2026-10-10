@@ -1,4 +1,5 @@
 const cloud = require('wx-server-sdk');
+const serviceConfig = require('./config.json');
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 
@@ -7,6 +8,7 @@ const ensuredCollections = {};
 
 const APPROVAL_COLLECTION = 'saving_approvals';
 const CHALLENGE_COLLECTION = 'saving_challenges';
+const SHOW_APPROVAL_ENTRY = serviceConfig.showApprovalEntry !== false;
 
 function safeNumber(value, fallback) {
   const num = Number(value);
@@ -163,6 +165,7 @@ exports.main = async () => {
 
   return {
     ok: true,
+    showApprovalEntry: SHOW_APPROVAL_ENTRY,
     summary: {
       approvalSaved,
       pendingApprovalCount,

@@ -67,8 +67,8 @@
   <!-- 区域 C：列表头部 -->
   <view class="section-header">
     <text class="section-title-text">近期待打卡计划</text>
-    <view class="reminder-btn" bindtap="goReminderSettings">
-      <text class="reminder-btn-text">提醒</text>
+    <view class="reminder-btn" bindtap="onOneKeyReminderTap">
+      <text class="reminder-btn-text">一键提醒</text>
     </view>
   </view>
 
