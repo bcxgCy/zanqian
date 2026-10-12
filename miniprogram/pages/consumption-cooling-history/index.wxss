@@ -1,0 +1,195 @@
+.page {
+  min-height: 100vh;
+  padding: var(--spacing);
+  box-sizing: border-box;
+  background: #FFF9F0;
+}
+
+.card {
+  background: #FFFFFF;
+  border-radius: 40rpx;
+  border: 2rpx solid #EEF4E3;
+  box-shadow: 0 8rpx 32rpx rgba(168, 216, 78, 0.12), 0 2rpx 8rpx rgba(255, 255, 255, 0.7);
+  margin-bottom: 18rpx;
+}
+
+.stats-card {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12rpx;
+  padding: 22rpx;
+}
+
+.filter-card {
+  padding: 14rpx 16rpx;
+}
+
+.filter-row {
+  display: flex;
+  gap: 10rpx;
+  flex-wrap: wrap;
+}
+
+.filter-chip {
+  padding: 8rpx 16rpx;
+  border-radius: 999rpx;
+  font-size: 22rpx;
+  color: #7A746A;
+  background: #FFF8EA;
+  border: 1rpx solid #F0E2C7;
+}
+
+.filter-chip.active {
+  color: #8A5A19;
+  background: #FEE9BD;
+  border-color: #F0C979;
+  font-weight: 600;
+}
+
+.stat-item {
+  padding: 18rpx 8rpx;
+  border-radius: 18rpx;
+  background: #FFFCF5;
+  border: 1rpx solid #F2E6CD;
+  text-align: center;
+}
+
+.stat-value {
+  display: block;
+  font-size: 30rpx;
+  font-weight: 800;
+  color: #8A5A19;
+}
+
+.stat-label {
+  display: block;
+  margin-top: 6rpx;
+  font-size: 20rpx;
+  color: #8A8378;
+}
+
+.list-card {
+  padding: 20rpx;
+}
+
+.month-group + .month-group {
+  margin-top: 14rpx;
+}
+
+.month-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 10rpx;
+  border-bottom: 1rpx dashed #EFE4CF;
+}
+
+.month-title {
+  font-size: 24rpx;
+  font-weight: 700;
+  color: #6D644F;
+}
+
+.month-sub {
+  font-size: 20rpx;
+  color: #9A8E77;
+}
+
+.history-item {
+  padding: 20rpx 0;
+  border-bottom: 2rpx solid #F3ECDF;
+}
+
+.history-item:first-child {
+  padding-top: 0;
+}
+
+.history-item:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.history-head,
+.history-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12rpx;
+}
+
+.history-name {
+  min-width: 0;
+  flex: 1;
+  font-size: 30rpx;
+  font-weight: 800;
+  color: #2F2A22;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.history-price {
+  font-size: 28rpx;
+  font-weight: 800;
+  color: #8A5A19;
+  flex-shrink: 0;
+}
+
+.history-meta {
+  justify-content: flex-start;
+  margin-top: 12rpx;
+}
+
+.status-tag {
+  padding: 6rpx 14rpx;
+  border-radius: 999rpx;
+  font-size: 20rpx;
+}
+
+.status-Success {
+  color: #3F7E1F;
+  background: #E9F8D9;
+}
+
+.status-Buy {
+  color: #7A746A;
+  background: #F8F1E3;
+}
+
+.status-Cancel {
+  color: #9A5A14;
+  background: #FFF1D6;
+}
+
+.history-date,
+.history-extend,
+.history-remark {
+  font-size: 22rpx;
+  color: #7A746A;
+}
+
+.history-remark,
+.history-extend {
+  display: block;
+  margin-top: 12rpx;
+  line-height: 1.45;
+}
+
+.empty-card {
+  padding: 48rpx 28rpx;
+  text-align: center;
+}
+
+.empty-title {
+  display: block;
+  font-size: 30rpx;
+  font-weight: 800;
+  color: #2F2A22;
+}
+
+.empty-desc {
+  display: block;
+  margin-top: 10rpx;
+  font-size: 24rpx;
+  color: #8A8378;
+}

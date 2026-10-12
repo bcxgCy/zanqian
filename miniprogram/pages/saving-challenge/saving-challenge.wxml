@@ -1,4 +1,9 @@
 <view class="page">
+  <view class="head-row card-shell">
+    <text class="head-title">省钱挑战</text>
+    <view class="head-action" bindtap="goStats">统计</view>
+  </view>
+
   <view class="tabs card-shell">
     <view class="tab {{activeTab === 'ongoing' ? 'active' : ''}}" data-tab="ongoing" bindtap="switchTab">进行中</view>
     <view class="tab {{activeTab === 'history' ? 'active' : ''}}" data-tab="history" bindtap="switchTab">历史挑战</view>

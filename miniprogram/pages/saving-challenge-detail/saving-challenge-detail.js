@@ -2,6 +2,7 @@ const savingChallengeService = require('../../utils/savingChallengeService');
 const savingChallengeSubscribe = require('../../utils/savingChallengeSubscribe');
 
 const SHARE_POSTER = 'cloud://cloud1-d1g1g2urwd9ff5a66.636c-cloud1-d1g1g2urwd9ff5a66-1462912205/other/shengqian-share.jpg';
+const REPAIR_CHECKIN_AD_UNIT_ID = 'adunit-4246932e8146615c';
 
 function formatDate(date) {
   const y = date.getFullYear();
@@ -26,13 +27,14 @@ function buildMonthCalendar(year, month, statusMap, startDate, endDate) {
     const dateKey = formatDate(date);
     const inChallengeRange = !!startDate && !!endDate && dateKey >= startDate && dateKey <= endDate;
     const status = inChallengeRange ? (statusMap[dateKey] || 'pending') : 'inactive';
+    const isTodayPending = status === 'pending' && dateKey === todayKey;
     cells.push({
       key: dateKey,
       empty: false,
       day,
       status,
       isToday: dateKey === todayKey,
-      className: `status-${status}`,
+      className: `status-${status}${isTodayPending ? ' status-pending-today' : ''}`,
     });
   }
 
@@ -121,6 +123,99 @@ Page({
     savingChallengeSubscribe.triggerManual(challengeId);
   },
 
+  watchRepairCheckinAd() {
+    return new Promise((resolve, reject) => {
+      if (typeof wx.createRewardedVideoAd !== 'function') {
+        reject(new Error('UNSUPPORTED_REWARDED_AD'));
+        return;
+      }
+
+      const rewardedVideoAd = wx.createRewardedVideoAd({ adUnitId: REPAIR_CHECKIN_AD_UNIT_ID });
+      const onClose = (res) => {
+        rewardedVideoAd.offClose(onClose);
+        rewardedVideoAd.offError(onError);
+        resolve(!!(res && res.isEnded));
+      };
+      const onError = () => {
+        rewardedVideoAd.offClose(onClose);
+        rewardedVideoAd.offError(onError);
+        reject(new Error('AD_LOAD_FAIL'));
+      };
+
+      rewardedVideoAd.onClose(onClose);
+      rewardedVideoAd.onError(onError);
+      rewardedVideoAd.show()
+        .catch(() => rewardedVideoAd.load().then(() => rewardedVideoAd.show()))
+        .catch(() => {
+          rewardedVideoAd.offClose(onClose);
+          rewardedVideoAd.offError(onError);
+          reject(new Error('AD_LOAD_FAIL'));
+        });
+    });
+  },
+
+  async submitCheckin(key, canRepair) {
+    this.trySubscribeBeforeCheckin();
+    try {
+      const ret = await savingChallengeService.checkinChallenge(
+        this.data.challengeId,
+        key,
+        canRepair ? 'repair' : 'checked',
+      );
+      if (!ret.ok) {
+        wx.showToast({ title: ret.error || '打卡失败', icon: 'none' });
+        return;
+      }
+      wx.showToast({ title: canRepair ? '补打卡成功' : '打卡成功', icon: 'success' });
+      this.loadDetail();
+      this.updateSubscribeButtonStatus();
+      if (!canRepair) {
+        this.promptTomorrowReminder();
+      }
+    } catch (err) {
+      wx.showToast({ title: '打卡失败', icon: 'none' });
+    }
+  },
+
+  openRepairCheckinWithAd(key) {
+    this.watchRepairCheckinAd()
+      .then((completed) => {
+        if (!completed) {
+          wx.showToast({ title: '广告未完整观看', icon: 'none' });
+          return;
+        }
+        this.submitCheckin(key, true);
+      })
+      .catch((err) => {
+        if (err && err.message === 'UNSUPPORTED_REWARDED_AD') {
+          wx.showToast({ title: '当前版本不支持激励广告', icon: 'none' });
+          return;
+        }
+        wx.showToast({ title: '暂无广告资源，请稍后再试', icon: 'none' });
+      });
+  },
+
+  promptTomorrowReminder() {
+    const challengeId = this.data.challengeId;
+    if (!challengeId) return;
+
+    wx.showModal({
+      title: '今日打卡完成',
+      content: '要不要顺手开启提醒，明天也别忘了来打卡？',
+      confirmText: '提醒明天打卡',
+      cancelText: '稍后',
+      success: (res) => {
+        if (!res.confirm) return;
+        const requested = savingChallengeSubscribe.triggerManual(challengeId);
+        if (requested) {
+          setTimeout(() => {
+            this.updateSubscribeButtonStatus();
+          }, 1000);
+        }
+      },
+    });
+  },
+
   async loadDetail() {
     const id = this.data.challengeId;
     if (!id) {
@@ -168,10 +263,10 @@ Page({
     const cell = cells[index];
     if (cell.empty) return;
 
-    const canCheckinToday = cell.status === 'pending' && cell.isToday;
-    const canRepair = cell.status === 'pending' && !cell.isToday;
     const challenge = this.data.challenge || {};
     const todayKey = formatDate(new Date());
+    const canCheckinToday = cell.status === 'pending' && key === todayKey;
+    const canRepair = cell.status === 'pending' && key < todayKey;
     if (!challenge.startDate || !challenge.endDate) return;
     if (key < challenge.startDate || key > challenge.endDate) return;
 
@@ -193,23 +288,11 @@ Page({
       cancelText: '没做到',
       success: async (res) => {
         if (!res.confirm) return;
-        this.trySubscribeBeforeCheckin();
-        try {
-          const ret = await savingChallengeService.checkinChallenge(
-            this.data.challengeId,
-            key,
-            canRepair ? 'repair' : 'checked',
-          );
-          if (!ret.ok) {
-            wx.showToast({ title: ret.error || '打卡失败', icon: 'none' });
-            return;
-          }
-          wx.showToast({ title: canRepair ? '补打卡成功' : '打卡成功', icon: 'success' });
-          this.loadDetail();
-          this.updateSubscribeButtonStatus();
-        } catch (err) {
-          wx.showToast({ title: '打卡失败', icon: 'none' });
+        if (canRepair) {
+          this.openRepairCheckinWithAd(key);
+          return;
         }
+        this.submitCheckin(key, false);
       },
     });
   },

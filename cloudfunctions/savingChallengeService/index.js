@@ -177,6 +177,27 @@ async function createChallenge(openid, payload) {
   if (!days || days <= 0 || days > 365) return { ok: false, error: '挑战周期不合法' };
   if (!dailyAmount || dailyAmount <= 0) return { ok: false, error: '每日预估省钱不合法' };
 
+  const adUnlocked = !!payload.adUnlocked;
+  const existingRes = await db.collection(CHALLENGE_COLLECTION)
+    .where({ openid })
+    .field({
+      _id: true,
+      startDate: true,
+      endDate: true,
+      days: true,
+      checkinMap: true,
+    })
+    .limit(200)
+    .get();
+  const ongoingCount = (existingRes.data || []).filter((item) => getChallengeStatus(item) === 'ongoing').length;
+  if (ongoingCount >= 2 && !adUnlocked) {
+    return {
+      ok: false,
+      needAd: true,
+      error: '当前最多同时进行2个挑战，观看广告后可继续新增',
+    };
+  }
+
   try {
     await checkTextSecurity(name, '挑战名称');
     await checkTextSecurity(payload.note, '挑战说明');

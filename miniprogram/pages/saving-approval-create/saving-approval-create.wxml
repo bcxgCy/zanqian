@@ -73,10 +73,10 @@
         </picker>
       </view>
 
-      <view class="field switch-field">
+      <!-- <view class="field switch-field">
         <text class="label">同步到广场</text>
         <switch checked="{{form.syncToPlaza}}" bindchange="onSyncChange" color="#E6B34E" />
-      </view>
+      </view> -->
     </view>
   </view>
 

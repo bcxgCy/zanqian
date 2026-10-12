@@ -8,12 +8,8 @@ cloud.init({
 const db = cloud.database();
 const _ = db.command;
 
-const APPROVAL_COLLECTION = 'saving_approvals';
 const CHALLENGE_COLLECTION = 'saving_challenges';
 const ensuredCollections = {};
-const SHOW_APPROVAL_IN_PLAZA = typeof serviceConfig.showApprovalInPlaza === 'boolean'
-  ? serviceConfig.showApprovalInPlaza
-  : (serviceConfig.showReplyDetail !== false);
 
 function nowTs() {
   return Date.now();
@@ -63,44 +59,11 @@ function buildNick(openid) {
   return '用户' + String(openid || '').slice(-4);
 }
 
-function getApprovalStatus(doc) {
-  if (doc.finalDecision === 'abandoned') return '已放弃';
-  if (doc.finalDecision === 'purchased') return '已购买';
-  if ((doc.reviews || []).length >= safeNumber(doc.targetVotes, 1)) return '已出结果';
-  return '投票中';
-}
-
-function isApprovalInProgress(doc) {
-  if (doc.finalDecision) return false;
-  return getApprovalStatus(doc) === '投票中';
-}
-
 function isChallengeInProgress(doc) {
   const checkinMap = doc.checkinMap || {};
   const checkedDays = Object.keys(checkinMap).filter((key) => checkinMap[key] === 'checked' || checkinMap[key] === 'repair').length;
   const totalDays = Math.max(1, safeNumber(doc.days, 1));
   return checkedDays < totalDays;
-}
-
-function toPlazaApproval(doc, openid) {
-  const voteCount = Array.isArray(doc.reviews) ? doc.reviews.length : 0;
-  const targetVotes = Math.max(1, safeNumber(doc.targetVotes, 1));
-  const reviewerOpenids = Array.isArray(doc.reviewerOpenids) ? doc.reviewerOpenids : [];
-  return {
-    id: doc._id,
-    type: 'approval',
-    author: buildNick(doc.openid),
-    mine: doc.openid === openid,
-    title: doc.itemName || '消费审批',
-    desc: doc.reason || '',
-    price: safeNumber(doc.price, 0),
-    statusText: getApprovalStatus(doc),
-    reviewedByMe: reviewerOpenids.includes(openid),
-    voteCount,
-    targetVotes,
-    createdAt: safeNumber(doc.createdAt, 0),
-    updatedAt: safeNumber(doc.updatedAt, 0),
-  };
 }
 
 function toPlazaChallenge(doc, openid) {
@@ -163,7 +126,6 @@ async function createChallenge(openid, payload) {
 }
 
 async function getPlazaFeed(openid, page, pageSize) {
-  await ensureCollection(APPROVAL_COLLECTION);
   await ensureCollection(CHALLENGE_COLLECTION);
 
   const currentPage = Math.max(1, safeNumber(page, 1));
@@ -171,26 +133,13 @@ async function getPlazaFeed(openid, page, pageSize) {
   const needCount = currentPage * size;
   const perCollectionLimit = Math.min(120, Math.max(size * 2, needCount + 10));
 
-  const [approvalRes, challengeRes] = await Promise.all([
-    db.collection(APPROVAL_COLLECTION)
-      .where({ syncToPlaza: true })
-      .orderBy('updatedAt', 'desc')
-      .limit(perCollectionLimit)
-      .get(),
-    db.collection(CHALLENGE_COLLECTION)
-      .where({ syncToPlaza: true })
-      .orderBy('updatedAt', 'desc')
-      .limit(perCollectionLimit)
-      .get(),
-  ]);
+  const challengeRes = await db.collection(CHALLENGE_COLLECTION)
+    .where({ syncToPlaza: true })
+    .orderBy('updatedAt', 'desc')
+    .limit(perCollectionLimit)
+    .get();
 
   const merged = [];
-  if (SHOW_APPROVAL_IN_PLAZA) {
-    (approvalRes.data || [])
-      .filter(isApprovalInProgress)
-      .forEach((doc) => merged.push(toPlazaApproval(doc, openid)));
-  }
-
   (challengeRes.data || [])
     .filter(isChallengeInProgress)
     .forEach((doc) => merged.push(toPlazaChallenge(doc, openid)));

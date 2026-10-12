@@ -12,6 +12,33 @@
   box-shadow: 0 8rpx 32rpx rgba(168, 216, 78, 0.12), 0 2rpx 8rpx rgba(255, 255, 255, 0.7);
 }
 
+.head-row {
+  margin-bottom: 14rpx;
+  padding: 16rpx 18rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.head-title {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #2F2A22;
+}
+
+.head-action {
+  min-width: 96rpx;
+  height: 52rpx;
+  line-height: 52rpx;
+  text-align: center;
+  border-radius: 999rpx;
+  border: 2rpx solid #E6B34E;
+  color: #8A5A19;
+  background: #FFF2D5;
+  font-size: 22rpx;
+  font-weight: 600;
+}
+
 .tabs {
   display: flex;
   padding: 10rpx;

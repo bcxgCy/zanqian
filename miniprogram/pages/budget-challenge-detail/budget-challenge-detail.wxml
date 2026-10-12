@@ -1,0 +1,163 @@
+<view class="page" wx:if="{{challenge}}">
+  <view class="card hero">
+    <view class="hero-head">
+      <view class="hero-title-wrap">
+        <text class="hero-title">{{challenge.name}}</text>
+        <text class="hero-status">{{challenge.statusText}}</text>
+      </view>
+      <view class="menu-trigger" wx:if="{{challenge.hasMoreActions}}" bindtap="onOpenActionMenu">
+        <text class="menu-trigger-icon">☰</text>
+      </view>
+    </view>
+
+    <view class="hero-tags">
+      <text class="hero-tag">周期 {{challenge.startDate}} ~ {{challenge.endDate}}</text>
+      <text class="hero-tag">消费 {{challenge.consumeCount}} 笔</text>
+      <text class="hero-tag" wx:if="{{challenge.timeTagText}}">{{challenge.timeTagText}}</text>
+    </view>
+
+    <view class="hero-amount-row">
+      <view class="amount-item">
+        <text class="amount-label">总预算</text>
+        <text class="amount-value">¥{{challenge.totalBudgetText}}</text>
+      </view>
+      <view class="amount-item">
+        <text class="amount-label">已消费</text>
+        <text class="amount-value">¥{{challenge.spentAmountText}}</text>
+      </view>
+      <view class="amount-item" wx:if="{{challenge.overAmount > 0}}">
+        <text class="amount-label">已超额</text>
+        <text class="amount-value over">¥{{challenge.overAmountText}}</text>
+      </view>
+      <view class="amount-item" wx:else>
+        <text class="amount-label">剩余预算</text>
+        <text class="amount-value">¥{{challenge.remainingBudgetText}}</text>
+      </view>
+    </view>
+
+    <view class="progress-wrap">
+      <view class="progress-track">
+        <view class="progress-fill {{challenge.progressClass}}" style="width: {{challenge.progressWidth}};"></view>
+      </view>
+      <text class="progress-text">{{challenge.progressPercentText}}%</text>
+    </view>
+
+    <text class="hero-tip" wx:if="{{challenge.leftDays > 0 && challenge.remainingBudget > 0}}">建议日均可消费 ¥{{challenge.recommendedDailyBudgetText}}</text>
+  </view>
+
+  <view class="card" wx:if="{{challenge.replayTitle}}">
+    <text class="replay-title">复盘报告</text>
+    <text class="replay-main">{{challenge.replayTitle}}</text>
+    <text class="replay-desc">{{challenge.replayDescription}}</text>
+    <view class="replay-grid">
+      <view class="replay-cell">
+        <text class="replay-cell-label">总预算</text>
+        <text class="replay-cell-value">¥{{challenge.replayTotalBudgetText}}</text>
+      </view>
+      <view class="replay-cell">
+        <text class="replay-cell-label">总消费</text>
+        <text class="replay-cell-value">¥{{challenge.replaySpentAmountText}}</text>
+      </view>
+      <view class="replay-cell" wx:if="{{challenge.overAmount > 0}}">
+        <text class="replay-cell-label">超支</text>
+        <text class="replay-cell-value over">¥{{challenge.replayOverAmountText}}</text>
+      </view>
+      <view class="replay-cell" wx:else>
+        <text class="replay-cell-label">结余</text>
+        <text class="replay-cell-value safe">¥{{challenge.replayRemainingBudgetText}}</text>
+      </view>
+      <view class="replay-cell">
+        <text class="replay-cell-label">周期</text>
+        <text class="replay-cell-value">{{challenge.replayPeriodDays}}天</text>
+      </view>
+      <view class="replay-cell">
+        <text class="replay-cell-label">消费笔数</text>
+        <text class="replay-cell-value">{{challenge.replayConsumeCount}}笔</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="section-head">
+      <text class="section-title">消费记录</text>
+      <text class="section-sub">共 {{challenge.consumeCount}} 笔</text>
+    </view>
+
+    <view wx:if="{{records.length}}">
+      <view class="record-item" wx:for="{{records}}" wx:key="id">
+        <view class="record-top">
+          <text class="record-amount">-¥{{item.amountText}}</text>
+          <view class="record-actions" wx:if="{{challenge.canManageConsume}}">
+            <text class="record-action" data-id="{{item.id}}" bindtap="onEditRecordTap">编辑</text>
+            <text class="record-action danger" data-id="{{item.id}}" bindtap="onDeleteRecordTap">删除</text>
+          </view>
+        </view>
+        <text class="record-remark">{{item.remark || '无备注'}}</text>
+        <text class="record-time">{{item.consumeTimeText}}</text>
+      </view>
+    </view>
+
+    <view class="empty" wx:else>{{challenge.consumeEmptyText}}</view>
+
+    <view class="load-more-wrap" wx:if="{{records.length && recordsPaging.hasMore}}">
+      <button class="load-more-btn" bindtap="loadMoreRecords" loading="{{recordsPaging.loadingMore}}" disabled="{{recordsPaging.loadingMore}}">
+        {{recordsPaging.loadingMore ? '加载中...' : '加载更多记录'}}
+      </button>
+    </view>
+  </view>
+</view>
+
+<view class="loading-empty" wx:else>加载中...</view>
+
+<view class="bottom-add-wrap" wx:if="{{challenge && challenge.canAddConsume}}">
+  <button class="bottom-add-btn" bindtap="onOpenAddRecordTap">＋ 录入一笔消费</button>
+</view>
+
+<view class="menu-mask" wx:if="{{showActionMenu}}" bindtap="closeActionMenu"></view>
+<view class="menu-sheet {{showActionMenu ? 'show' : ''}}" catchtap="noop">
+  <view class="menu-sheet-head">
+    <text class="menu-sheet-title">更多操作</text>
+    <text class="menu-sheet-close" bindtap="closeActionMenu">关闭</text>
+  </view>
+
+  <view class="menu-btn" wx:if="{{challenge && challenge.canEditBudget}}" data-action="edit" bindtap="onActionMenuTap">✎ 编辑预算</view>
+  <view class="menu-btn" wx:if="{{challenge && challenge.canArchive}}" data-action="archive" bindtap="onActionMenuTap">🗂 归档预算</view>
+  <view class="menu-btn danger" wx:if="{{challenge && challenge.canDeleteBudget}}" data-action="delete" bindtap="onActionMenuTap">⌫ 删除预算</view>
+</view>
+
+<view class="sheet-mask" wx:if="{{showRecordSheet}}" bindtap="closeRecordSheet"></view>
+<view class="sheet {{showRecordSheet ? 'show' : ''}}" catchtap="noop">
+  <view class="sheet-head">
+    <text class="sheet-title">{{recordMode === 'edit' ? '编辑消费记录' : '录入一笔消费'}}</text>
+    <text class="sheet-close" bindtap="closeRecordSheet">关闭</text>
+  </view>
+
+  <view class="sheet-field">
+    <text class="sheet-label">消费金额（元）</text>
+    <input class="sheet-input" type="digit" value="{{recordForm.amount}}" data-field="amount" placeholder="请输入金额" placeholder-class="sheet-placeholder" bindinput="onRecordInput" />
+  </view>
+
+  <view class="sheet-field">
+    <text class="sheet-label">消费备注（选填）</text>
+    <input class="sheet-input" value="{{recordForm.remark}}" data-field="remark" maxlength="30" placeholder="例如：奶茶、打车、聚餐" placeholder-class="sheet-placeholder" bindinput="onRecordInput" />
+  </view>
+
+  <view class="sheet-row">
+    <view class="sheet-col">
+      <text class="sheet-label">消费日期</text>
+      <picker mode="date" value="{{recordForm.consumeDate}}" bindchange="onRecordDateChange">
+        <view class="sheet-picker">{{recordForm.consumeDate}}</view>
+      </picker>
+    </view>
+    <view class="sheet-col">
+      <text class="sheet-label">消费时间</text>
+      <picker mode="time" value="{{recordForm.consumeTime}}" bindchange="onRecordTimeChange">
+        <view class="sheet-picker">{{recordForm.consumeTime}}</view>
+      </picker>
+    </view>
+  </view>
+
+  <button class="submit-btn {{submittingRecord ? 'is-submitting' : ''}}" bindtap="submitRecord" loading="{{submittingRecord}}" disabled="{{submittingRecord}}">
+    {{recordMode === 'edit' ? (submittingRecord ? '保存中...' : '保存修改') : (submittingRecord ? '录入中...' : '确认录入')}}
+  </button>
+</view>

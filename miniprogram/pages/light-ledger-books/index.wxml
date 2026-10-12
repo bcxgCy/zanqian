@@ -1,0 +1,36 @@
+<view class="page">
+  <view class="card-shell" wx:for="{{books}}" wx:key="id">
+    <view class="book-row">
+      <view class="book-main">
+        <text class="book-name">{{item.name}}</text>
+        <text class="book-desc">{{item.description || '暂无描述'}}</text>
+      </view>
+      <text class="current-tag" wx:if="{{item.id === currentBookId}}">当前</text>
+      <text class="default-tag" wx:if="{{item.isDefault}}">默认</text>
+    </view>
+    <view class="actions">
+      <view class="btn" data-id="{{item.id}}" bindtap="setCurrent">设为当前</view>
+      <view class="btn" data-id="{{item.id}}" bindtap="openEdit">编辑</view>
+      <view class="btn danger" wx:if="{{!item.isDefault}}" data-id="{{item.id}}" bindtap="removeBook">删除</view>
+    </view>
+  </view>
+
+  <view class="create-btn" bindtap="openCreate">+ 新建账本</view>
+
+  <view class="modal-mask" wx:if="{{showEditor}}" bindtap="closeEditor"></view>
+  <view class="modal" wx:if="{{showEditor}}" catchtap="noop">
+    <text class="modal-title">{{editingId ? '编辑账本' : '新建账本'}}</text>
+    <view class="field">
+      <text class="label">账本名称</text>
+      <input class="input" maxlength="12" value="{{form.name}}" placeholder="例如：旅行账本" data-field="name" bindinput="onInput" />
+    </view>
+    <view class="field">
+      <text class="label">账本描述（选填）</text>
+      <input class="input" maxlength="30" value="{{form.description}}" placeholder="最多30字" data-field="description" bindinput="onInput" />
+    </view>
+    <view class="modal-actions">
+      <view class="modal-btn" bindtap="closeEditor">取消</view>
+      <view class="modal-btn primary" bindtap="submitBook">保存</view>
+    </view>
+  </view>
+</view>

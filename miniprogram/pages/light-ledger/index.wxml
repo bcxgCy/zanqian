@@ -1,0 +1,154 @@
+<view class="page">
+  <view class="toolbar card-shell">
+    <picker mode="selector" range="{{bookOptions}}" range-key="name" bindchange="onBookChange">
+      <view class="picker-box">账本：{{selectedBookName}} ▾</view>
+    </picker>
+    <picker mode="date" fields="month" value="{{month}}" bindchange="onMonthChange">
+      <view class="picker-box month">{{month}} ▾</view>
+    </picker>
+  </view>
+
+  <view class="summary card-shell">
+    <view class="summary-item income">
+      <text class="summary-label">总收入</text>
+      <text class="summary-value">¥{{summary.totalIncomeText}}</text>
+    </view>
+    <view class="summary-item expense">
+      <text class="summary-label">总支出</text>
+      <text class="summary-value">¥{{summary.totalExpenseText}}</text>
+    </view>
+    <view class="summary-item balance">
+      <text class="summary-label">结余</text>
+      <text class="summary-value">¥{{summary.balanceText}}</text>
+    </view>
+  </view>
+
+  <view class="card-shell chart-card" wx:if="{{selectedBookId !== 'all'}}">
+    <view class="section-head">
+      <text class="section-title">本月支出分布</text>
+      <text class="section-sub">非必要消费 ¥{{summary.nonNecessaryExpenseText}}</text>
+    </view>
+    <view wx:if="{{categoryChart.length}}">
+      <view class="chart-row" wx:for="{{categoryChart}}" wx:key="name">
+        <view class="chart-main">
+          <text class="chart-name">{{item.name}}</text>
+          <view class="chart-track">
+            <view class="chart-fill" style="width: {{item.percent}}%;"></view>
+          </view>
+        </view>
+        <text class="chart-amount">¥{{item.amountText}} · {{item.percentText}}</text>
+      </view>
+    </view>
+    <view class="empty" wx:else>本月暂无支出数据</view>
+  </view>
+
+  <view class="card-shell list-card" wx:if="{{billGroups.length}}">
+    <view class="section-head">
+      <text class="section-title">本月流水</text>
+      <view class="section-actions">
+        <text class="section-sub" bindtap="toggleBillPreview">{{showAllMonthBills ? '仅看近7天' : '展开本月'}}</text>
+        <text class="section-sub" bindtap="goAllBillsPage">全部账单 ›</text>
+      </view>
+    </view>
+    <view wx:for="{{visibleBillGroups}}" wx:key="dateKey">
+      <text class="date-title">{{item.dateKey}}</text>
+      <view class="bill-row" wx:for="{{item.list}}" wx:key="id" data-bill="{{item}}" bindtap="onBillTap">
+        <view class="bill-main">
+          <text class="bill-category">{{item.category}}</text>
+          <text class="bill-remark">{{item.remark || '无备注'}} <text class="book-tag" wx:if="{{selectedBookId === 'all'}}">{{item.bookName}}</text></text>
+        </view>
+        <view class="bill-right">
+          <text class="bill-amount {{item.type === 'expense' ? 'expense' : 'income'}}">{{item.type === 'expense' ? '-' : '+'}}¥{{item.amountText}}</text>
+          <text class="bill-tag non" wx:if="{{item.type === 'expense' && item.necessity === 'nonNecessary'}}">非必要</text>
+        </view>
+      </view>
+    </view>
+    <view class="empty" wx:if="{{!visibleBillGroups.length}}">近7天暂无流水，点击“展开本月”查看</view>
+  </view>
+
+  <view class="card-shell empty-card" wx:elif="{{!loading}}">
+    <text class="empty-title">当前账本还没有账单</text>
+    <text class="empty-desc">记录每一笔收支，看清钱流向</text>
+  </view>
+
+  <view class="bottom-actions">
+    <view class="bottom-btn" bindtap="goAllBillsPage">全部账单</view>
+    <view class="bottom-btn" bindtap="goBooksPage">账本管理</view>
+  </view>
+
+  <view class="fab" bindtap="openAddBill">+ 记一笔</view>
+
+  <view class="modal-mask" wx:if="{{showBillSheet}}" bindtap="closeBillSheet"></view>
+  <view class="sheet {{showBillSheet ? 'show' : ''}}" catchtap="noop">
+    <view class="sheet-head">
+      <text class="sheet-title">{{editingBillId ? '编辑账单' : '记一笔'}}</text>
+      <text class="sheet-close" bindtap="closeBillSheet">关闭</text>
+    </view>
+
+    <view class="field">
+      <text class="label">账本</text>
+      <picker mode="selector" range="{{books}}" range-key="name" value="{{sheetBookIndex}}" bindchange="onBookPickerInSheet">
+        <view class="input">{{books[sheetBookIndex] ? books[sheetBookIndex].name : '请选择账本'}}</view>
+      </picker>
+    </view>
+
+    <view class="type-row">
+      <view class="type-chip {{billForm.type === 'expense' ? 'active' : ''}}" data-type="expense" bindtap="onBillTypeChange">支出</view>
+      <view class="type-chip {{billForm.type === 'income' ? 'active' : ''}}" data-type="income" bindtap="onBillTypeChange">收入</view>
+    </view>
+
+    <view class="field">
+      <text class="label">金额</text>
+      <input class="input" type="digit" value="{{billForm.amount}}" placeholder="请输入金额" data-field="amount" bindinput="onBillInput" />
+    </view>
+
+    <view class="field">
+      <text class="label">分类</text>
+      <view class="chip-wrap">
+        <view class="chip {{billForm.category === item.name ? 'active' : ''}}" wx:for="{{categoryOptions}}" wx:key="name" data-name="{{item.name}}" bindtap="onCategoryTap">
+          <text class="chip-icon">{{item.icon}}</text>
+          <text>{{item.name}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="field" wx:if="{{billForm.type === 'expense'}}">
+      <text class="label">消费属性</text>
+      <view class="type-row">
+        <view class="type-chip {{billForm.necessity === 'necessary' ? 'active' : ''}}" data-necessity="necessary" bindtap="onNecessityChange">必要支出</view>
+        <view class="type-chip {{billForm.necessity === 'nonNecessary' ? 'active' : ''}}" data-necessity="nonNecessary" bindtap="onNecessityChange">非必要消费</view>
+      </view>
+    </view>
+
+    <view class="field">
+      <text class="label">日期</text>
+      <picker mode="date" value="{{billForm.occurDate}}" bindchange="onBillDateChange">
+        <view class="input">{{billForm.occurDate}}</view>
+      </picker>
+    </view>
+
+    <view class="field">
+      <text class="label">备注</text>
+      <input class="input" value="{{billForm.remark}}" maxlength="50" placeholder="备注（选填）" data-field="remark" bindinput="onBillInput" />
+    </view>
+
+    <button class="submit-btn" bindtap="submitBill" loading="{{submitting}}" disabled="{{submitting}}">{{editingBillId ? '保存修改' : '保存账单'}}</button>
+  </view>
+
+  <view class="modal-mask" wx:if="{{detailVisible}}" bindtap="closeDetail"></view>
+  <view class="detail" wx:if="{{detailVisible}}" catchtap="noop">
+    <text class="detail-title">账单详情</text>
+    <text class="detail-line">账本：{{detailBill.bookName}}</text>
+    <text class="detail-line">类型：{{detailBill.type === 'expense' ? '支出' : '收入'}}</text>
+    <text class="detail-line">金额：¥{{detailBill.amountText}}</text>
+    <text class="detail-line">分类：{{detailBill.category}}</text>
+    <text class="detail-line" wx:if="{{detailBill.type === 'expense'}}">属性：{{detailBill.necessity === 'nonNecessary' ? '非必要消费' : '必要支出'}}</text>
+    <text class="detail-line">日期：{{detailBill.dateKey}}</text>
+    <text class="detail-line">备注：{{detailBill.remark || '无'}}</text>
+    <view class="detail-actions">
+      <view class="detail-btn" bindtap="editDetailBill">编辑</view>
+      <view class="detail-btn danger" bindtap="onDeleteBill">删除</view>
+      <view class="detail-btn" bindtap="closeDetail">关闭</view>
+    </view>
+  </view>
+</view>

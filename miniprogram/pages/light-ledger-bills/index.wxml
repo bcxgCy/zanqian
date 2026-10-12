@@ -1,0 +1,56 @@
+<view class="page">
+  <view class="card-shell filters">
+    <view class="row">
+      <picker mode="selector" range="{{bookOptions}}" range-key="name" bindchange="onBookChange">
+        <view class="picker">{{selectedBookName}} ▾</view>
+      </picker>
+      <picker mode="date" fields="month" value="{{month}}" bindchange="onMonthChange">
+        <view class="picker month">{{month}} ▾</view>
+      </picker>
+    </view>
+
+    <view class="row chips">
+      <view class="chip {{typeFilter === 'all' ? 'active' : ''}}" data-value="all" bindtap="onTypeTap">全部</view>
+      <view class="chip {{typeFilter === 'expense' ? 'active' : ''}}" data-value="expense" bindtap="onTypeTap">仅支出</view>
+      <view class="chip {{typeFilter === 'income' ? 'active' : ''}}" data-value="income" bindtap="onTypeTap">仅收入</view>
+    </view>
+
+    <view class="row chips">
+      <view class="chip {{necessityFilter === 'all' ? 'active' : ''}}" data-value="all" bindtap="onNecessityTap">全部属性</view>
+      <view class="chip {{necessityFilter === 'necessary' ? 'active' : ''}}" data-value="necessary" bindtap="onNecessityTap">必要支出</view>
+      <view class="chip {{necessityFilter === 'nonNecessary' ? 'active' : ''}}" data-value="nonNecessary" bindtap="onNecessityTap">非必要消费</view>
+    </view>
+
+    <view class="row chips">
+      <view class="chip {{amountRangeFilter === 'all' ? 'active' : ''}}" data-value="all" bindtap="onAmountRangeTap">全部金额</view>
+      <view class="chip {{amountRangeFilter === 'lt50' ? 'active' : ''}}" data-value="lt50" bindtap="onAmountRangeTap">50以内</view>
+      <view class="chip {{amountRangeFilter === '50to200' ? 'active' : ''}}" data-value="50to200" bindtap="onAmountRangeTap">50-200</view>
+      <view class="chip {{amountRangeFilter === '200to500' ? 'active' : ''}}" data-value="200to500" bindtap="onAmountRangeTap">200-500</view>
+      <view class="chip {{amountRangeFilter === 'gte500' ? 'active' : ''}}" data-value="gte500" bindtap="onAmountRangeTap">500以上</view>
+    </view>
+
+    <text class="tips" wx:if="{{typeFilter === 'income' && necessityFilter !== 'all'}}">收入不区分必要性，已自动重置为全部属性</text>
+
+    <view class="search-row">
+      <input class="search-input" value="{{keyword}}" bindinput="onKeywordInput" bindconfirm="onSearchTap" placeholder="搜索分类/备注" confirm-type="search" />
+      <view class="search-btn" bindtap="onSearchTap">搜索</view>
+    </view>
+  </view>
+
+  <view class="card-shell list-card" wx:if="{{list.length}}">
+    <view class="bill-row" wx:for="{{list}}" wx:key="id">
+      <view class="bill-main">
+        <text class="bill-top">{{item.category}} <text class="book-name" wx:if="{{selectedBookId === 'all'}}">{{item.bookName}}</text></text>
+        <text class="bill-sub">{{item.dateKey}} · {{item.remark || '无备注'}}</text>
+      </view>
+      <view class="bill-right">
+        <text class="amount {{item.type === 'expense' ? 'expense' : 'income'}}">{{item.type === 'expense' ? '-' : '+'}}¥{{item.amountText}}</text>
+        <text class="tag" wx:if="{{item.type === 'expense' && item.necessity === 'nonNecessary'}}">非必要</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="card-shell empty" wx:else>暂无账单数据</view>
+
+  <view class="load-more" wx:if="{{hasMore}}" bindtap="loadMore">加载更多</view>
+</view>

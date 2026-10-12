@@ -22,11 +22,46 @@
     "miniprogram": {
       "list": [
         {
+          "name": "pages/light-ledger/index",
+          "pathName": "pages/light-ledger/index",
+          "query": "",
+          "scene": null,
+          "launchMode": "default"
+        },
+        {
+          "name": "pages/consumption-cooling/index",
+          "pathName": "pages/consumption-cooling/index",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
+          "name": "pages/budget-challenge-detail/budget-challenge-detail",
+          "pathName": "pages/budget-challenge-detail/budget-challenge-detail",
+          "query": "id=e5db50eb6acb919c002d3d09684f6fb2",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
+          "name": "pages/saving-challenge-stats/saving-challenge-stats",
+          "pathName": "pages/saving-challenge-stats/saving-challenge-stats",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
+          "name": "pages/saving-challenge-detail/saving-challenge-detail",
+          "pathName": "pages/saving-challenge-detail/saving-challenge-detail",
+          "query": "id=8c9b8e046ac83462000b77ef3c27b7d5",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
           "name": "pages/plan-detail/plan-detail",
           "pathName": "pages/plan-detail/plan-detail",
           "query": "id=plan_1788101448488",
-          "scene": null,
-          "launchMode": "default"
+          "launchMode": "default",
+          "scene": null
         },
         {
           "name": "pages/calculator-result/calculator-result",
@@ -38,13 +73,6 @@
         {
           "name": "pages/calculator/calculator",
           "pathName": "pages/calculator/calculator",
-          "query": "",
-          "launchMode": "default",
-          "scene": null
-        },
-        {
-          "name": "pages/plan-add/plan-add",
-          "pathName": "pages/plan-add/plan-add",
           "query": "",
           "launchMode": "default",
           "scene": null

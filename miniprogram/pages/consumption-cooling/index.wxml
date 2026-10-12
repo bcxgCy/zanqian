@@ -1,0 +1,175 @@
+<view class="page">
+  <view class="hero-card card">
+    <view class="hero-top">
+      <view class="hero-icon">
+        <text class="hero-icon-emoji">❄️</text>
+      </view>
+      <view class="hero-texts">
+        <text class="hero-title">24小时消费冷静期</text>
+        <text class="hero-desc">非必需品先冷静，忍住冲动，省下冤枉钱</text>
+      </view>
+    </view>
+
+    <view class="hero-stats">
+      <view class="hero-stat">
+        <text class="hero-stat-value">{{stats.successCount}}</text>
+        <text class="hero-stat-label">累计克制</text>
+      </view>
+      <view class="hero-stat">
+        <text class="hero-stat-value">¥{{stats.savedTotalText}}</text>
+        <text class="hero-stat-label">累计省下</text>
+      </view>
+      <view class="hero-stat">
+        <text class="hero-stat-value">{{stats.extendCountTotal}}</text>
+        <text class="hero-stat-label">延长冷静</text>
+      </view>
+    </view>
+
+    <view class="hero-history-link" bindtap="goHistory">查看历史记录 ›</view>
+  </view>
+
+  <view class="card list-card" wx:if="{{records.length}}">
+    <view class="record-card" wx:for="{{records}}" wx:key="id">
+      <view class="record-head">
+        <text class="record-name">{{item.goodsName}}</text>
+        <text class="record-price">¥{{item.priceText}}</text>
+      </view>
+      <view class="record-meta">
+        <text class="status-tag {{item.isPending ? 'status-tag-warn' : 'status-tag-cool'}}">{{item.statusText}}</text>
+        <text class="record-extend" wx:if="{{item.extendCount > 0}}">已延长{{item.extendCount}}次</text>
+      </view>
+      <view class="countdown-wrap">
+        <text class="countdown-label">{{item.isPending ? '冷静期已结束' : '距离冷静结束'}}</text>
+        <text class="countdown-text">{{item.countdownText}}</text>
+      </view>
+      <text class="record-remark" wx:if="{{item.remark}}">备注：{{item.remark}}</text>
+      <view class="record-tools">
+        <text class="record-tool" data-id="{{item.id}}" bindtap="openEditModal">编辑</text>
+        <text class="record-tool danger" data-id="{{item.id}}" bindtap="onDeleteRecordTap">删除</text>
+      </view>
+
+      <view class="record-actions" wx:if="{{!item.isPending}}">
+        <view class="action-btn action-btn-ghost-danger" data-id="{{item.id}}" bindtap="openBuyConfirm">还是想买</view>
+        <view class="action-btn action-btn-solid" data-id="{{item.id}}" bindtap="openGiveUpConfirm">放弃冲动</view>
+      </view>
+      <view class="record-actions" wx:else>
+        <view class="action-btn action-btn-ghost" data-id="{{item.id}}" bindtap="openDecision">去决策</view>
+        <view class="action-btn action-btn-ghost" data-id="{{item.id}}" catchtap="openExtend">延长冷静期</view>
+        <view class="action-btn action-btn-solid" data-id="{{item.id}}" bindtap="openGiveUpConfirm">放弃冲动</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 编辑冲动物品弹窗 -->
+  <view class="modal-mask" wx:if="{{showEditModal}}" catchtouchmove="noop">
+    <view class="modal-card">
+      <text class="modal-title">编辑冷静记录</text>
+      <text class="modal-sub">修正名称和价格，继续保持冷静</text>
+      <view class="form-item">
+        <text class="form-label">物品名称</text>
+        <input class="form-input" placeholder="例如：新款球鞋（1-20字）" maxlength="20" value="{{editForm.goodsName}}" bindinput="onEditGoodsNameInput" />
+      </view>
+      <view class="form-item">
+        <text class="form-label">预估价格</text>
+        <input class="form-input" placeholder="请输入金额" type="digit" value="{{editForm.price}}" bindinput="onEditPriceInput" />
+      </view>
+      <view class="form-item">
+        <text class="form-label">备注（选填）</text>
+        <input class="form-input" placeholder="记录一下种草原因" maxlength="100" value="{{editForm.remark}}" bindinput="onEditRemarkInput" />
+      </view>
+      <view class="modal-btn-col">
+        <view class="modal-btn modal-btn-primary" bindtap="submitEdit">保存修改</view>
+        <view class="modal-btn modal-btn-plain" bindtap="closeEditModal">取消</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="card empty-card" wx:if="{{!records.length && !loading}}">
+    <text class="empty-emoji">🧊</text>
+    <text class="empty-title">暂无冷静计划</text>
+    <text class="empty-desc">开始约束自己的第一次冲动消费吧</text>
+  </view>
+
+  <view class="bottom-add-wrap">
+    <button class="bottom-add-btn" bindtap="openAddModal">＋ 添加我想买的东西</button>
+  </view>
+
+  <!-- 新增冲动物品弹窗 -->
+  <view class="modal-mask" wx:if="{{showAddModal}}" catchtouchmove="noop">
+    <view class="modal-card">
+      <text class="modal-title">添加我想买的东西</text>
+      <text class="modal-sub">先冷静24小时，再做决定</text>
+      <view class="form-item">
+        <text class="form-label">物品名称</text>
+        <input class="form-input" placeholder="例如：新款球鞋（1-20字）" maxlength="20" value="{{addForm.goodsName}}" bindinput="onGoodsNameInput" />
+      </view>
+      <view class="form-item">
+        <text class="form-label">预估价格</text>
+        <input class="form-input" placeholder="请输入金额" type="digit" value="{{addForm.price}}" bindinput="onPriceInput" />
+      </view>
+      <view class="form-item">
+        <text class="form-label">备注（选填）</text>
+        <input class="form-input" placeholder="记录一下种草原因" maxlength="100" value="{{addForm.remark}}" bindinput="onRemarkInput" />
+      </view>
+      <view class="modal-btn-col">
+        <view class="modal-btn modal-btn-primary" bindtap="submitAdd">开始24小时冷静</view>
+        <view class="modal-btn modal-btn-plain" bindtap="closeAddModal">取消</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 冷静期内「还是想买」二次拦截弹窗 -->
+  <view class="modal-mask" wx:if="{{buyConfirmVisible}}" catchtouchmove="noop">
+    <view class="modal-card">
+      <text class="modal-title">⚠️ 确定还要购买吗？</text>
+      <text class="modal-desc">上次你忍住了一次冲动，这次确定还要购买吗？很多欲望只是一时的情绪，不是真的需要。</text>
+      <view class="modal-btn-col">
+        <view class="modal-btn modal-btn-primary" bindtap="doConfirmBuyFromCooling">确认购买</view>
+        <view class="modal-btn modal-btn-plain" bindtap="doResetCooling">再冷静一下（重置24小时）</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 放弃冲动确认弹窗 -->
+  <view class="modal-mask" wx:if="{{giveUpConfirmVisible}}" catchtouchmove="noop">
+    <view class="modal-card">
+      <text class="modal-title">确认放弃这次冲动吗？</text>
+      <text class="modal-desc">确认后本次将计入你的省钱成果，省下 ¥{{giveUpConfirmRecord.priceText}}。</text>
+      <view class="modal-btn-col">
+        <view class="modal-btn modal-btn-primary" bindtap="doGiveUp">确认放弃</view>
+        <view class="modal-btn modal-btn-plain" bindtap="closeGiveUpConfirm">再想想</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 到期决策弹窗 -->
+  <view class="modal-mask" wx:if="{{decisionVisible}}" catchtouchmove="noop">
+    <view class="modal-card">
+      <text class="modal-title">⏰ 冷静期已结束</text>
+      <text class="modal-desc">「{{decisionRecord.goodsName}}」冷静期已结束，现在可以决定这件商品是否购买。</text>
+      <view class="modal-btn-col">
+        <view class="modal-btn modal-btn-primary" bindtap="doGiveUpFromDecision">放弃冲动，省下¥{{decisionRecord.priceText}}</view>
+        <view class="modal-btn modal-btn-outline" data-id="{{decisionRecord.id}}" bindtap="openExtend">延长冷静期</view>
+        <view class="modal-btn modal-btn-plain" bindtap="doConfirmBuyFromDecision">确认购买</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 延长冷静选择弹窗 -->
+  <view class="modal-mask" wx:if="{{extendVisible}}" catchtouchmove="noop">
+    <view class="modal-card">
+      <text class="modal-title">延长冷静期</text>
+      <text class="modal-desc">你还想再多一段时间思考，不急于决定是否购买这件商品。请选择延长冷静时长：</text>
+      <view class="extend-options">
+        <view class="extend-option {{extendHours === item ? 'extend-option-active' : ''}}" wx:for="{{extendHoursOptions}}" wx:key="*this" data-hours="{{item}}" bindtap="selectExtendHours">
+          <view class="extend-radio {{extendHours === item ? 'extend-radio-active' : ''}}"></view>
+          <text>延长{{item}}小时</text>
+        </view>
+      </view>
+      <view class="modal-btn-col">
+        <view class="modal-btn modal-btn-primary" bindtap="doExtend">确认延长</view>
+        <view class="modal-btn modal-btn-plain" bindtap="closeExtend">取消</view>
+      </view>
+    </view>
+  </view>
+</view>

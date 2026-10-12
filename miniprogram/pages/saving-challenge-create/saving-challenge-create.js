@@ -1,4 +1,5 @@
 const savingChallengeService = require('../../utils/savingChallengeService');
+const CREATE_CHALLENGE_AD_UNIT_ID = 'adunit-1e36fabd132150f1';
 
 const TEMPLATE_GROUPS = [
   {
@@ -176,6 +177,7 @@ Page({
     if (this.data.submitting) {
       return;
     }
+
     const { name, days, dailyAmount } = this.data.form;
     if (!name.trim()) {
       wx.showToast({ title: '请输入挑战名称', icon: 'none' });
@@ -193,18 +195,86 @@ Page({
       wx.showToast({ title: '请输入每日预估省钱', icon: 'none' });
       return;
     }
+    const payload = {
+      name: name.trim(),
+      days: Number(days),
+      dailyAmount: Number(dailyAmount),
+      note: (this.data.form.note || '').trim(),
+      syncToPlaza: !!this.data.form.syncToPlaza,
+    };
+    this.createChallenge(payload, false);
+  },
+
+  watchCreateChallengeAd() {
+    return new Promise((resolve, reject) => {
+      if (typeof wx.createRewardedVideoAd !== 'function') {
+        reject(new Error('UNSUPPORTED_REWARDED_AD'));
+        return;
+      }
+
+      const rewardedVideoAd = wx.createRewardedVideoAd({ adUnitId: CREATE_CHALLENGE_AD_UNIT_ID });
+      const onClose = (res) => {
+        rewardedVideoAd.offClose(onClose);
+        rewardedVideoAd.offError(onError);
+        resolve(!!(res && res.isEnded));
+      };
+      const onError = () => {
+        rewardedVideoAd.offClose(onClose);
+        rewardedVideoAd.offError(onError);
+        reject(new Error('AD_LOAD_FAIL'));
+      };
+
+      rewardedVideoAd.onClose(onClose);
+      rewardedVideoAd.onError(onError);
+      rewardedVideoAd.show()
+        .catch(() => rewardedVideoAd.load().then(() => rewardedVideoAd.show()))
+        .catch(() => {
+          rewardedVideoAd.offClose(onClose);
+          rewardedVideoAd.offError(onError);
+          reject(new Error('AD_LOAD_FAIL'));
+        });
+    });
+  },
+
+  openCreateWithAd(payload) {
+    this.watchCreateChallengeAd()
+      .then((completed) => {
+        if (!completed) {
+          wx.showToast({ title: '广告未完整观看', icon: 'none' });
+          return;
+        }
+        this.createChallenge(payload, true);
+      })
+      .catch((err) => {
+        if (err && err.message === 'UNSUPPORTED_REWARDED_AD') {
+          wx.showToast({ title: '当前版本不支持激励广告', icon: 'none' });
+          return;
+        }
+        wx.showToast({ title: '暂无广告资源，请稍后再试', icon: 'none' });
+      });
+  },
+
+  async createChallenge(payload, adUnlocked) {
     this.setData({ submitting: true });
     wx.showLoading({ title: '创建中', mask: true });
     try {
-      const payload = {
-        name: name.trim(),
-        days: Number(days),
-        dailyAmount: Number(dailyAmount),
-        note: (this.data.form.note || '').trim(),
-        syncToPlaza: !!this.data.form.syncToPlaza,
-      };
-      const res = await savingChallengeService.createChallenge(payload);
+      const res = await savingChallengeService.createChallenge(Object.assign({}, payload, {
+        adUnlocked: !!adUnlocked,
+      }));
       if (!res.ok) {
+        if (res.needAd && !adUnlocked) {
+          wx.showModal({
+            title: '挑战名额已满',
+            content: '你当前最多同时进行2个挑战，观看广告后可继续新增。',
+            confirmText: '去观看',
+            cancelText: '取消',
+            success: (modalRes) => {
+              if (!modalRes.confirm) return;
+              this.openCreateWithAd(payload);
+            },
+          });
+          return;
+        }
         wx.showToast({ title: res.error || '创建失败', icon: 'none' });
         return;
       }

@@ -1,0 +1,132 @@
+.page {
+  min-height: 100vh;
+  background: #FFF9F0;
+}
+
+.content {
+  height: calc(100vh - 132rpx - env(safe-area-inset-bottom));
+  box-sizing: border-box;
+  padding: 20rpx var(--spacing) 20rpx;
+}
+
+.card {
+  background: #FFFFFF;
+  border-radius: 40rpx;
+  border: 2rpx solid #EEF4E3;
+  box-shadow: 0 8rpx 32rpx rgba(168, 216, 78, 0.12), 0 2rpx 8rpx rgba(255, 255, 255, 0.7);
+  margin-bottom: 20rpx;
+}
+
+.hero {
+  padding: 24rpx 26rpx;
+  background: linear-gradient(135deg, #FFF1CF 0%, #FFF6DF 50%, #FFF9EB 100%);
+  border: 4rpx solid #FFFFFF;
+}
+
+.hero-title {
+  display: block;
+  font-size: 36rpx;
+  font-weight: 800;
+  color: #2F2A22;
+}
+
+.hero-desc {
+  display: block;
+  margin-top: 8rpx;
+  font-size: 23rpx;
+  line-height: 1.5;
+  color: #7E776B;
+}
+
+.form-card {
+  padding: 20rpx;
+}
+
+.field {
+  margin-bottom: 18rpx;
+}
+
+.field:last-child {
+  margin-bottom: 8rpx;
+}
+
+.label {
+  display: block;
+  margin-bottom: 8rpx;
+  font-size: 25rpx;
+  color: #2F2A22;
+  font-weight: 600;
+}
+
+.input,
+.picker-box {
+  width: 100%;
+  background: #FFF9F0;
+  border-radius: 24rpx;
+  border: 2rpx solid #E3ECD4;
+  padding: 0 20rpx;
+  box-sizing: border-box;
+  font-size: 24rpx;
+  color: #2F2A22;
+  height: 92rpx;
+  line-height: 92rpx;
+}
+
+.input-placeholder {
+  color: #A9A092;
+}
+
+.quick-row {
+  margin-top: 10rpx;
+  display: flex;
+  gap: 10rpx;
+  flex-wrap: wrap;
+}
+
+.quick-chip {
+  padding: 10rpx 18rpx;
+  border-radius: 999rpx;
+  border: 1rpx solid #E1D4B8;
+  background: #FFF7E8;
+  color: #8A5A19;
+  font-size: 22rpx;
+}
+
+.switch-field {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.switch-field .label {
+  margin-bottom: 0;
+}
+
+.tips {
+  display: block;
+  font-size: 21rpx;
+  color: #9A9387;
+}
+
+.submit-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 10rpx 16rpx calc(10rpx + env(safe-area-inset-bottom));
+  background: transparent;
+}
+
+.submit-btn {
+  background: #E6B34E;
+  color: #fff;
+  border-radius: 999rpx;
+  font-size: 28rpx;
+  font-weight: 700;
+  line-height: 72rpx;
+}
+
+.submit-btn.is-submitting,
+.submit-btn[disabled] {
+  opacity: 0.72;
+}

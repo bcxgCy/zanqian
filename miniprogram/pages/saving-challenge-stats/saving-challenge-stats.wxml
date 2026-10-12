@@ -1,0 +1,149 @@
+<view class="page">
+  <view class="card hero-card">
+    <view class="hero-title">省钱挑战总览</view>
+    <view class="hero-sub">挑战成果、趋势、活跃日历一页看清</view>
+  </view>
+
+  <view class="card summary-panel">
+    <view class="summary-head">
+      <text class="summary-head-label">累计总已省</text>
+      <text class="summary-head-value">¥{{summary.totalSaved}}</text>
+    </view>
+    <view class="summary-group">
+      <view class="summary-group-title">金额构成</view>
+      <view class="summary-grid">
+        <view class="summary-item">
+          <text class="summary-label">挑战已省</text>
+          <text class="summary-num">¥{{summary.challengeSaved}}</text>
+        </view>
+        <view class="summary-item">
+          <text class="summary-label">冷静已省</text>
+          <text class="summary-num">¥{{summary.coolingSaved}}</text>
+        </view>
+        <view class="summary-item">
+          <text class="summary-label">预算已省</text>
+          <text class="summary-num">¥{{summary.budgetSaved}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="summary-group">
+      <view class="summary-group-title">挑战进度</view>
+      <view class="summary-grid">
+        <view class="summary-item">
+          <text class="summary-label">进行中挑战</text>
+          <text class="summary-num">{{summary.ongoingCount}}</text>
+        </view>
+        <view class="summary-item">
+          <text class="summary-label">挑战总数</text>
+          <text class="summary-num">{{summary.totalChallenges}}</text>
+        </view>
+        <view class="summary-item">
+          <text class="summary-label">平均每挑战</text>
+          <text class="summary-num">¥{{summary.avgPerChallenge}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="summary-group no-bottom">
+      <view class="summary-group-title">挑战成效</view>
+      <view class="summary-grid">
+        <view class="summary-item">
+          <text class="summary-label">成功挑战</text>
+          <text class="summary-num">{{summary.successCount}}</text>
+        </view>
+        <view class="summary-item">
+          <text class="summary-label">中断挑战</text>
+          <text class="summary-num">{{summary.failedCount}}</text>
+        </view>
+        <view class="summary-item">
+          <text class="summary-label">最长连续</text>
+          <text class="summary-num">{{summary.bestStreak}}天</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="card calendar-block">
+    <view class="block-head">
+      <text class="block-title">最近12周活跃日历</text>
+      <text class="block-sub">点一点查看每日活跃</text>
+    </view>
+    <view class="calendar-summary">
+      <text class="calendar-stat">活跃天数 {{calendarStats.activeDays}}</text>
+      <text class="calendar-stat">活跃次数 {{calendarStats.totalCheckins}}</text>
+      <text class="calendar-stat">日均 {{calendarStats.avgPerActiveDay}}</text>
+    </view>
+    <view class="calendar-grid">
+      <view
+        class="calendar-cell level-{{item.level}}"
+        wx:for="{{calendarCells}}"
+        wx:key="dateKey"
+        data-date-key="{{item.dateKey}}"
+        data-month-short="{{item.monthShort}}"
+        data-count="{{item.count}}"
+        bindtap="onTapCalendarCell"
+      ></view>
+    </view>
+    <view class="calendar-legend">
+      <text class="legend-text">少</text>
+      <view class="legend-cell level-0"></view>
+      <view class="legend-cell level-1"></view>
+      <view class="legend-cell level-2"></view>
+      <view class="legend-cell level-3"></view>
+      <view class="legend-cell level-4"></view>
+      <text class="legend-text">多</text>
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="block-head">
+      <text class="block-title">挑战排行榜</text>
+      <text class="block-sub">按累计已省排序</text>
+    </view>
+    <view wx:if="{{topList.length}}">
+      <view class="rank-row" wx:for="{{topList}}" wx:key="id" data-id="{{item.id}}" bindtap="goDetail">
+        <text class="rank-no">{{item.rank}}</text>
+        <view class="rank-main">
+          <text class="rank-name">{{item.name}}</text>
+          <text class="rank-meta">{{item.periodDays}}天 · 日均¥{{item.dailyAmount}} · {{item.statusText}}</text>
+        </view>
+        <text class="rank-amount">¥{{item.savedAmount}}</text>
+      </view>
+    </view>
+    <view class="empty" wx:else>暂无挑战数据</view>
+  </view>
+
+  <view class="card">
+    <view class="block-head">
+      <text class="block-title">最近6个月</text>
+      <text class="block-sub">按挑战更新时间统计（明细）</text>
+    </view>
+    <view wx:if="{{monthlyList.length}}">
+      <view class="month-row" wx:for="{{monthlyList}}" wx:key="month">
+        <text class="month-key">{{item.month}}</text>
+        <text class="month-count">{{item.count}} 个挑战</text>
+        <text class="month-amount">¥{{item.savedAmount}}</text>
+      </view>
+    </view>
+    <view class="empty" wx:else>暂无月度数据</view>
+  </view>
+
+  <view class="card chart-block">
+    <view class="block-head">
+      <text class="block-title">最近6个月金额趋势</text>
+      <text class="block-sub">按挑战更新时间聚合</text>
+    </view>
+    <chart-bar data="{{barData}}" height="{{200}}" color="#79D149"></chart-bar>
+    <view class="empty" wx:if="{{!barData.length}}">暂无趋势数据</view>
+  </view>
+
+  <view class="card chart-block">
+    <view class="block-head">
+      <text class="block-title">省钱来源占比</text>
+      <text class="block-sub">挑战 / 冷静 / 预算</text>
+    </view>
+    <chart-ring data="{{ringData}}" total="{{ringTotal}}" height="{{220}}"></chart-ring>
+    <view class="empty" wx:if="{{!ringData.length}}">暂无占比数据</view>
+  </view>
+</view>

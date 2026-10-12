@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "轻账本",
+  "navigationBarBackgroundColor": "#FFF7F5",
+  "navigationBarTextStyle": "black",
+  "backgroundColor": "#FFF7F5",
+  "enablePullDownRefresh": true,
+  "usingComponents": {}
+}

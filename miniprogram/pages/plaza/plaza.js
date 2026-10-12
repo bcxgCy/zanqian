@@ -15,16 +15,6 @@ Page({
     return source.map((item) => {
       if (!item || !item.type) return item;
 
-      if (item.type === 'approval') {
-        const voteCount = Number(item.voteCount || 0);
-        const targetVotes = Math.max(1, Number(item.targetVotes || 1));
-        const progress = Math.min(1, voteCount / targetVotes);
-        return Object.assign({}, item, {
-          progress,
-          progressText: `审批进度 ${voteCount}/${targetVotes}`,
-        });
-      }
-
       const totalDays = Math.max(1, Number(item.periodDays || 1));
       const checkedDays = Number(item.checkedDays || 0);
       const progress = Math.min(1, checkedDays / totalDays);
@@ -107,38 +97,6 @@ Page({
     }
   },
 
-  goApproval(e) {
-    const id = e.currentTarget.dataset.id;
-    if (!id) return;
-    wx.navigateTo({
-      url: '/pages/saving-approval-detail/saving-approval-detail?id=' + id,
-      events: {
-        approvalUpdated: (payload) => {
-          this.applyApprovalUpdate(payload);
-        },
-      },
-    });
-  },
-
-  applyApprovalUpdate(payload) {
-    if (!payload || !payload.id) return;
-    const index = (this.data.feedList || []).findIndex((item) => item.id === payload.id && item.type === 'approval');
-    if (index < 0) return;
-
-    const list = this.data.feedList.slice();
-    const current = list[index];
-    const nextVoteCount = typeof payload.voteCount === 'number' ? payload.voteCount : current.voteCount;
-    const targetVotes = Math.max(1, Number(current.targetVotes || 1));
-    list[index] = Object.assign({}, current, {
-      statusText: payload.statusText || current.statusText,
-      voteCount: nextVoteCount,
-      progress: Math.min(1, Number(nextVoteCount || 0) / targetVotes),
-      progressText: `审批进度 ${Number(nextVoteCount || 0)}/${targetVotes}`,
-      updatedAt: payload.updatedAt || current.updatedAt,
-    });
-    this.setData({ feedList: list });
-  },
-
   async toggleLike(e) {
     const id = e.currentTarget.dataset.id;
     if (!id) return;
@@ -188,10 +146,6 @@ Page({
     const type = e.currentTarget.dataset.type;
     const mine = !!e.currentTarget.dataset.mine;
     if (!id) return;
-    if (type === 'approval') {
-      wx.navigateTo({ url: '/pages/saving-approval-detail/saving-approval-detail?id=' + id });
-      return;
-    }
     if (type === 'challenge' && mine) {
       wx.navigateTo({ url: '/pages/saving-challenge-detail/saving-challenge-detail?id=' + id });
       return;

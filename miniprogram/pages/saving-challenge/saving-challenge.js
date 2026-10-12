@@ -48,4 +48,8 @@ Page({
     if (!id) return;
     wx.navigateTo({ url: '/pages/saving-challenge-detail/saving-challenge-detail?id=' + id });
   },
+
+  goStats() {
+    wx.navigateTo({ url: '/pages/saving-challenge-stats/saving-challenge-stats' });
+  },
 });

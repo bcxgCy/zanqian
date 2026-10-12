@@ -1,6 +1,6 @@
 <view class="page">
   <view class="summary-card card">
-    <text class="summary-caption">本周预估省钱总额</text>
+    <text class="summary-caption">累计已省总览</text>
     <view class="summary-amount-row">
       <text class="summary-currency">¥</text>
       <text class="summary-total">{{summary.totalSaved}}</text>
@@ -11,73 +11,57 @@
         <text class="summary-item-label">挑战已省</text>
         <text class="summary-item-value">¥{{summary.challengeSaved}}</text>
       </view>
+      <view class="summary-item" wx:if="{{budgetModuleEnabled}}">
+        <text class="summary-item-label">预算已省</text>
+        <text class="summary-item-value">¥{{summary.budgetSaved}}</text>
+      </view>
       <view class="summary-item">
-        <text class="summary-item-label">审批放弃</text>
-        <text class="summary-item-value">¥{{summary.approvalSaved}}</text>
+        <text class="summary-item-label">三思已省</text>
+        <text class="summary-item-value">¥{{summary.coolingSaved}}</text>
       </view>
     </view>
 
     <view class="summary-tags">
       <text class="summary-tag">进行中 {{summary.ongoingChallengeCount}} 项</text>
-      <text class="summary-tag">待处理 {{summary.pendingApprovalCount}} 笔</text>
+      <text class="summary-tag summary-tag-soft" wx:if="{{budgetModuleEnabled}}">预算进行中 {{summary.ongoingBudgetChallengeCount}} 项</text>
     </view>
+    <!-- <text class="summary-note">* 冷静已省仅统计「放弃购买」记录金额</text> -->
   </view>
 
-  <view class="entry-row card">
-    <view class="entry-box" wx:if="{{showApprovalEntry}}" bindtap="goApprovalCreate">
-      <view class="entry-left">
-        <view class="entry-icon-wrap approval-bg">
-          <image class="entry-icon-image" src="cloud://cloud1-d1g1g2urwd9ff5a66.636c-cloud1-d1g1g2urwd9ff5a66-1462912205/other/nav-shenpi.jpg" mode="aspectFill"></image>
-        </view>
+  <view class="quick-actions card">
+    <view class="quick-action-item" bindtap="goChallengeCreate">
+      <view class="quick-action-icon quick-action-icon-red">
+        <image class="quick-action-icon-image" src="cloud://cloud1-d1g1g2urwd9ff5a66.636c-cloud1-d1g1g2urwd9ff5a66-1462912205/other/nav-sheng-sheng.jpg" mode="aspectFill"></image>
       </view>
-      <view class="entry-right">
-        <text class="entry-title">消费审批</text>
-        <text class="entry-desc">冷静一下再决定</text>
-      </view>
+      <text class="quick-action-text">省钱挑战</text>
     </view>
 
-    <view class="entry-box" bindtap="goChallengeCreate">
-      <view class="entry-left">
-        <view class="entry-icon-wrap challenge-bg">
-          <image class="entry-icon-image" src="cloud://cloud1-d1g1g2urwd9ff5a66.636c-cloud1-d1g1g2urwd9ff5a66-1462912205/other/nav-tiaozhan.jpg" mode="aspectFill"></image>
-        </view>
+    <view class="quick-action-item" wx:if="{{budgetModuleEnabled}}" bindtap="goBudgetChallengeCreate">
+      <view class="quick-action-icon quick-action-icon-yellow">
+        <image class="quick-action-icon-image" src="cloud://cloud1-d1g1g2urwd9ff5a66.636c-cloud1-d1g1g2urwd9ff5a66-1462912205/other/nav-sheng-yusuan.jpg" mode="aspectFill"></image>
       </view>
-      <view class="entry-right">
-        <text class="entry-title">省钱挑战</text>
-        <text class="entry-desc">连续打卡更容易坚持</text>
-      </view>
+      <text class="quick-action-text">预算挑战</text>
     </view>
-  </view>
 
-  <view class="section card" wx:if="{{showApprovalEntry}}">
-    <view class="section-head">
-      <text class="section-title">我的审批</text>
-      <text class="section-more" bindtap="goApprovalList">更多 ›</text>
-    </view>
-    <view class="two-col-list" wx:if="{{ongoingApprovals.length}}">
-      <view class="approval-card" wx:for="{{ongoingApprovals}}" wx:key="id" data-id="{{item.id}}" bindtap="goApprovalDetail">
-        <view class="card-row">
-          <view class="item-main">
-            <view class="item-icon-wrap approval-bg-small">
-              <text class="item-icon">🧾</text>
-            </view>
-            <view class="item-texts">
-              <text class="approval-name">{{item.itemName}}</text>
-              <text class="approval-price">¥{{item.price}}</text>
-            </view>
-          </view>
-          <text class="card-arrow">›</text>
-        </view>
-        <text class="approval-meta">{{item.statusText}}</text>
+    <view class="quick-action-item" wx:else bindtap="onPlaceholderTap">
+      <view class="quick-action-icon quick-action-icon-yellow">
+        <text class="quick-action-placeholder">+</text>
       </view>
+      <text class="quick-action-text">即将上线</text>
     </view>
-    <view class="empty-block" wx:else bindtap="goApprovalCreate">
-      <view class="empty-plus-circle">
-        <view class="empty-plus-h"></view>
-        <view class="empty-plus-v"></view>
+
+    <view class="quick-action-item" bindtap="goCooling">
+      <view class="quick-action-icon quick-action-icon-green">
+        <image class="quick-action-icon-image" src="cloud://cloud1-d1g1g2urwd9ff5a66.636c-cloud1-d1g1g2urwd9ff5a66-1462912205/other/nav-sheng-lengjing.jpg" mode="aspectFill"></image>
       </view>
-      <text class="empty-title">还没有审批记录</text>
-      <text class="empty-desc">先发起一条消费审批，冷静一下再决定</text>
+      <text class="quick-action-text">购前三思</text>
+    </view>
+
+    <view class="quick-action-item" bindtap="goChallengeStats">
+      <view class="quick-action-icon quick-action-icon-pink">
+        <image class="quick-action-icon-image" src="cloud://cloud1-d1g1g2urwd9ff5a66.636c-cloud1-d1g1g2urwd9ff5a66-1462912205/other/nav-sheng-tongji.jpg" mode="aspectFill"></image>
+      </view>
+      <text class="quick-action-text">省钱统计</text>
     </view>
   </view>
 
@@ -107,6 +91,68 @@
       </view>
       <text class="empty-title">还没有挑战进行中</text>
       <text class="empty-desc">创建一个省钱挑战，开始连续打卡</text>
+    </view>
+  </view>
+
+  <view class="section card" wx:if="{{budgetModuleEnabled}}">
+    <view class="section-head">
+      <text class="section-title">我的预算挑战</text>
+      <text class="section-more" bindtap="goBudgetChallengeList">更多 ›</text>
+    </view>
+    <view class="two-col-list" wx:if="{{ongoingBudgetChallenges.length}}">
+      <view class="challenge-card" wx:for="{{ongoingBudgetChallenges}}" wx:key="id" data-id="{{item.id}}" bindtap="goBudgetChallengeDetail">
+        <view class="card-row">
+          <view class="challenge-top">
+            <view class="item-icon-wrap budget-bg-small">
+              <text class="item-icon">💸</text>
+            </view>
+            <text class="challenge-name">{{item.name}}</text>
+          </view>
+          <text class="challenge-right">{{item.statusText}}</text>
+        </view>
+        <text class="challenge-meta">已消费¥{{item.spentAmountText}} / 预算¥{{item.totalBudgetText}}</text>
+        <text class="challenge-meta" wx:if="{{item.overAmount > 0}}">已超额¥{{item.overAmountText}}</text>
+        <text class="challenge-meta" wx:else>剩余¥{{item.remainingBudgetText}}</text>
+      </view>
+    </view>
+    <view class="empty-block" wx:else bindtap="goBudgetChallengeList">
+      <view class="empty-plus-circle">
+        <view class="empty-plus-h"></view>
+        <view class="empty-plus-v"></view>
+      </view>
+      <text class="empty-title">还没有预算挑战进行中</text>
+      <text class="empty-desc">去预算挑战列表查看或创建你的预算计划</text>
+    </view>
+  </view>
+
+  <view class="section card cooling-section">
+    <view class="section-head">
+      <text class="section-title">购前三思</text>
+      <text class="section-more" bindtap="goCooling">更多 ›</text>
+    </view>
+    <view class="two-col-list cooling-list" wx:if="{{coolingRecords.length}}">
+      <view class="challenge-card cooling-card" wx:for="{{coolingRecords}}" wx:key="id" bindtap="goCooling">
+        <view class="card-row cooling-card-head">
+          <view class="cooling-top">
+            <view class="item-icon-wrap cooling-bg-small">
+              <text class="item-icon">🧊</text>
+            </view>
+            <text class="cooling-name">{{item.goodsName}}</text>
+          </view>
+          <text class="cooling-status {{item.isPending ? 'cooling-status-warn' : ''}}">{{item.statusText}}</text>
+        </view>
+        <text class="cooling-meta">预估 ¥{{item.priceText}}</text>
+        <text class="cooling-time">{{item.isPending ? '已到期待决策' : '剩余 ' + item.countdownText}}</text>
+      </view>
+      <view class="cooling-more" wx:if="{{coolingMoreCount > 0}}" bindtap="goCooling">还有 {{coolingMoreCount}} 条待三思，点击查看全部 ›</view>
+    </view>
+    <view class="empty-block" wx:else bindtap="goCooling">
+      <view class="empty-plus-circle">
+        <view class="empty-plus-h"></view>
+        <view class="empty-plus-v"></view>
+      </view>
+      <text class="empty-title">还没有加入购前三思的消费</text>
+      <text class="empty-desc">添加一个想买的东西，先给自己24小时</text>
     </view>
   </view>
 </view>

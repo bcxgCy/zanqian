@@ -1,0 +1,66 @@
+<view class="page">
+  <scroll-view class="content" scroll-y>
+    <view class="card hero">
+      <text class="hero-title">{{mode === 'edit' ? '编辑预算挑战' : '新建预算挑战'}}</text>
+      <text class="hero-desc">先设预算，再录消费，实时掌握剩余额度。</text>
+    </view>
+
+    <view class="card form-card">
+      <view class="field">
+        <text class="label">预算名称</text>
+        <input
+          class="input"
+          value="{{form.name}}"
+          data-field="name"
+          maxlength="20"
+          placeholder="例如：10月餐饮预算"
+          placeholder-class="input-placeholder"
+          bindinput="onInput"
+        />
+      </view>
+
+      <view class="field">
+        <text class="label">预算总金额（元）</text>
+        <input
+          class="input"
+          type="digit"
+          value="{{form.totalBudget}}"
+          data-field="totalBudget"
+          placeholder="请输入预算金额"
+          placeholder-class="input-placeholder"
+          bindinput="onInput"
+        />
+      </view>
+
+      <view class="field">
+        <text class="label">开始日期</text>
+        <picker mode="date" value="{{form.startDate}}" bindchange="onStartDateChange">
+          <view class="picker-box">{{form.startDate}}</view>
+        </picker>
+      </view>
+
+      <view class="field">
+        <text class="label">结束日期</text>
+        <picker mode="date" value="{{form.endDate}}" bindchange="onEndDateChange">
+          <view class="picker-box">{{form.endDate}}</view>
+        </picker>
+        <view class="quick-row">
+          <view class="quick-chip" wx:for="{{quickPeriods}}" wx:key="label" data-days="{{item.days}}" bindtap="onPickPeriod">{{item.label}}</view>
+        </view>
+      </view>
+
+      <view class="field switch-field">
+        <text class="label">超额提醒</text>
+        <switch color="#E6B34E" checked="{{form.alertEnable}}" bindchange="onAlertChange" />
+      </view>
+
+      <text class="tips">开启后，当本次录入导致预算超额时会立即提醒。</text>
+    </view>
+  </scroll-view>
+
+  <view class="submit-bar">
+    <button class="submit-btn {{submitting ? 'is-submitting' : ''}}" bindtap="submit" loading="{{submitting}}" disabled="{{submitting}}">
+      {{mode === 'edit' ? (submitting ? '保存中...' : '保存修改') : (submitting ? '创建中...' : '创建预算')}}
+    </button>
+  </view>
+</view>

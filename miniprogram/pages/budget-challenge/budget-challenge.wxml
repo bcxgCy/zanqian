@@ -1,0 +1,64 @@
+<view class="page">
+  <view class="head-row card-shell">
+    <view>
+      <text class="head-title">预算挑战</text>
+      <text class="head-sub">总计 {{summary.totalBudgetChallengeCount}} 项 · 进行中 {{summary.ongoingBudgetChallengeCount}} 项</text>
+    </view>
+    <view class="head-action" wx:if="{{enableBudgetChallenge}}" bindtap="goCreate">+ 新建预算</view>
+  </view>
+
+  <view class="disable-card card-shell" wx:if="{{!enableBudgetChallenge}}">
+    <text class="disable-title">预算挑战功能暂未开放</text>
+    <text class="disable-desc">当前处于功能关闭状态，请稍后再试。</text>
+  </view>
+
+  <block wx:if="{{enableBudgetChallenge}}">
+    <view class="tabs card-shell">
+      <view class="tab {{activeTab === 'ongoing' ? 'active' : ''}}" data-tab="ongoing" bindtap="switchTab">进行中</view>
+      <view class="tab {{activeTab === 'history' ? 'active' : ''}}" data-tab="history" bindtap="switchTab">历史预算</view>
+    </view>
+
+    <view class="card" wx:for="{{currentList}}" wx:key="id" data-id="{{item.id}}" bindtap="goDetail">
+      <view class="head">
+        <text class="title">{{item.name}}</text>
+        <text class="status-tag">{{item.statusText}}</text>
+      </view>
+
+      <view class="meta-row" wx:if="{{item.startDate && item.endDate}}">
+        <text class="meta-chip">周期 {{item.startDate}} ~ {{item.endDate}}</text>
+        <text class="meta-chip" wx:if="{{item.timeTagText}}">{{item.timeTagText}}</text>
+        <text class="meta-chip">{{item.consumeCount}} 笔消费</text>
+      </view>
+
+      <view class="amount-row">
+        <text class="amount-label">已消费</text>
+        <text class="amount-value">¥{{item.spentAmountText}}</text>
+        <text class="amount-sep">/</text>
+        <text class="amount-label">总预算</text>
+        <text class="amount-value">¥{{item.totalBudgetText}}</text>
+      </view>
+
+      <view class="progress-wrap">
+        <view class="progress-track">
+          <view class="progress-fill {{item.progressClass}}" style="width: {{item.progressWidth}};"></view>
+        </view>
+        <text class="progress-text">{{item.progressPercentText}}%</text>
+      </view>
+
+      <view class="result-row" wx:if="{{item.overAmount > 0}}">
+        <text class="result-over">已超额 ¥{{item.overAmountText}}</text>
+      </view>
+      <view class="result-row" wx:else>
+        <text class="result-ok">剩余预算 ¥{{item.remainingBudgetText}}</text>
+      </view>
+    </view>
+
+    <view class="empty card-shell" wx:if="{{!currentList.length}}">
+      {{activeTab === 'ongoing' ? '暂无进行中预算，快去创建一个吧' : '暂无历史预算记录'}}
+    </view>
+
+    <view class="fab" bindtap="goCreate">
+      <text class="fab-icon">+</text>
+    </view>
+  </block>
+</view>

@@ -174,6 +174,17 @@
   border-color: #F0C979;
 }
 
+.day-cell.status-pending-today {
+  background: #FFE6A8;
+  border-color: #E6B34E;
+  box-shadow: 0 0 0 2rpx rgba(230, 179, 78, 0.18);
+}
+
+.day-cell.status-pending-today .day-num {
+  color: #8A5A19;
+  font-weight: 700;
+}
+
 .day-cell.status-repair {
   background: #FFE7E7;
   border-color: #E07A7A;
@@ -212,6 +223,7 @@
   border-radius: 999rpx;
   font-size: 24rpx;
   font-weight: 700;
+  padding: 0!important;
 }
 
 .challenge-subscribe-btn.active {
@@ -241,6 +253,7 @@
   color: #C45353;
   font-size: 24rpx;
   font-weight: 700;
+  padding: 0!important;
 }
 
 .challenge-delete-btn::after {
@@ -256,6 +269,7 @@
   color: #fff;
   font-size: 26rpx;
   font-weight: 700;
+  padding: 0!important;
 }
 
 .challenge-share-btn::after {

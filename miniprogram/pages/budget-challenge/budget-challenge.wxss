@@ -1,0 +1,253 @@
+.page {
+  min-height: 100vh;
+  background: #FFF9F0;
+  padding: var(--spacing);
+  box-sizing: border-box;
+  padding-bottom: calc(120rpx + env(safe-area-inset-bottom));
+}
+
+.card-shell {
+  background: #FFFFFF;
+  border: 2rpx solid #EEF4E3;
+  border-radius: 40rpx;
+  box-shadow: 0 8rpx 32rpx rgba(168, 216, 78, 0.12), 0 2rpx 8rpx rgba(255, 255, 255, 0.7);
+}
+
+.head-row {
+  margin-bottom: 14rpx;
+  padding: 18rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12rpx;
+}
+
+.head-title {
+  display: block;
+  font-size: 32rpx;
+  font-weight: 800;
+  color: #2F2A22;
+}
+
+.head-sub {
+  display: block;
+  margin-top: 6rpx;
+  font-size: 22rpx;
+  color: #8A8378;
+}
+
+.head-action {
+  flex-shrink: 0;
+  min-width: 150rpx;
+  height: 56rpx;
+  line-height: 56rpx;
+  text-align: center;
+  border-radius: 999rpx;
+  border: 2rpx solid #E6B34E;
+  color: #8A5A19;
+  background: #FFF2D5;
+  font-size: 22rpx;
+  font-weight: 700;
+}
+
+.tabs {
+  display: flex;
+  padding: 10rpx;
+  margin-bottom: 18rpx;
+}
+
+.tab {
+  flex: 1;
+  text-align: center;
+  height: 66rpx;
+  line-height: 66rpx;
+  border-radius: 999rpx;
+  color: #7A746A;
+  font-size: 24rpx;
+  font-weight: 500;
+  background: #FFF9F0;
+}
+
+.tab.active {
+  background: #E6B34E;
+  color: #FFFFFF;
+  font-weight: 700;
+}
+
+.card {
+  background: #FFFFFF;
+  border: 2rpx solid #EEF4E3;
+  border-radius: 32rpx;
+  padding: 18rpx;
+  margin-bottom: 14rpx;
+  box-shadow: 0 6rpx 20rpx rgba(168, 216, 78, 0.08);
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10rpx;
+}
+
+.title {
+  flex: 1;
+  min-width: 0;
+  display: block;
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #2F2A22;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.status-tag {
+  flex-shrink: 0;
+  font-size: 21rpx;
+  color: #8A5A19;
+  background: #FFF2D5;
+  border: 1rpx solid #F0C979;
+  border-radius: 999rpx;
+  padding: 6rpx 14rpx;
+}
+
+.meta-row {
+  margin-top: 10rpx;
+  display: flex;
+  gap: 10rpx;
+  flex-wrap: wrap;
+}
+
+.meta-chip {
+  font-size: 21rpx;
+  color: #8A5A19;
+  background: #FFF2D5;
+  border: 1rpx solid #F0C979;
+  border-radius: 999rpx;
+  padding: 6rpx 14rpx;
+}
+
+.amount-row {
+  margin-top: 10rpx;
+  font-size: 23rpx;
+  color: #6E685E;
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+}
+
+.amount-label {
+  color: #9A9387;
+}
+
+.amount-value {
+  margin: 0 6rpx;
+  font-size: 30rpx;
+  color: #2F2A22;
+  font-weight: 800;
+}
+
+.amount-sep {
+  margin: 0 6rpx;
+  color: #B9AF9F;
+}
+
+.progress-wrap {
+  margin-top: 12rpx;
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+}
+
+.progress-track {
+  flex: 1;
+  height: 14rpx;
+  border-radius: 999rpx;
+  background: #F2EADB;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 999rpx;
+}
+
+.progress-fill.is-safe { background: #6EB856; }
+.progress-fill.is-warning { background: #E6B34E; }
+.progress-fill.is-over { background: #F37171; }
+.progress-fill.is-notstart { background: #C4BFB3; }
+
+.progress-text {
+  width: 102rpx;
+  text-align: right;
+  font-size: 22rpx;
+  color: #7A746A;
+}
+
+.result-row {
+  margin-top: 8rpx;
+}
+
+.result-ok,
+.result-over {
+  font-size: 22rpx;
+}
+
+.result-ok { color: #5F8F36; }
+.result-over { color: #CC4B4B; }
+
+.empty {
+  text-align: center;
+  color: #8A8378;
+  font-size: 24rpx;
+  padding: 34rpx 12rpx;
+}
+
+.disable-card {
+  margin-bottom: 16rpx;
+  padding: 24rpx;
+}
+
+.disable-title {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #2F2A22;
+}
+
+.disable-desc {
+  display: block;
+  margin-top: 8rpx;
+  font-size: 22rpx;
+  color: #8A8378;
+}
+
+.archive-entry {
+  margin: 10rpx 20rpx 0;
+  text-align: center;
+  font-size: 24rpx;
+  color: #8A5A19;
+}
+
+.fab {
+  position: fixed;
+  right: 36rpx;
+  bottom: calc(36rpx + env(safe-area-inset-bottom));
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 50%;
+  background: #E6B34E;
+  box-shadow: 0 12rpx 22rpx rgba(230, 179, 78, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 12;
+}
+
+.fab-icon {
+  color: #FFFFFF;
+  font-size: 52rpx;
+  font-weight: 600;
+  line-height: 1;
+}
