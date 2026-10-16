@@ -142,4 +142,28 @@ Page({
     if (this.data.activeTab === 'history') return;
     this.setData({ activeTab: 'history' }, () => this.refreshList());
   },
+
+  onShareAppMessage() {
+    const summary = this.data.summary || {};
+    const ongoing = Number(summary.ongoingBudgetChallengeCount) || 0;
+    const total = Number(summary.totalBudgetChallengeCount) || 0;
+    const title = total > 0
+      ? `我在预算挑战中管理了${total}个预算，当前进行中${ongoing}个，这个小程序超好用！`
+      : '我在用这个小程序做预算挑战，记账控支超方便！';
+    return {
+      title,
+      path: '/pages/budget-challenge/budget-challenge',
+      imageUrl: '',
+    };
+  },
+
+  onShareTimeline() {
+    const summary = this.data.summary || {};
+    const ongoing = Number(summary.ongoingBudgetChallengeCount) || 0;
+    return {
+      title: `预算挑战进行中${ongoing}个，这个小程序真好用！`,
+      query: '',
+      imageUrl: '',
+    };
+  },
 });

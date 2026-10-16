@@ -1,5 +1,7 @@
 {
   "navigationBarTitleText": "预算挑战",
+  "enableShareAppMessage": true,
+  "enableShareTimeline": true,
   "navigationBarBackgroundColor": "#FFF9F0",
   "navigationBarTextStyle": "black",
   "backgroundColor": "#FFF9F0",

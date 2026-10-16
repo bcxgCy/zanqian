@@ -10,6 +10,14 @@ function formatCountdown(remainMs) {
   return pad(hours) + ':' + pad(minutes);
 }
 
+function buildShareTitle(summary) {
+  const totalSaved = Number(summary && summary.totalSaved) || 0;
+  if (totalSaved <= 0) {
+    return '今天也在坚持省钱打卡，这个省钱小程序真的好用！';
+  }
+  return `已打卡省下¥${totalSaved.toFixed(2)}，这个省钱小程序太好用了！`;
+}
+
 Page({
   data: {
     budgetModuleEnabled: true,
@@ -33,7 +41,7 @@ Page({
   },
 
   onShow() {
-    this.loadApprovalHomeData();
+    this.loadSavingHomeData();
     this.startCoolingTimer();
   },
 
@@ -46,13 +54,13 @@ Page({
   },
 
   onPullDownRefresh() {
-    this.loadApprovalHomeData().finally(() => {
+    this.loadSavingHomeData().finally(() => {
       wx.stopPullDownRefresh();
       wx.showToast({ title: '已更新', icon: 'success' });
     });
   },
 
-  async loadApprovalHomeData() {
+  async loadSavingHomeData() {
     try {
       const [homeRes, coolingRes] = await Promise.all([
         savingHomeService.getHomeData(),
@@ -220,5 +228,21 @@ Page({
 
   onPlaceholderTap() {
     wx.showToast({ title: '功能即将上线', icon: 'none' });
+  },
+
+  onShareAppMessage() {
+    return {
+      title: buildShareTitle(this.data.summary || {}),
+      path: '/pages/saving/saving',
+      imageUrl: '',
+    };
+  },
+
+  onShareTimeline() {
+    return {
+      title: buildShareTitle(this.data.summary || {}),
+      query: '',
+      imageUrl: '',
+    };
   },
 });

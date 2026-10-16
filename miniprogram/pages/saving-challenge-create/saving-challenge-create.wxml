@@ -43,12 +43,6 @@
       </view>
     </view>
 
-    <!-- <view class="card form-card">
-      <view class="field switch-field">
-        <text class="label">同步到广场</text>
-        <switch checked="{{form.syncToPlaza}}" bindchange="onSyncChange" color="#E6B34E" />
-      </view>
-    </view> -->
   </scroll-view>
 
   <view wx:if="{{showTemplateSheet}}" class="sheet-mask" bindtap="closeTemplateSheet"></view>

@@ -1,4 +1,5 @@
 const budgetChallengeService = require('../../utils/budgetChallengeService');
+const CREATE_BUDGET_CHALLENGE_AD_UNIT_ID = 'adunit-fce9152ae65379b5';
 
 function formatDateKey(date) {
   const y = date.getFullYear();
@@ -178,16 +179,93 @@ Page({
     const payload = this.validateForm();
     if (!payload) return;
 
+    const isEdit = this.data.mode === 'edit';
+    if (isEdit) {
+      this.submitBudget(payload, false);
+      return;
+    }
+
+    this.submitBudget(payload, false);
+  },
+
+  watchCreateBudgetAd() {
+    return new Promise((resolve, reject) => {
+      if (typeof wx.createRewardedVideoAd !== 'function') {
+        reject(new Error('UNSUPPORTED_REWARDED_AD'));
+        return;
+      }
+
+      const rewardedVideoAd = wx.createRewardedVideoAd({ adUnitId: CREATE_BUDGET_CHALLENGE_AD_UNIT_ID });
+      const onClose = (res) => {
+        rewardedVideoAd.offClose(onClose);
+        rewardedVideoAd.offError(onError);
+        const completed = !!(res && (res.isEnded || res === undefined));
+        resolve(completed);
+      };
+      const onError = () => {
+        rewardedVideoAd.offClose(onClose);
+        rewardedVideoAd.offError(onError);
+        reject(new Error('AD_LOAD_FAIL'));
+      };
+
+      rewardedVideoAd.onClose(onClose);
+      rewardedVideoAd.onError(onError);
+      rewardedVideoAd.show()
+        .catch(() => rewardedVideoAd.load().then(() => rewardedVideoAd.show()))
+        .catch(() => {
+          rewardedVideoAd.offClose(onClose);
+          rewardedVideoAd.offError(onError);
+          reject(new Error('AD_LOAD_FAIL'));
+        });
+    });
+  },
+
+  openCreateWithAd(payload) {
+    wx.showToast({ title: '先看一小段广告，马上继续帮你创建～', icon: 'none' });
+    this.watchCreateBudgetAd()
+      .then((completed) => {
+        if (!completed) {
+          wx.showToast({ title: '广告未完整观看', icon: 'none' });
+          return;
+        }
+        wx.showToast({ title: '感谢支持，预算名额已解锁 🎉', icon: 'none' });
+        this.submitBudget(payload, true);
+      })
+      .catch((err) => {
+        if (err && err.message === 'UNSUPPORTED_REWARDED_AD') {
+          wx.showToast({ title: '当前版本不支持激励广告', icon: 'none' });
+          return;
+        }
+        wx.showToast({ title: '暂无广告资源，请稍后再试', icon: 'none' });
+      });
+  },
+
+  async submitBudget(payload, adUnlocked) {
     this.setData({ submitting: true });
-    wx.showLoading({ title: this.data.mode === 'edit' ? '保存中' : '创建中', mask: true });
+    const isEdit = this.data.mode === 'edit';
+    wx.showLoading({ title: isEdit ? '保存中' : '创建中', mask: true });
 
     try {
-      const isEdit = this.data.mode === 'edit';
+      const reqPayload = isEdit ? payload : Object.assign({}, payload, { adUnlocked: !!adUnlocked });
       const res = isEdit
-        ? await budgetChallengeService.updateBudgetChallenge(this.data.challengeId, payload)
-        : await budgetChallengeService.createBudgetChallenge(payload);
+        ? await budgetChallengeService.updateBudgetChallenge(this.data.challengeId, reqPayload)
+        : await budgetChallengeService.createBudgetChallenge(reqPayload);
 
       if (!res.ok) {
+        if (!isEdit && res.needAd && !adUnlocked) {
+          wx.showModal({
+            title: '预算名额已满',
+            content: '你当前最多同时进行2个预算挑战，观看广告后可继续新增。',
+            confirmText: '去观看',
+            cancelText: '取消',
+            success: (modalRes) => {
+              if (!modalRes.confirm) return;
+              this.openCreateWithAd(payload);
+            },
+          });
+          return;
+        }
+
         const errText = res.error || (isEdit ? '保存失败' : '创建失败');
         if (String(errText).includes('超出新预算周期')) {
           wx.showModal({

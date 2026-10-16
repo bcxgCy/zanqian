@@ -15,7 +15,7 @@
     "pages/light-ledger/index",
     "pages/light-ledger-books/index",
     "pages/light-ledger-bills/index",
-    "pages/plaza/plaza",
+    "pages/full-reduction/full-reduction",
     "pages/calculator/calculator",
     "pages/me/me",
     "pages/statistics/statistics",

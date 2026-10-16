@@ -661,6 +661,22 @@ async function createBudgetChallenge(openid, payload) {
   const validate = await validateBudgetPayload(payload);
   if (!validate.ok) return validate;
 
+  const adUnlocked = !!(payload && payload.adUnlocked);
+  const list = await queryBudgetListByUser(openid);
+  const todayKey = getTodayKey();
+  const ongoingCount = list.filter((item) => {
+    const status = calcBudgetStatus(item, todayKey);
+    return status === 'running' || status === 'notStart';
+  }).length;
+
+  if (ongoingCount >= 2 && !adUnlocked) {
+    return {
+      ok: false,
+      needAd: true,
+      error: '当前最多同时进行2个预算挑战，观看广告后可继续新增',
+    };
+  }
+
   const normalized = validate.payload;
   const ts = nowTs();
 

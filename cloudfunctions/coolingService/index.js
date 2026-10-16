@@ -185,12 +185,27 @@ exports.main = async (event) => {
         const goodsName = normalizeText(payload.goodsName, 20);
         const price = safeNumber(payload.price, -1);
         const remark = normalizeText(payload.remark, 100);
+        const adUnlocked = !!payload.adUnlocked;
 
         if (!goodsName) throw new Error('请填写物品名称');
         if (!(price > 0)) throw new Error('请填写正确的预估价格');
         if (hasMoreThanTwoDecimals(payload.price)) throw new Error('金额最多保留两位小数');
 
         await ensureCollection(COOLING_COLLECTION);
+
+        const activeRes = await db.collection(COOLING_COLLECTION)
+          .where({ userId: OPENID, status: _.in([STATUS.cooling, STATUS.pendingDecision]) })
+          .limit(200)
+          .get();
+        const activeCount = Array.isArray(activeRes.data) ? activeRes.data.length : 0;
+        if (activeCount >= 2 && !adUnlocked) {
+          return {
+            ok: false,
+            needAd: true,
+            error: '当前最多同时进行2个购前三思，观看广告后可继续新增',
+          };
+        }
+
         await checkTextSecurity(goodsName, '物品名称');
         if (remark) {
           await checkTextSecurity(remark, '备注');

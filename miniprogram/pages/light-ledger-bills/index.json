@@ -1,5 +1,7 @@
 {
   "navigationBarTitleText": "全部账单",
+  "enableShareAppMessage": true,
+  "enableShareTimeline": true,
   "navigationBarBackgroundColor": "#FFF7F5",
   "navigationBarTextStyle": "black",
   "backgroundColor": "#FFF7F5",

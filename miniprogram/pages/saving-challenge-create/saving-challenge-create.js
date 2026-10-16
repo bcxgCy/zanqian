@@ -77,7 +77,6 @@ Page({
       days: 7,
       dailyAmount: '',
       note: '',
-      syncToPlaza: true,
     },
     dayOptions: [
       { label: '3天', value: 3 },
@@ -102,10 +101,6 @@ Page({
   onInput(e) {
     const field = e.currentTarget.dataset.field;
     this.setData({ [`form.${field}`]: e.detail.value });
-  },
-
-  onSyncChange(e) {
-    this.setData({ 'form.syncToPlaza': !!e.detail.value });
   },
 
   onSelectDayOption(e) {
@@ -200,7 +195,6 @@ Page({
       days: Number(days),
       dailyAmount: Number(dailyAmount),
       note: (this.data.form.note || '').trim(),
-      syncToPlaza: !!this.data.form.syncToPlaza,
     };
     this.createChallenge(payload, false);
   },

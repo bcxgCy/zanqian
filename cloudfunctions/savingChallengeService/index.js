@@ -145,7 +145,7 @@ function toListItem(doc) {
   };
 }
 
-function toDetail(doc, openid) {
+function toDetail(doc) {
   const item = toListItem(doc);
   return {
     id: doc._id,
@@ -161,9 +161,6 @@ function toDetail(doc, openid) {
     startDate: doc.startDate,
     endDate: doc.endDate,
     note: doc.note || '',
-    syncToPlaza: !!doc.syncToPlaza,
-    likeCount: safeNumber(doc.likeCount, 0),
-    liked: Array.isArray(doc.likedOpenids) ? doc.likedOpenids.includes(openid) : false,
   };
 }
 
@@ -215,9 +212,6 @@ async function createChallenge(openid, payload) {
     days,
     dailyAmount,
     note: normalizeText(payload.note, 300),
-    syncToPlaza: !!payload.syncToPlaza,
-    likeCount: 0,
-    likedOpenids: [],
     checkinMap: {},
     startDate,
     endDate,
@@ -255,7 +249,7 @@ async function getChallengeDetail(openid, challengeId) {
     if (doc.openid !== openid) {
       return { ok: false, error: '无权查看该挑战' };
     }
-    return { ok: true, challenge: toDetail(doc, openid) };
+    return { ok: true, challenge: toDetail(doc) };
   } catch (err) {
     return { ok: false, error: '挑战不存在或已删除' };
   }

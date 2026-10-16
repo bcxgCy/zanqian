@@ -137,4 +137,26 @@ Page({
     if (!this.data.hasMore || this.data.loading) return;
     this.setData({ page: this.data.page + 1 }, () => this.loadBills(false));
   },
+
+  onShareAppMessage() {
+    const list = Array.isArray(this.data.list) ? this.data.list : [];
+    const total = list.reduce((sum, item) => sum + (Number(item.amountText) || 0), 0);
+    const title = list.length
+      ? `我在轻账本整理了${list.length}笔账单，涉及¥${total.toFixed(2)}，这个小程序超好用！`
+      : '我在用轻账本整理账单，这个小程序特别好用，推荐你试试！';
+    return {
+      title,
+      path: '/pages/light-ledger-bills/index',
+      imageUrl: '',
+    };
+  },
+
+  onShareTimeline() {
+    const list = Array.isArray(this.data.list) ? this.data.list : [];
+    return {
+      title: `轻账本账单管理超方便，当前筛选到${list.length}笔，这个小程序真好用！`,
+      query: '',
+      imageUrl: '',
+    };
+  },
 });

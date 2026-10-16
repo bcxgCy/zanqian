@@ -205,7 +205,6 @@
   gap: 12rpx;
 }
 
-.approval-card,
 .challenge-card {
   background: #FFF9F0;
   border-radius: 20rpx;
@@ -242,7 +241,6 @@
   flex-shrink: 0;
 }
 
-.approval-bg-small { background: rgba(248, 184, 52, 0.24); }
 .challenge-bg-small { background: rgba(243, 177, 86, 0.24); }
 .budget-bg-small { background: rgba(227, 174, 71, 0.26); }
 .cooling-bg-small { background: rgba(93, 164, 255, 0.2); }
@@ -257,7 +255,6 @@
   margin-left: 8rpx;
 }
 
-.approval-name,
 .challenge-name {
   display: block;
   font-size: 24rpx;
@@ -268,14 +265,6 @@
   white-space: nowrap;
 }
 
-.approval-price {
-  display: block;
-  margin-top: 4rpx;
-  font-size: 22rpx;
-  color: #6E685E;
-}
-
-.approval-meta,
 .challenge-meta,
 .challenge-right {
   display: block;

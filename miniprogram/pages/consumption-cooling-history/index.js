@@ -144,4 +144,30 @@ Page({
       filteredCount: filtered.length,
     });
   },
+
+  onShareAppMessage() {
+    const stats = this.data.stats || {};
+    const successCount = Number(stats.successCount) || 0;
+    const saved = Number(stats.savedTotalText) || 0;
+    const title = successCount > 0
+      ? `购前三思已累计克制${successCount}次，省下¥${saved.toFixed(2)}，这个小程序真好用！`
+      : '我在用购前三思做消费复盘，这个小程序很好用！';
+    return {
+      title,
+      path: '/pages/consumption-cooling-history/index',
+      imageUrl: '',
+    };
+  },
+
+  onShareTimeline() {
+    const stats = this.data.stats || {};
+    const saved = Number(stats.savedTotalText) || 0;
+    return {
+      title: saved > 0
+        ? `购前三思累计省下¥${saved.toFixed(2)}，这款小程序超实用！`
+        : '购前三思帮我养成理性消费，这个小程序很不错！',
+      query: '',
+      imageUrl: '',
+    };
+  },
 });

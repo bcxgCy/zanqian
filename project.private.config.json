@@ -22,11 +22,18 @@
     "miniprogram": {
       "list": [
         {
-          "name": "pages/light-ledger/index",
-          "pathName": "pages/light-ledger/index",
+          "name": "pages/full-reduction/full-reduction",
+          "pathName": "pages/full-reduction/full-reduction",
           "query": "",
           "scene": null,
           "launchMode": "default"
+        },
+        {
+          "name": "pages/light-ledger/index",
+          "pathName": "pages/light-ledger/index",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
         },
         {
           "name": "pages/consumption-cooling/index",
@@ -87,20 +94,6 @@
         {
           "name": "pages/saving-challenge-create/saving-challenge-create",
           "pathName": "pages/saving-challenge-create/saving-challenge-create",
-          "query": "",
-          "launchMode": "default",
-          "scene": null
-        },
-        {
-          "name": "pages/saving-approval/saving-approval",
-          "pathName": "pages/saving-approval/saving-approval",
-          "query": "",
-          "launchMode": "default",
-          "scene": null
-        },
-        {
-          "name": "pages/saving-approval-create/saving-approval-create",
-          "pathName": "pages/saving-approval-create/saving-approval-create",
           "query": "",
           "launchMode": "default",
           "scene": null

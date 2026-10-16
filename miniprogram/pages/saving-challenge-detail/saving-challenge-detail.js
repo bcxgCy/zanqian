@@ -63,7 +63,7 @@ Page({
     this.setData({ monthLabel: `${today.getFullYear()}年${today.getMonth() + 1}月` });
     if (wx.showShareMenu) {
       wx.showShareMenu({
-        menus: ['shareAppMessage'],
+        menus: ['shareAppMessage', 'shareTimeline'],
       });
     }
   },
@@ -73,11 +73,22 @@ Page({
     const challengeName = (challenge.name || '').trim() || '省钱挑战';
     const checkedDays = Number(challenge.checkedDays) || 0;
     const savedAmount = Number(challenge.savedAmount) || 0;
-    const title = `${challengeName}我已坚持${checkedDays}天，省下¥${savedAmount}，邀请你一起加入！`;
+    const title = `${challengeName}我已坚持${checkedDays}天，省下¥${savedAmount}，这个省钱小程序真好用！`;
     return {
       title,
       imageUrl: SHARE_POSTER,
       path: '/pages/saving-challenge-create/saving-challenge-create?from=invite',
+    };
+  },
+
+  onShareTimeline() {
+    const challenge = this.data.challenge || {};
+    const checkedDays = Number(challenge.checkedDays) || 0;
+    const savedAmount = Number(challenge.savedAmount) || 0;
+    return {
+      title: `挑战打卡${checkedDays}天，已省下¥${savedAmount}，这个小程序太好用了！`,
+      query: '',
+      imageUrl: SHARE_POSTER,
     };
   },
 

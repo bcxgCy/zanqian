@@ -493,4 +493,30 @@ Page({
       this.setData({ submittingRecord: false });
     }
   },
+
+  onShareAppMessage() {
+    const challenge = this.data.challenge || {};
+    const name = challenge.name || '预算挑战';
+    const budget = Number(challenge.totalBudget) || 0;
+    const spent = Number(challenge.spentAmount) || 0;
+    const remaining = Number(challenge.remainingBudget) || 0;
+    const title = budget > 0
+      ? `${name}预算¥${budget.toFixed(2)}，已花¥${spent.toFixed(2)}，剩余¥${remaining.toFixed(2)}，这个小程序真好用！`
+      : `我在用这个小程序做预算挑战，记账控支特别方便！`;
+    return {
+      title,
+      path: '/pages/budget-challenge/budget-challenge',
+      imageUrl: '',
+    };
+  },
+
+  onShareTimeline() {
+    const challenge = this.data.challenge || {};
+    const spent = Number(challenge.spentAmount) || 0;
+    return {
+      title: `预算挑战已记录支出¥${spent.toFixed(2)}，这个小程序超好用！`,
+      query: '',
+      imageUrl: '',
+    };
+  },
 });

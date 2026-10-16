@@ -1,5 +1,6 @@
 const coolingService = require('../../utils/coolingService');
 const lightLedgerService = require('../../utils/lightLedgerService');
+const CREATE_COOLING_AD_UNIT_ID = 'adunit-1df3a17f8d8ce957';
 
 const EXTEND_HOURS_OPTIONS = [12, 24, 48, 72, 168];
 
@@ -222,10 +223,79 @@ Page({
       return wx.showToast({ title: '金额最多保留两位小数', icon: 'none' });
     }
 
+    this.createCoolingRecord({ goodsName, price, remark }, false);
+  },
+
+  watchCreateCoolingAd() {
+    return new Promise((resolve, reject) => {
+      if (typeof wx.createRewardedVideoAd !== 'function') {
+        reject(new Error('UNSUPPORTED_REWARDED_AD'));
+        return;
+      }
+
+      const rewardedVideoAd = wx.createRewardedVideoAd({ adUnitId: CREATE_COOLING_AD_UNIT_ID });
+      const onClose = (res) => {
+        rewardedVideoAd.offClose(onClose);
+        rewardedVideoAd.offError(onError);
+        const completed = !!(res && (res.isEnded || res === undefined));
+        resolve(completed);
+      };
+      const onError = () => {
+        rewardedVideoAd.offClose(onClose);
+        rewardedVideoAd.offError(onError);
+        reject(new Error('AD_LOAD_FAIL'));
+      };
+
+      rewardedVideoAd.onClose(onClose);
+      rewardedVideoAd.onError(onError);
+      rewardedVideoAd.show()
+        .catch(() => rewardedVideoAd.load().then(() => rewardedVideoAd.show()))
+        .catch(() => {
+          rewardedVideoAd.offClose(onClose);
+          rewardedVideoAd.offError(onError);
+          reject(new Error('AD_LOAD_FAIL'));
+        });
+    });
+  },
+
+  openCreateWithAd(payload) {
+    wx.showToast({ title: '先看一小段广告，三思名额马上安排～', icon: 'none' });
+    this.watchCreateCoolingAd()
+      .then((completed) => {
+        if (!completed) {
+          wx.showToast({ title: '广告未完整观看', icon: 'none' });
+          return;
+        }
+        wx.showToast({ title: '感谢支持，三思名额已解锁 ✨', icon: 'none' });
+        this.createCoolingRecord(payload, true);
+      })
+      .catch((err) => {
+        if (err && err.message === 'UNSUPPORTED_REWARDED_AD') {
+          wx.showToast({ title: '当前版本不支持激励广告', icon: 'none' });
+          return;
+        }
+        wx.showToast({ title: '暂无广告资源，请稍后再试', icon: 'none' });
+      });
+  },
+
+  async createCoolingRecord(payload, adUnlocked) {
     this.setData({ submitting: true });
     try {
-      const res = await coolingService.createRecord({ goodsName, price, remark });
+      const res = await coolingService.createRecord(Object.assign({}, payload, { adUnlocked: !!adUnlocked }));
       if (!res.ok) {
+        if (res.needAd && !adUnlocked) {
+          wx.showModal({
+            title: '三思名额已满',
+            content: '你当前最多同时进行2个购前三思，观看广告后可继续新增。',
+            confirmText: '去观看',
+            cancelText: '取消',
+            success: (modalRes) => {
+              if (!modalRes.confirm) return;
+              this.openCreateWithAd(payload);
+            },
+          });
+          return;
+        }
         wx.showToast({ title: res.error || '创建失败', icon: 'none' });
         return;
       }
@@ -507,6 +577,32 @@ Page({
     } finally {
       this.setData({ submitting: false });
     }
+  },
+
+  onShareAppMessage() {
+    const stats = this.data.stats || {};
+    const successCount = Number(stats.successCount) || 0;
+    const saved = Number(stats.savedTotalText) || 0;
+    const title = successCount > 0 || saved > 0
+      ? `我在购前三思已克制${successCount}次，省下¥${saved.toFixed(2)}，这个小程序太好用了！`
+      : '我在用购前三思管理冲动消费，这个小程序真的好用！';
+    return {
+      title,
+      path: '/pages/consumption-cooling/index',
+      imageUrl: '',
+    };
+  },
+
+  onShareTimeline() {
+    const stats = this.data.stats || {};
+    const saved = Number(stats.savedTotalText) || 0;
+    return {
+      title: saved > 0
+        ? `购前三思已累计省下¥${saved.toFixed(2)}，这个小程序超好用！`
+        : '购前三思真香，帮我克制冲动消费，这个小程序很好用！',
+      query: '',
+      imageUrl: '',
+    };
   },
 
   noop() {},

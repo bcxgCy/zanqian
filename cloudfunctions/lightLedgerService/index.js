@@ -384,6 +384,8 @@ async function actionCreateBook(openid, payload) {
   await ensureBaseCollections();
   await ensureDefaultBook(openid);
 
+  const adUnlocked = !!(payload && payload.adUnlocked);
+
   const books = await getBooksByUser(openid);
   if (books.length >= BOOK_LIMIT) {
     return { ok: false, error: `最多创建${BOOK_LIMIT}个账本` };
@@ -395,6 +397,10 @@ async function actionCreateBook(openid, payload) {
   const duplicated = books.find((b) => b.name === nameValid.value);
   if (duplicated) {
     return { ok: false, error: '账本名称已存在' };
+  }
+
+  if (!adUnlocked) {
+    return { ok: false, needAd: true, error: '新增账本需先观看激励广告' };
   }
 
   const ts = nowTs();

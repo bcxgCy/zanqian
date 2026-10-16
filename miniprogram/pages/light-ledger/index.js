@@ -364,5 +364,30 @@ Page({
     return idx >= 0 ? idx : 0;
   },
 
+  onShareAppMessage() {
+    const summary = this.data.summary || {};
+    const income = Number(summary.totalIncomeText) || 0;
+    const expense = Number(summary.totalExpenseText) || 0;
+    const balance = Number(summary.balanceText) || 0;
+    const title = (income + expense) > 0
+      ? `轻账本本月收¥${income.toFixed(2)}支¥${expense.toFixed(2)}，结余¥${balance.toFixed(2)}，这个小程序超好用！`
+      : '我在用轻账本记账，这个小程序真的很好用，推荐你也试试！';
+    return {
+      title,
+      path: '/pages/light-ledger/index',
+      imageUrl: '',
+    };
+  },
+
+  onShareTimeline() {
+    const summary = this.data.summary || {};
+    const balance = Number(summary.balanceText) || 0;
+    return {
+      title: `轻账本本月结余¥${balance.toFixed(2)}，这个小程序记账太省心了！`,
+      query: '',
+      imageUrl: '',
+    };
+  },
+
   noop() {},
 });

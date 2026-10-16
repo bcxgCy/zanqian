@@ -1,6 +1,8 @@
 {
   "navigationBarTitleText": "消费冷静",
   "enablePullDownRefresh": true,
+  "enableShareAppMessage": true,
+  "enableShareTimeline": true,
   "navigationBarBackgroundColor": "#FFF9F0",
   "navigationBarTextStyle": "black",
   "backgroundColor": "#FFF9F0",

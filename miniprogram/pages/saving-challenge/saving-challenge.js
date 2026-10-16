@@ -1,5 +1,16 @@
 const savingChallengeService = require('../../utils/savingChallengeService');
 
+function buildShareText(data) {
+  const ongoing = Array.isArray(data.ongoingList) ? data.ongoingList.length : 0;
+  const history = Array.isArray(data.historyList) ? data.historyList.length : 0;
+  const totalSaved = (data.ongoingList || []).concat(data.historyList || [])
+    .reduce((sum, item) => sum + (Number(item.savedAmount) || 0), 0);
+  if (totalSaved > 0) {
+    return `我在省钱挑战已累计省下¥${totalSaved.toFixed(2)}，这个小程序太好用了，来一起打卡！`;
+  }
+  return `我在这个小程序开了${ongoing + history}个省钱挑战，真的好用，来一起坚持打卡！`;
+}
+
 Page({
   data: {
     activeTab: 'ongoing',
@@ -51,5 +62,21 @@ Page({
 
   goStats() {
     wx.navigateTo({ url: '/pages/saving-challenge-stats/saving-challenge-stats' });
+  },
+
+  onShareAppMessage() {
+    return {
+      title: buildShareText(this.data),
+      path: '/pages/saving-challenge/saving-challenge',
+      imageUrl: '',
+    };
+  },
+
+  onShareTimeline() {
+    return {
+      title: buildShareText(this.data),
+      query: '',
+      imageUrl: '',
+    };
   },
 });

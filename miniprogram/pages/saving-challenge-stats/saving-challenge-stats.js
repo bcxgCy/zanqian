@@ -256,4 +256,30 @@ Page({
       title: `${dateText} 活跃${count || 0}次`,
     });
   },
+
+  onShareAppMessage() {
+    const summary = this.data.summary || {};
+    const totalSaved = Number(summary.totalSaved) || 0;
+    const successCount = Number(summary.successCount) || 0;
+    const title = totalSaved > 0
+      ? `省钱挑战已累计省下¥${totalSaved.toFixed(2)}，成功${successCount}次，这个小程序真好用！`
+      : `我在用这个小程序做省钱挑战打卡，体验超好，一起加入吧！`;
+    return {
+      title,
+      path: '/pages/saving-challenge-stats/saving-challenge-stats',
+      imageUrl: '',
+    };
+  },
+
+  onShareTimeline() {
+    const summary = this.data.summary || {};
+    const totalSaved = Number(summary.totalSaved) || 0;
+    return {
+      title: totalSaved > 0
+        ? `省钱挑战累计已省¥${totalSaved.toFixed(2)}，这个小程序真的好用！`
+        : '坚持省钱挑战打卡中，这个小程序超好用！',
+      query: '',
+      imageUrl: '',
+    };
+  },
 });
