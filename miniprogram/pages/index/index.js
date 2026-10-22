@@ -1,15 +1,27 @@
 const storage = require('../../utils/storage');
 const planUtil = require('../../utils/plan');
 const dateUtil = require('../../utils/date');
-const quizUtil = require('../../utils/savingPersonaQuiz');
+const quizUtil = require('../../utils/double11Quiz');
 const statsUtil = require('../../utils/stats');
 const money = require('../../utils/money');
 const subscribe = require('../../utils/subscribe');
 
 let guideShown = false;
-const QUIZ_POPUP_FREQ_KEY = 'saving_quiz_popup_freq_v1';
-const QUIZ_DONE_KEY = 'saving_quiz_done_v1';
+let quizPopupShownInSession = false;
+const QUIZ_POPUP_FREQ_KEY = quizUtil.QUIZ_POPUP_FREQ_KEY;
+const QUIZ_DONE_KEY = quizUtil.QUIZ_DONE_KEY;
 const QUIZ_POPUP_ENABLED = true;
+const QUIZ_POPUP_DISMISS_KEY = 'double11_quiz_popup_dismiss_at_v1';
+const QUIZ_POPUP_OPENED_KEY = 'double11_quiz_popup_opened_at_v1';
+
+function isInDouble11Season(now = new Date()) {
+  const month = now.getMonth() + 1;
+  const day = now.getDate();
+
+  if (month === 10) return day >= 15;
+  if (month === 11) return day <= 20;
+  return false;
+}
 
 Page({
   data: {
@@ -229,25 +241,35 @@ Page({
 
   tryShowQuizPopup() {
     if (!QUIZ_POPUP_ENABLED) return;
+    if (quizPopupShownInSession) return;
+    if (!isInDouble11Season()) return;
+
     const lastShowAt = Number(wx.getStorageSync(QUIZ_POPUP_FREQ_KEY) || 0);
+    const lastDismissAt = Number(wx.getStorageSync(QUIZ_POPUP_DISMISS_KEY) || 0);
+    const lastOpenedAt = Number(wx.getStorageSync(QUIZ_POPUP_OPENED_KEY) || 0);
     const hasCompletedQuiz = !!wx.getStorageSync(QUIZ_DONE_KEY);
-    const intervalDays = hasCompletedQuiz ? 15 : 1;
+    const intervalDays = hasCompletedQuiz ? 30 : 3;
     const intervalMs = intervalDays * 24 * 60 * 60 * 1000;
     if (lastShowAt && Date.now() - lastShowAt < intervalMs) return;
+    if (lastDismissAt && Date.now() - lastDismissAt < 24 * 60 * 60 * 1000) return;
+    if (lastOpenedAt && Date.now() - lastOpenedAt < 24 * 60 * 60 * 1000) return;
 
     setTimeout(() => {
       this.setData({ showQuizPopup: true });
       wx.setStorageSync(QUIZ_POPUP_FREQ_KEY, Date.now());
+      quizPopupShownInSession = true;
     }, 350);
   },
 
   closeQuizPopup() {
     this.setData({ showQuizPopup: false });
+    wx.setStorageSync(QUIZ_POPUP_DISMISS_KEY, Date.now());
   },
 
   openSavingQuiz() {
     this.setData({ showQuizPopup: false });
-    wx.navigateTo({ url: '/pages/saving-quiz/saving-quiz' });
+    wx.setStorageSync(QUIZ_POPUP_OPENED_KEY, Date.now());
+    wx.navigateTo({ url: '/pages/double11-quiz/double11-quiz' });
   },
 
   preventTouchMove() {},

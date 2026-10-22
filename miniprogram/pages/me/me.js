@@ -70,6 +70,10 @@ Page({
     wx.navigateTo({ url: '/pages/saving-quiz/saving-quiz' });
   },
 
+  goDouble11Quiz() {
+    wx.navigateTo({ url: '/pages/double11-quiz/double11-quiz' });
+  },
+
   goSettings() {
     wx.navigateTo({ url: '/pages/settings/settings' });
   },

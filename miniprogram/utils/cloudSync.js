@@ -25,6 +25,16 @@ function callAdService(data) {
   }).then((res) => res.result || {});
 }
 
+function callQuizService(data) {
+  if (!isReady()) {
+    return Promise.reject(new Error('当前基础库不支持云能力'));
+  }
+  return wx.cloud.callFunction({
+    name: 'quizService',
+    data,
+  }).then((res) => res.result || {});
+}
+
 function cacheLogin(result) {
   lastLogin = {
     openid: result.openid,
@@ -112,15 +122,22 @@ function consumePlanAddQuota() {
   });
 }
 
-function saveQuizResult(quizResult) {
-  return callDataService({ action: 'saveQuizResult', quizResult }).then((result) => {
+function saveQuizResult(quizResult, quizType = '') {
+  return callQuizService({ action: 'saveQuizResult', quizResult, quizType }).then((result) => {
     cacheLogin(result);
     return result;
   });
 }
 
-function getQuizResult() {
-  return callDataService({ action: 'getQuizResult' }).then((result) => {
+function getQuizResult(quizType = '') {
+  return callQuizService({ action: 'getQuizResult', quizType }).then((result) => {
+    cacheLogin(result);
+    return result;
+  });
+}
+
+function getQuizResultById(quizType = '', resultId = '') {
+  return callQuizService({ action: 'getQuizResultById', quizType, resultId }).then((result) => {
     cacheLogin(result);
     return result;
   });
@@ -140,4 +157,5 @@ module.exports = {
   consumePlanAddQuota,
   saveQuizResult,
   getQuizResult,
+  getQuizResultById,
 };

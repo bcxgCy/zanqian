@@ -104,17 +104,57 @@
   margin-top: 6rpx;
 }
 
-.quiz-banner-wrap {
-  margin-bottom: var(--spacing);
-  border-radius: var(--radius-card);
-  overflow: hidden;
-  box-shadow: 0 10rpx 24rpx rgba(140, 116, 84, 0.1);
+.toolbox-card {
+  background: linear-gradient(180deg, #FFFCF6 0%, #FFF7EC 100%);
 }
 
-.quiz-banner-image {
-  width: 100%;
-  height: 240rpx;
+.toolbox-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #5B4330;
+}
+
+.toolbox-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10rpx;
+}
+
+.tool-item {
+  border-radius: 16rpx;
+  border: 2rpx solid #EAD9C2;
+  background: #FFFCF8;
+  padding: 12rpx 6rpx;
+  text-align: center;
+  box-shadow: 0 4rpx 12rpx rgba(140, 116, 84, 0.06);
+}
+
+.tool-icon {
+  width: 56rpx;
+  height: 56rpx;
+  margin: 0 auto;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18rpx;
+  font-weight: 600;
+  color: #6B4C2A;
+  background: linear-gradient(135deg, #F6E1C2 0%, #E9C796 100%);
+  border: 2rpx solid #D8B98A;
+}
+
+.tool-name {
   display: block;
+  margin-top: 8rpx;
+  font-size: 20rpx;
+  line-height: 1.3;
+  color: #5B4330;
+  font-weight: 500;
+}
+
+.tool-desc {
+  display: none;
 }
 
 .section-title {

@@ -729,7 +729,10 @@ async function updateBudgetChallenge(openid, challengeId, payload) {
 
     const nextPayload = validate.payload;
 
-    const records = await queryBudgetRecordsByBudgetId(challengeId);
+    // 这里必须校验“全量消费记录”是否落在新预算周期内。
+    // queryBudgetRecordsByBudgetId 返回的是分页对象 { list, hasMore... }，
+    // 直接拿来 filter 会抛异常，进而落入 catch 返回“预算更新失败，请稍后重试”。
+    const records = await queryBudgetRecordsByBudgetIds([challengeId]);
     const outRangeList = records.filter((item) => {
       const consumeDateKey = toDateKeyFromAny(item.consumeTime);
       if (!consumeDateKey) return false;
@@ -763,6 +766,11 @@ async function updateBudgetChallenge(openid, challengeId, payload) {
 
     return getBudgetChallengeDetail(openid, challengeId, { pageSize: 20 });
   } catch (err) {
+    console.error('updateBudgetChallenge failed', {
+      openid,
+      challengeId,
+      error: err && (err.stack || err.message || err),
+    });
     return { ok: false, error: '预算更新失败，请稍后重试' };
   }
 }

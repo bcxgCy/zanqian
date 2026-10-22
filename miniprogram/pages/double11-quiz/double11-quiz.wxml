@@ -1,0 +1,136 @@
+<view class="page">
+  <view class="card intro-card" wx:if="{{stage === 'intro'}}">
+    <text class="title">双十一消费角色自测</text>
+    <text class="desc helper-text" wx:if="{{isSharedView}}">你打开的是好友分享页，先看看TA的结果，再测测你自己。</text>
+    <text class="desc helper-text">大促套路多，先测评再下单。帮你看清自己的消费习惯，守住你的存钱目标。</text>
+    <text class="desc helper-text">填写完成后自动生成专属报告，包含总分、角色、五维雷达图与针对性建议。</text>
+    <text class="desc helper-text">共 {{questions.length}} 题，预计耗时约 2~3 分钟。</text>
+
+    <view class="intro-actions">
+      <button class="btn-mint" bindtap="startQuiz">开始测评</button>
+      <button class="btn-ghost" wx:if="{{hasSavedResult && pendingSavedResult}}" bindtap="viewSavedResultWithAd">查看上次测试结果</button>
+      <button class="btn-ghost" wx:if="{{hasDraft}}" bindtap="continueDraft">继续上次作答</button>
+    </view>
+
+    <!-- <view class="privacy-note">数据仅用于个人测评，默认仅你可见，可随时删除。</view> -->
+  </view>
+
+  <view class="card answer-card" wx:if="{{stage === 'answering'}}">
+    <view class="progress-row">
+      <text class="helper-text">第 {{pageIndex + 1}} / {{totalPages}} 页</text>
+      <text class="helper-text">已答 {{answeredCount}} / {{questions.length}}</text>
+    </view>
+    <view class="progress-track">
+      <view class="progress-fill" style="width: {{progressPercent}}%;"></view>
+    </view>
+
+    <view class="question-list">
+      <view class="question-item" wx:for="{{currentQuestions}}" wx:key="id" wx:for-item="question">
+        <text class="question-title">{{question.id}}. {{question.title}}</text>
+
+        <view class="option-list">
+          <view
+            class="option-item {{answersMap[question.id] === option.key ? 'selected' : ''}}"
+            wx:for="{{question.options}}"
+            wx:key="key"
+            wx:for-item="option"
+            data-id="{{question.id}}"
+            data-option="{{option.key}}"
+            bindtap="chooseOption"
+          >
+            <view class="option-key">{{option.key}}</view>
+            <text class="option-text">{{option.text}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="answer-actions">
+      <button class="btn-ghost" bindtap="goPrevPage" disabled="{{pageIndex <= 0}}">上一页</button>
+      <button class="btn-mint" wx:if="{{!isLastPage}}" bindtap="goNextPage">下一页</button>
+      <button class="btn-mint" wx:else bindtap="submitQuiz">提交测评</button>
+    </view>
+
+    <view class="privacy-note">答题过程中会自动保存草稿，你可随时返回继续。</view>
+  </view>
+
+  <view class="card result-card" wx:if="{{stage === 'result' && result}}">
+    <text class="result-main-title">{{isSharedView ? (sharedOwnerName + '的双十一消费测评报告') : '你的双十一消费测评报告'}}</text>
+    <view class="shared-tip" wx:if="{{isSharedView}}">此报告由好友分享，仅供参考，不会写入你的个人测评记录。</view>
+
+    <canvas
+      class="radar-canvas"
+      canvas-id="radarCanvas"
+      style="width: {{radarCanvasSize}}px; height: {{radarCanvasSize}}px;"
+      width="{{radarCanvasSize}}"
+      height="{{radarCanvasSize}}"
+    ></canvas>
+
+    <text class="radar-tip">雷达图解读：越靠近外圈，代表该项能力越强；向内凹陷代表该维度是薄弱点。</text>
+
+    <view class="score-card">
+      <text class="score-total">总分 {{result.totalScore}}</text>
+      <text class="score-role">{{result.role.name}}</text>
+      <text class="score-slogan">{{result.slogan}}</text>
+    </view>
+
+    <view class="dimension-grid">
+      <view class="dimension-item" wx:for="{{dimensionScoreList}}" wx:key="key" wx:for-item="dim">
+        <text class="dimension-label">{{dim.label}}</text>
+        <text class="dimension-score">{{dim.score}} / {{dim.max}}</text>
+      </view>
+    </view>
+
+    <view class="result-section">
+      <text class="section-title">角色介绍</text>
+      <text class="section-text">{{result.role.intro}}</text>
+    </view>
+
+    <view class="result-section">
+      <text class="section-title">消费诊断</text>
+      <text class="section-text">{{result.diagnosis}}</text>
+      <text class="section-text emphasis">{{result.weaknessTip}}</text>
+    </view>
+
+    <view class="result-section">
+      <text class="section-title">专属建议</text>
+      <text class="section-text">{{result.advice}}</text>
+    </view>
+
+    <view class="result-section">
+      <text class="section-title">推荐入口</text>
+      <view class="entry-list">
+        <view class="entry-item" wx:for="{{result.entries}}" wx:key="*this" wx:for-item="entry" data-label="{{entry}}" bindtap="openEntry">
+          <text class="entry-text">{{entry}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="result-actions-row" wx:if="{{!isSharedView}}">
+      <button class="btn-ghost" bindtap="saveReportToCloud">{{reportSaved ? '重新保存报告' : '保存报告到个人记录'}}</button>
+      <button class="btn-ghost" bindtap="restartQuiz">重新测评</button>
+    </view>
+
+    <view class="result-actions-row">
+      <button class="btn-ghost" wx:if="{{!isSharedView}}" bindtap="clearSavedReport">删除测评记录</button>
+      <button class="btn-ghost" wx:if="{{isSharedView}}" bindtap="restartQuiz">我也测一测</button>
+      <button class="btn-ghost" bindtap="backHome">返回首页</button>
+    </view>
+
+    <view class="privacy-note">隐私声明：测评仅用于消费习惯自测，不构成理财建议。你可随时删除测评记录。</view>
+  </view>
+
+  <view class="share-fixed-bar" wx:if="{{stage === 'result' && result}}">
+    <button
+      class="btn-mint share-btn"
+      wx:if="{{sharedResultId || (result && result.resultId)}}"
+      open-type="share"
+    >分享结果</button>
+
+    <button
+      class="btn-ghost share-btn"
+      wx:else
+      bindtap="hintShareUnavailable"
+    >结果同步后可分享</button>
+  </view>
+</view>

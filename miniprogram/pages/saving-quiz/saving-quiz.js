@@ -1,6 +1,7 @@
 const quizUtil = require('../../utils/savingPersonaQuiz');
 const cloudSync = require('../../utils/cloudSync');
 const QUIZ_DONE_KEY = 'saving_quiz_done_v1';
+const QUIZ_TYPE = 'saving_persona';
 
 Page({
   data: {
@@ -87,7 +88,7 @@ Page({
   },
 
   loadLastResult() {
-    cloudSync.getQuizResult()
+    cloudSync.getQuizResult(QUIZ_TYPE)
       .then((res) => {
         const lastResult = res && res.quizResult;
         if (!lastResult || !lastResult.persona || !lastResult.recommendations) return;
@@ -104,7 +105,7 @@ Page({
 
   saveResultToCloud(result) {
     if (!result) return;
-    cloudSync.saveQuizResult(result)
+    cloudSync.saveQuizResult(result, QUIZ_TYPE)
       .catch((err) => {
         console.warn('保存测试结果失败', err);
       });

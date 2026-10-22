@@ -22,8 +22,8 @@
     "miniprogram": {
       "list": [
         {
-          "name": "pages/full-reduction/full-reduction",
-          "pathName": "pages/full-reduction/full-reduction",
+          "name": "pages/double11-quiz/double11-quiz",
+          "pathName": "pages/double11-quiz/double11-quiz",
           "query": "",
           "scene": null,
           "launchMode": "default"

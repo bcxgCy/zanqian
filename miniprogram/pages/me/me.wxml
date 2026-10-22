@@ -31,12 +31,19 @@
     </view>
   </view>
 
-  <view class="quiz-banner-wrap" bindtap="goSavingQuiz">
-    <image
-      class="quiz-banner-image"
-      mode="aspectFill"
-      src="cloud://cloud1-d1g1g2urwd9ff5a66.636c-cloud1-d1g1g2urwd9ff5a66-1462912205/other/ceshi-banner.jpg"
-    ></image>
+  <view class="card toolbox-card">
+    <view class="section-title toolbox-title">实用工具箱</view>
+    <view class="toolbox-grid">
+      <view class="tool-item" bindtap="goSavingQuiz">
+        <view class="tool-icon">存测</view>
+        <text class="tool-name">存钱测试</text>
+      </view>
+
+      <view class="tool-item" bindtap="goDouble11Quiz">
+        <view class="tool-icon">双11</view>
+        <text class="tool-name">双十一测试</text>
+      </view>
+    </view>
   </view>
 
   <view class="card badge-card" wx:if="{{false}}">
